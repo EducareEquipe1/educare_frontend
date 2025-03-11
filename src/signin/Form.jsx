@@ -53,7 +53,7 @@ export default function Form() {
             className="border border-[#2E3D40] rounded-[10px] text-[#2E3D40] w-[420px] p-2 pl-10"
           />
         </div>
-        <button type="submit" onClick={handleLogin} className="bg-white text-[#679294] w-[420px] mt-[30px] border-[10px]"  >
+        <button type="submit" onClick={handleLogin} className="bg-white text-[#679294] rounded-[10px] w-[420px] mt-[30px] "  >
           Sign in
         </button>
         <p className="font-exo2 text-white pr-[480px]">
