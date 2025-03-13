@@ -10,6 +10,7 @@ export default function Form() {
     const [verifypassword, setVerifypassword] = useState("");
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showVerifyPassword, setShowVerifyPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false); // Track loading state
     const [message, setMessage] = useState("");
 
     const navigate = useNavigate();
@@ -21,6 +22,9 @@ export default function Form() {
           setMessage("Passwords do not match!");
           return;
         }
+
+        setIsLoading(true); // Start loading
+
        try{
          const res =await axios.post("https://educare-backend-l6ue.onrender.com/patients/set-new-password",{token,newpassword})
          setMessage(res.message);
@@ -34,7 +38,9 @@ export default function Form() {
         setMessage(
           error.response?.data?.error || "Error  sending message. Try again"
         );
-       }
+       }finally {
+        setIsLoading(false); // Stop loading after request completes
+    }
     }
     
   return (
@@ -72,7 +78,6 @@ export default function Form() {
           placeholder="Confirm New Password:"
           className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10 transition-all duration-300 hover:border-[#2E3D40]"
         />
-        {/*submit button */}
         <button
          type="button"
          className='absolute right-3 top-1/2 -translate-y-1/2 text-white'
@@ -84,10 +89,11 @@ export default function Form() {
       {/*submit button*/}
         <button type="submit" 
         onClick={resetPassword} 
+        disabled={isLoading} // Disable when loading
         onMouseDown={(e) => e.target.style.opacity = "0.8"} 
         onMouseUp={(e) => e.target.style.opacity = "1"}
         className="bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] cursor-pointer">
-          Submit
+          {isLoading ? "Submitting..." : "Submit"}
         </button>
         <p className="text-red-500 mt-3">{message}</p>
         </div>

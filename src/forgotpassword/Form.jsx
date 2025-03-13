@@ -9,10 +9,12 @@ import axios from "axios";
 export default function Form() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Track loading state
   const navigate = useNavigate();
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
+    setIsLoading(true); // Start loading
     try {
       console.log("im trying");
       const res = await axios.post("https://educare-backend-l6ue.onrender.com/patients/forgot-password", { email });
@@ -27,6 +29,8 @@ export default function Form() {
       setMessage(
         error.response?.data?.error || "Error  sending message. Try again"
       );
+    } finally {
+      setIsLoading(false); // Stop loading after request completes
     }
   };
 
@@ -54,10 +58,11 @@ export default function Form() {
       
         <button 
         onClick={handleForgotPassword } 
+        disabled={isLoading}
         onMouseDown={(e) => e.target.style.opacity = "0.8"} 
         onMouseUp={(e) => e.target.style.opacity = "1"}
         className="bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] cursor-pointer">
-          Submit
+           {isLoading ? "Submitting.." : "Submit"}
         </button>
         <p className="text-red-500 mt-3">{message}</p>
         </div>

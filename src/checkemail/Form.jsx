@@ -4,11 +4,13 @@ import axios from "axios";
 
 export default function Form() {
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Track loading state
  
    const location = useLocation();
    const email = location.state?.email; // Get the passed email
    const handleResendEmailVerification = async (e) => {
      e.preventDefault();
+     setIsLoading(true); // Set loading to true when clicked
      try {
        const res = await axios.post(
          "https://educare-backend-l6ue.onrender.com/patients/send-email-verification",
@@ -20,7 +22,9 @@ export default function Form() {
        setMessage(
          error.response?.data?.error || "Error  sending message. Try again"
        );
-     }
+     } finally {
+      setIsLoading(false); // Reset loading after request completes
+    }
    };
 
   return (
@@ -35,10 +39,14 @@ export default function Form() {
        <button
          onClick={handleResendEmailVerification}
          type="submit"
+         disabled={isLoading}
+         onMouseDown={(e) => e.target.style.opacity = "0.8"} 
+         onMouseUp={(e) => e.target.style.opacity = "1"}
          className="block mx-auto bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] "
        >
-         Resend mail
+         {isLoading ? "Sending..." : "Resend mail"}
        </button>
+       <p className="text-red-500 text-center mt-3">{message}</p>
        <img
          src="/logo.png"
          className="w-[150px] h-[59px] block mx-auto mt-[136px]"

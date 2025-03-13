@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MailIcon,Lock,Eye, EyeOff,Calendar,Phone } from "lucide-react";
+import { MailIcon,Lock,Eye, EyeOff,Calendar,Phone,IdCard  } from "lucide-react";
 import axios from "axios"
 import { useNavigate } from "react-router-dom";
 import { Outlet, Link } from "react-router-dom";
@@ -13,6 +13,7 @@ export default function Form() {
   const [last_name,setLastname]=useState("");
   const [birth_date,setBirthdate]=useState("");
   const [phone,setPhone]=useState("");
+  const [matricule,setMatricule]=useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false); // Add loading state
@@ -39,6 +40,13 @@ export default function Form() {
     return;
     }
 
+    // Validate matricule number format
+    if (!/^\d{12}$/.test(matricule)) {
+      setError("Invalid matricule. It must be exactly 12 digits.");
+      setLoading(false);
+      return;
+    }
+
     // Validate phone number format
      if (!/^\d{10}$/.test(phone)) {
     setError("Invalid phone number. It must be exactly 10 digits.");
@@ -48,7 +56,7 @@ export default function Form() {
 
     try{
       console.log("im trying");
-      const res = await axios.post("https://educare-backend-l6ue.onrender.com/patients/register", { email, password,first_name,last_name,birth_date,phone });
+      const res = await axios.post("https://educare-backend-l6ue.onrender.com/patients/register", { email, password,first_name,last_name,birth_date,phone,matricule });
       console.log("not getting the response from the server ");
       setMessage(res.data.message)
 
@@ -113,6 +121,17 @@ export default function Form() {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Phone Number:"
+          className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
+        />
+      </div>
+       {/*matricule*/}
+       <div className="relative mt-[30px]">
+        <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
+        <input
+          type="text"
+          value={matricule}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Matricule:"
           className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
         />
       </div>
