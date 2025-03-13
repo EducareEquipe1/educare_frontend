@@ -27,7 +27,7 @@ export default function Form() {
         <button 
         onMouseDown={(e) => e.target.style.opacity = "0.8"} 
         onMouseUp={(e) => e.target.style.opacity = "1"}
-        className="bg-[#2E3D40] w-[200px] h-[41px] text-white font-exo2 px-4 py-2 rounded-lg ">
+        className="bg-[#2E3D40] w-[200px] h-[41px] text-white font-exo2 px-4 py-2 rounded-lg cursor-pointer ">
           Back to Login
         </button>
         </Link>

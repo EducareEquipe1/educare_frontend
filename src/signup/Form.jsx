@@ -155,7 +155,7 @@ export default function Form() {
         onClick={handleClick} 
         onMouseDown={(e) => e.target.style.opacity = "0.8"} // changes the opacity
         onMouseUp={(e) => e.target.style.opacity = "1"}
-        className="bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] ">
+        className="bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] cursor-pointer">
         {loading ? "Signing up..." : "Sign up"}
         </button>
 

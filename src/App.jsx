@@ -22,6 +22,7 @@ function App() {
         <Route path="/checkemail" element={<Checkemail/>}/>
         <Route path="/resetPassword" element={<ResetPassword/>}/>
         <Route path="/passwordchanged" element={<Passwordchanged/>}/>
+        <Route path="/emailsent" element={<Emailsent/>} />
         <Route path="*" element={<NotFound />} /> {/* Catch-all for unknown routes */}
       </Routes>
     </Router>

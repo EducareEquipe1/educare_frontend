@@ -12,7 +12,7 @@ export default function Form() {
     <button type="submit"
     onMouseDown={(e) => e.target.style.opacity = "0.8"}
     onMouseUp={(e) => e.target.style.opacity = "1"}  
-    className="block mx-auto bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] "  >
+    className="block mx-auto bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] cursor-pointer"  >
       Sign in
     </button>
     </Link>
