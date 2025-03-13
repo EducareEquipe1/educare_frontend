@@ -27,8 +27,9 @@ export default function Form() {
       setMessage("Login successful!");
       if (res.patient.is_active ==true){
       navigate("/home");
+      localStorage.setItem("token", res.data.token); // Store JWT token
       } else {
-        navigate("/checkmail");
+        navigate("/checkemail", { state: { email: email } });
       }
 
     } catch (error) {

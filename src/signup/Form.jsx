@@ -28,6 +28,7 @@ export default function Form() {
 
 
   const handleSignup =async(e) =>{
+    console.log("im clicked");
     e.preventDefault();
     if (loading) return; // Prevent multiple clicks
     setLoading(true); // Start loading
@@ -46,17 +47,23 @@ export default function Form() {
   }
 
     try{
+      console.log("im trying");
       const res = await axios.post("https://educare-backend-l6ue.onrender.com/patients/register", { email, password,first_name,last_name,birth_date,phone });
+      console.log("not getting the response from the server ");
       setMessage(res.data.message)
 
       if (res.status === 201) {
         setTimeout(() => {
-          navigate("/checkemail"); // Redirect to checkmail page after signup
+          navigate("/checkemail", { state: { email: email } });// Redirect to checkmail page after signup
         }, 2000); // Delay for user feedback
       }
     }
     catch(error){
-      setMessage("Error signing up.Try again")
+      console.log("network error please try again Later");
+ 
+       console.log(error.response?.data?.error || error.message); // ✅ Log actual error response
+       setMessage(error.response?.data?.error || "Error signing up. Try again");
+       setMessage("Error signing up.Try again")
     } 
   }
 
