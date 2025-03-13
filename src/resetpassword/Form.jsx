@@ -1,18 +1,45 @@
 import React, { useState } from 'react';
 import { Lock,AlertCircle,Eye,EyeOff } from "lucide-react";
 import axios from "axios"
+import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { Outlet, Link } from "react-router-dom";
 
 export default function Form() {
-    const [newpassword, setNewassword] = useState("");
-    const [verifypassword, setVerifyassword] = useState("");
+    const { token } = useParams(); 
+    const [newpassword, setNewpassword] = useState("");
+    const [verifypassword, setVerifypassword] = useState("");
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showVerifyPassword, setShowVerifyPassword] = useState(false);
+    const [message, setMessage] = useState("");
+
+    const navigate = useNavigate();
+    
+    const resetPassword = async (e) => {
+        e.preventDefault();
+
+        if(newpassword !== verifypassword){
+          setMessage("Passwords do not match!");
+          return;
+        }
+       try{
+         const res =await axios.post("https://educare-backend-l6ue.onrender.com/patients/set-new-password",{token,newpassword})
+         setMessage(res.message);
+
+         if (res.status === 200) {
+          setTimeout(() => navigate("/passwordchanged"), 2000); // Redirect user to passwordchanged page after success
+        }
+
+       }catch(error){
+        console.log(error.response?.data?.error || error.message); // ✅ Log actual error response
+        setMessage(
+          error.response?.data?.error || "Error  sending message. Try again"
+        );
+       }
+    }
+    
   return (
     <div className="relative bg-[#679294] h-screen p-6  lg:w-[519px] mx-auto  ml-[114px] md:w-full sm:w-fulll">
-
-      <h2 className=" decoration-white font-exo2 text-3xl font-bold text-center mt-[150px]">Reset Password</h2>
+      <h2 className=" decoration-white font-exo2 text-3xl font-bold text-center mt-[140px]">Reset Password</h2>
       <AlertCircle className="w-[30px] h-[30px] text-[#2E3D40] font-size[10px] ml-[222px] mt-[15px]" />
 
       <form className="flex justify-center items-center">
@@ -23,7 +50,7 @@ export default function Form() {
         <input
           type={showNewPassword ? "text" : "password"}
           value={newpassword}
-          onChange={(e) => setNewassword(e.target.value)}
+          onChange={(e) => setNewpassword(e.target.value)}
           placeholder="New Password:"
           className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10 transition-all duration-300 hover:border-[#2E3D40]"
         />
@@ -41,10 +68,11 @@ export default function Form() {
           type={showVerifyPassword ?'text':'password'}
           id="password"
           value={verifypassword}
-          onChange={(e) => setVerifyassword(e.target.value)}
+          onChange={(e) => setVerifypassword(e.target.value)}
           placeholder="Confirm New Password:"
           className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10 transition-all duration-300 hover:border-[#2E3D40]"
         />
+        {/*submit button */}
         <button
          type="button"
          className='absolute right-3 top-1/2 -translate-y-1/2 text-white'
@@ -53,12 +81,20 @@ export default function Form() {
           {showVerifyPassword ? <Eye className='w-5 h-5'/>: <EyeOff className='w-5 h-5'/>}
         </button>
       </div>
-        <button type="submit" className="bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] ">Submit</button>
+      {/*submit button*/}
+        <button type="submit" 
+        onClick={resetPassword} 
+        onMouseDown={(e) => e.target.style.opacity = "0.8"} 
+        onMouseUp={(e) => e.target.style.opacity = "1"}
+        className="bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] ">
+          Submit
+        </button>
+        <p className="text-red-500 mt-3">{message}</p>
         </div>
       </form>
       <img
           src="/logo.png"
-          className="w-[150px] h-[59px] block mx-auto mt-[50px]"
+          className="w-[150px] h-[59px] block mx-auto mt-[25px]"
         />
     </div>
     

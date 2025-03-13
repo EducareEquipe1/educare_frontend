@@ -9,7 +9,14 @@ export default function Form() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handleClick = async (e) => {
+    setIsLoading(true);
+    await handleLogin(); 
+    setIsLoading(false);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,7 +28,7 @@ export default function Form() {
       if (res.patient.is_active ==true){
       navigate("/home");
       } else {
-        navigate("/checkmail")
+        navigate("/checkmail");
       }
 
     } catch (error) {
@@ -30,9 +37,9 @@ export default function Form() {
   };
 
   return (
-    <div className="relative bg-[#679294] h-screen p-6 lg:w-[519px] mx-auto ml-[114px] md:w-full sm:w-full ">
+    <div className="relative bg-[#679294] h-screen p-6  lg:w-[519px] mx-auto ml-[114px] md:w-full sm:w-full ">
 
-      <h2 className="decoration-white font-exo2 text-3xl font-bold text-center mt-[150px]">
+      <h2 className="decoration-white font-exo2 text-3xl font-bold text-center mt-[118px]">
         Welcome back
       </h2>
 
@@ -43,7 +50,7 @@ export default function Form() {
         <div className="relative mt-[30px]">
           <MailIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
           <input
-            type='text'
+            type='email'
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -74,8 +81,13 @@ export default function Form() {
         </div>
 
         {/*submit button*/}
-        <button type="submit" onClick={handleLogin} className="bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] "  >
-          Sign in
+        <button type="submit" 
+        onClick={handleClick} 
+        disabled={isLoading}
+        onMouseDown={(e) => e.target.style.opacity = "0.8"} 
+        onMouseUp={(e) => e.target.style.opacity = "1"}
+        className="bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] "  >
+         {isLoading ? "Signing in..." : "Sign in"}
         </button>
 
         <h3>
@@ -83,14 +95,15 @@ export default function Form() {
           Forgot password?
           </Link>
           </h3>
-
-        <p className="text-red-500 mt-3">{message}</p>
+          <div className=" w-[266px] h-[1px] bg-[#2E3D40] mt-[20px]"></div>
+        <p>Don't have an account yet? <Link to="/" className="text-[#2E3D40]"> Sign up</Link></p>
+        <p className="text-red-500 mt-1">{message}</p>
         </div>
       </form>
 
       <img
           src="/logo.png"
-          className="w-[150px] h-[59px] block mx-auto mt-[40px]"
+          className="w-[150px] h-[59px] block mx-auto mt-[25px]"
         />
     </div>
   );

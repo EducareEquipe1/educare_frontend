@@ -13,34 +13,59 @@ export default function Form() {
   const [last_name,setLastname]=useState("");
   const [birth_date,setBirthdate]=useState("");
   const [phone,setPhone]=useState("");
-  const [matricule,setMatricule]=useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Add loading state
+
   const navigate = useNavigate(); 
+
+  const handleClick = async (e) => {
+    setLoading(true);
+    await handleSignup(e);
+    setLoading(false);
+  };
+
 
 
   const handleSignup =async(e) =>{
     e.preventDefault();
+    if (loading) return; // Prevent multiple clicks
+    setLoading(true); // Start loading
+     // Validate birth date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
+    setError("Invalid birth date format. Please enter YYYY-MM-DD.");
+    setLoading(false);
+    return;
+    }
+
+    // Validate phone number format
+     if (!/^\d{10}$/.test(phone)) {
+    setError("Invalid phone number. It must be exactly 10 digits.");
+    setLoading(false);
+    return;
+  }
+
     try{
-      const res = await axios.post("https://educare-backend-l6ue.onrender.com/patients/register", { email, password,first_name,last_name,birth_date,phone,matricule });
+      const res = await axios.post("https://educare-backend-l6ue.onrender.com/patients/register", { email, password,first_name,last_name,birth_date,phone });
       setMessage(res.data.message)
 
       if (res.status === 201) {
         setTimeout(() => {
-          navigate("/signin"); // Redirect to Signin page after signup
+          navigate("/checkemail"); // Redirect to checkmail page after signup
         }, 2000); // Delay for user feedback
       }
     }
     catch(error){
       setMessage("Error signing up.Try again")
-    }
+    } 
   }
 
   return (
-    <div className="relative bg-[#679294] min-h-screen overflow-auto p-6 lg:w-[519px] mx-auto ml-[114px] md:w-full sm:w-full">
+    <div className="relative bg-[#679294] min-h-screen overflow-auto p-6 pb-[3px] lg:w-[519px] mx-auto ml-[114px] md:w-full sm:w-full">
 
       <h2 className=" decoration-white font-exo2 text-3xl font-bold text-center mt-[10px]">Create an account</h2>
 
-      <form onSubmit={handleSignup} className="flex justify-center items-center">
+      <form  className="flex justify-center items-center">
       <div className="flex flex-col items-center">
       <div className="flex gap-x-4 mt-[20px]">
             <div className="relative w-[200px]">
@@ -69,7 +94,7 @@ export default function Form() {
           type="text"
           value={birth_date}
           onChange={(e) => setBirthdate(e.target.value)}
-          placeholder="Birthdate"
+          placeholder="YYYY-MM-DD"
           className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
         />
       </div>
@@ -78,7 +103,6 @@ export default function Form() {
         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
         <input
           type="text"
-          id="email"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Phone Number:"
@@ -89,7 +113,7 @@ export default function Form() {
       <div className="relative mt-[30px]">
         <MailIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
         <input
-          type="text"
+          type="email"
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -119,14 +143,24 @@ export default function Form() {
 
 
       </div>
-        <button type="submit" onClick={handleSignup} className="bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] ">Sign up</button>
+        <button type="submit" 
+        disabled={loading} // Disable while loading
+        onClick={handleClick} 
+        onMouseDown={(e) => e.target.style.opacity = "0.8"} // changes the opacity
+        onMouseUp={(e) => e.target.style.opacity = "1"}
+        className="bg-white text-[#679294] rounded-[10px] w-[420px] h-[40px] mt-[30px] ">
+        {loading ? "Signing up..." : "Sign up"}
+        </button>
+
         <p className='mt-[5px]'>Already have an account?<Link to="/signin" className='text-[#2E3D40]'>Log in</Link></p>
+            {/* Error Messages */}
         <p className="text-red-500 mt-3">{message}</p>
+        <p className="text-red-500 mt-1">{error}</p>
         </div>
       </form>
       <img
           src="/logo.png"
-          className="w-[150px] h-[59px] block mx-auto mt-[50px]"
+          className="w-[150px] h-[59px] block mx-auto  bottom-0"
         />
     </div>
   );
