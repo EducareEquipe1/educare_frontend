@@ -20,7 +20,7 @@ function App() {
         <Route path="/signin" element={<Signin />} />
         <Route path="/forgotpassword" element={<Forgotpassword />} />
         <Route path="/checkemail" element={<Checkemail/>}/>
-        <Route path="/resetPassword" element={<ResetPassword/>}/>
+        <Route path="/resetPassword/:token" element={<ResetPassword/>}/>
         <Route path="/passwordchanged" element={<Passwordchanged/>}/>
         <Route path="/emailsent" element={<Emailsent/>} /> 
         <Route path="*" element={<NotFound />} /> {/* Catch-all for unknown routes */}
