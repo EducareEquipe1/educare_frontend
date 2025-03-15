@@ -33,7 +33,7 @@ export default function Form() {
          Please check your email
        </h1>
        <p className=" mt-[20px] text-[#2E3D40] font-bold-300 text-center">
-         We have sent you an email with a verification link. Please click on the
+         We have sent an email to {email} with a verification link. Please click on the
          link to verify your account.
        </p>
        <button

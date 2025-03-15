@@ -15,9 +15,10 @@ function App() {
      return(
       <Router>
       <Routes>
-        <Route path="/" element={<Signup/>} />
+        <Route path="/" element={<Signin/>} />
         <Route path="/home" element={<Home/>}/>
-        <Route path="/signin" element={<Signin />} />
+        <Route path="/signin" element={<Signin />}/>
+        <Route path="/signup" element={<Signup />} />
         <Route path="/forgotpassword" element={<Forgotpassword />} />
         <Route path="/checkemail" element={<Checkemail/>}/>
         <Route path="/resetPassword/:token" element={<ResetPassword/>}/>

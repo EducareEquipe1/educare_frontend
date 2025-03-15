@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import {
-  MailIcon,
-  Lock,
-  Eye,
-  EyeOff,
-  Calendar,
-  Phone,
-  IdCard,
+  MailIcon, Lock, Eye,EyeOff, Calendar, Phone, IdCard,
 } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Outlet, Link } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 
 export default function Form() {
   const [email, setEmail] = useState("");
@@ -39,11 +36,11 @@ export default function Form() {
     if (loading) return; // Prevent multiple clicks
     setLoading(true); // Start loading
     // Validate birth date format
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
+   /* if (!/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
       setError("Invalid birth date format. Please enter YYYY-MM-DD.");
       setLoading(false);
       return;
-    }
+    }*/
 
     // Validate matricule number format
     if (!/^\d{12}$/.test(matricule)) {
@@ -53,8 +50,8 @@ export default function Form() {
     }
 
     // Validate phone number format
-    if (!/^\d{10}$/.test(phone)) {
-      setError("Invalid phone number. It must be exactly 10 digits.");
+    if (!/^0\d{9}$/.test(phone)) {
+      setError("Invalid phone number. It must start with 0 and be exactly 10 digits.");
       setLoading(false);
       return;
     }
@@ -113,11 +110,11 @@ export default function Form() {
           {/*birthdate*/}
           <div className="relative mt-[30px]">
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
-            <input
-              type="text"
-              value={birth_date}
-              onChange={(e) => setBirthdate(e.target.value)}
-              placeholder="YYYY-MM-DD"
+            <DatePicker
+              selected={birth_date ? new Date(birth_date) : null} // Convert string to Date object
+              onChange={(date) => setBirthdate(date.toISOString().split("T")[0])} // Convert Date to string "YYYY-MM-DD"
+              dateFormat="yyyy-MM-dd"
+              placeholderText="YYYY-MM-DD"
               className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
             />
           </div>
@@ -128,7 +125,7 @@ export default function Form() {
               type="text"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="Phone Number:"
+              placeholder="Phone Number:0654237890"
               className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
             />
           </div>

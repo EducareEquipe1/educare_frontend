@@ -22,7 +22,7 @@ export default function Form() {
       console.log("request sent ");
 
       //Redirect user to the emailsent page after request
-      navigate("/emailsent"); 
+      navigate("/emailsent", { state: { email } }); 
       setMessage("A password reset link has been sent to your email.");
     } catch (error) {
       console.log(error.response?.data?.error || error.message); // Log actual error response

@@ -109,7 +109,7 @@ setMessage(res.error);
           <div className=" w-[266px] h-[1px] bg-[#2E3D40] mt-[20px]"></div>
           <p>
             Don't have an account yet?{" "}
-            <Link to="/" className="text-[#2E3D40]">
+            <Link to="/signup" className="text-[#2E3D40]">
               {" "}
               Sign up
             </Link>
