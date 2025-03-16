@@ -7,6 +7,7 @@ import Checkemail from './checkemail/Checkemail';
 import ResetPassword from './resetPassword/ResetPassword';
 import Passwordchanged from './passwordchanged/Passwordchanged';
 import Emailsent from './emailsent/Emailsent';
+import Doctors from './AdminComponents/Doctors';
 import Home from './Home'
 
 const NotFound = () => <div>404 Not Found</div>;
@@ -24,6 +25,7 @@ function App() {
         <Route path="/resetPassword/:token" element={<ResetPassword/>}/>
         <Route path="/passwordchanged" element={<Passwordchanged/>}/>
         <Route path="/emailsent" element={<Emailsent/>} /> 
+        <Route path="/Doc" element={<Doctors/>} /> 
         <Route path="*" element={<NotFound />} /> {/* Catch-all for unknown routes */}
       </Routes>
     </Router>
