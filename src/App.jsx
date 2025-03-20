@@ -9,6 +9,8 @@ import Passwordchanged from './passwordchanged/Passwordchanged';
 import Emailsent from './emailsent/Emailsent';
 import Doctors from './AdminComponents/Doctors';
 import Home from './Home'
+import Dashboard from './AdminComponents/Dashboard';
+import Users from './AdminComponents/Users';
 
 const NotFound = () => <div>404 Not Found</div>;
 
@@ -26,6 +28,8 @@ function App() {
         <Route path="/passwordchanged" element={<Passwordchanged/>}/>
         <Route path="/emailsent" element={<Emailsent/>} /> 
         <Route path="/Doc" element={<Doctors/>} /> 
+        <Route path="/Dashboard" element={<Dashboard/>} /> 
+        <Route path="/Users" element={<Users/>} />         
         <Route path="*" element={<NotFound />} /> {/* Catch-all for unknown routes */}
       </Routes>
     </Router>

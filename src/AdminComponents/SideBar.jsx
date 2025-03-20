@@ -31,14 +31,15 @@ const SideBar = () => {
                             <a href="/Users"
                             className='flex items-center gap-2 hover:bg-[linear-gradient(to_left,#2E3D40,transparent)] hover:text-white transition-[5s]  p-2 rounded-full'>
                               <HiUsers />
-                              <p>Users</p> 
+                              <p>Patients</p> 
                             </a>
                         </li>
                         <li >
-                            <a href="/Doctors"
+                            <a href="/Doc"
                             className='flex items-center gap-2 hover:bg-[linear-gradient(to_left,#2E3D40,transparent)] hover:text-white transition-[5s]  p-2 rounded-full'>
                             <FaUserDoctor />
-                            <p>Doctors </p>
+                            <p className=''>Medical team
+                            </p>
                             </a>
                         </li>
                         

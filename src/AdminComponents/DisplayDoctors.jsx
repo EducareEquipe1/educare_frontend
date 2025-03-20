@@ -4,6 +4,8 @@ import { FaPlus } from "react-icons/fa6";
 
 const DisplayDoctors = ({ doctors, addDoctor }) => {
   const [addOpen, setAddOpen] = useState(false);
+  const [doctorsList, setDoctorsList] = useState(doctors);
+
 
 
 
@@ -28,13 +30,46 @@ const DisplayDoctors = ({ doctors, addDoctor }) => {
     alert(`Editing doctor: ${name}`);
   };
 
-  const handleDelete = (name) => {
-    const confirmed = window.confirm(`Are you sure you want to delete Dr. ${name}?`);
-    if (confirmed) {
-      setDoctors(doctors.filter((doctor) => doctor.name !== name));
-    }
-  };
+  const handleDelete = async (email) => {
+    console.log("Trying to delete doctor with email:", email);
 
+    const confirmed = window.confirm("Are you sure you want to delete this doctor?");
+    if (!confirmed) return;
+
+    try {
+        const token = localStorage.getItem("token");  // Récupérer le token
+        if (!token) throw new Error("Authentication token is missing");
+
+        console.log(`Fetching: https://educare-backend-l6ue.onrender.com/admin/delete-user/${encodeURIComponent(email)}`);
+
+        const response = await fetch(`https://educare-backend-l6ue.onrender.com/admin/delete-user/${encodeURIComponent(email)}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`,  // Ajout du token
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to delete doctor: ${errorText}`);
+        }
+
+        console.log("Doctor deleted successfully");
+
+        // Mettre à jour la liste après suppression
+        setDoctorsList((prevDoctors) => prevDoctors.filter((doctor) => doctor.email !== email));
+
+    } catch (error) {
+        console.error("Error deleting doctor:", error);
+    }
+};
+
+
+
+
+  
+  
   const validateForm = () => {
     let newErrors = {};
 
@@ -91,35 +126,50 @@ const DisplayDoctors = ({ doctors, addDoctor }) => {
     if (!validateForm()) return; 
 
     try {
-      const response = await fetch("", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("Authentication token is missing");
 
-      if (!response.ok) {
-        throw new Error("Failed to add doctor");
-      }
+        const response = await fetch("https://educare-backend-l6ue.onrender.com/medecins/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                first_name: formData.firstName,
+                last_name: formData.lastName,
+                email: formData.email,
+                phone: formData.phone,
+                password: formData.password,
+                birth_date: formData.dob,
+                matricule: Math.floor(Math.random() * 1000000).toString(),
+            }),
+        });
 
-      const newDoctor = await response.json();
-      setDoctors((prev) => [...prev, newDoctor]); // Add the new doctor dynamically
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        password: '',
-        dob: '',
-        role: '',
-        speciality: '',
-      });
-      setAddOpen(false);
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Server Response:", errorData);
+            throw new Error("Failed to add doctor");
+        }
+
+        const newDoctor = await response.json();
+        addDoctor(newDoctor); // Utiliser la prop pour ajouter le médecin
+        setFormData({
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            password: '',
+            dob: '',
+            role: '',
+            speciality: '',
+        });
+        setAddOpen(false);
     } catch (error) {
-      console.error("Error adding doctor:", error);
+        console.error("Error adding doctor:", error);
     }
-  };
+};
+
 
   const formFields = [
     { name: "firstName", type: "text", placeholder: "First name" },
@@ -143,21 +193,23 @@ const DisplayDoctors = ({ doctors, addDoctor }) => {
           <span className='md:w-[180px]'>Name</span>
           <span className='md:w-[200px]'>Email</span>
           <span className='md:w-[130px]'>State</span>
-          <span className='md:w-[140px]'>Role</span>
+          <span className='md:w-[140px]'></span>
           <span className='md:w-[120px]'></span>
         </div>
 
         <div className="max-h-[300px]  min-h-[250px] flex flex-col overflow-x-auto overflow-y-auto">
         {doctors.map((doctor) => (
           <OneDoctor
-            key={doctor.id}
-            name={`${doctor.first_name} ${doctor.last_name}`}
-            email={doctor.email}
-            state={doctor.state}  // Change state to status if necessary
-            role={doctor.speciality}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+          key={doctor.email}
+          id={doctor.email}
+          name={`${doctor.first_name} ${doctor.last_name}`}
+          email={doctor.email}
+          state={doctor.state}
+          role={doctor.speciality}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+      />
+  
 ))}
 
         </div> 
