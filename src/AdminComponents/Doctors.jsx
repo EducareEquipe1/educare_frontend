@@ -8,49 +8,12 @@ import DisplayDoctors from "./DisplayDoctors";
 import { GiHelp } from "react-icons/gi";
 import { LuLogOut } from "react-icons/lu";
 
+
 const Doctors = () => {
   const [popout, setPopout] = useState(false);
-  const [doctors, setDoctors] = useState([]); // Store doctors list
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
-  // Fetch doctors from backend
-  useEffect(() => {
-    const getAllMedecins = async () => {
-      const token = localStorage.getItem("token");
-  
-      try {
-        const response = await fetch(
-          "https://educare-backend-l6ue.onrender.com/admin/get-all-medecins/",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-  
-        if (!response.ok) {
-          const errorMessage = await response.text();
-          throw new Error(`Failed to fetch data: ${errorMessage}`);
-        }
-  
-        const data = await response.json();
-        console.log("Fetched doctors:", data); // ✅ Vérifier si les données arrivent
-        setDoctors(data);
-      } catch (error) {
-        console.error("Error fetching doctors:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    getAllMedecins();
-  }, []);
-  
 
   return (
     <div className="relative flex bg-[#EFEFEF]">
@@ -64,8 +27,7 @@ const Doctors = () => {
 
         {/* Display fetched doctors */}
         <div className="flex justify-start my-6 mx-6">
-          
-            <DisplayDoctors doctors={doctors} setDoctors={setDoctors} />
+          <DisplayDoctors />
         </div>
       </div>
     </div>

@@ -13,7 +13,7 @@ export default function Form() {
      setIsLoading(true); // Set loading to true when clicked
      try {
        const res = await axios.post(
-         "https://educare-backend-l6ue.onrender.com/patients/send-email-verification",
+         "https://educare-backend-l6ue.onrender.com/patients/send-email-verification/",
          { email }
        );
        //setMessage(res.message);

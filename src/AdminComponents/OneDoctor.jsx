@@ -10,7 +10,7 @@ const OneDoctor = ({ id, name, email, state, role, onEdit, onDelete }) => {
         <div className="flex justify-end gap-2 w-full sm:w-auto">
           <button
             className="border border-[#929A9B] text-[13px] px-2 py-1 hover:bg-[#679294] hover:text-white cursor-pointer rounded"
-            onClick={() => onEdit(name)}
+            onClick={() => onEdit(email , name)}
           >
             Edit
           </button>
