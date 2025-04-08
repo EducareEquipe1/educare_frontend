@@ -29,7 +29,7 @@ export default function Form() {
 setMessage(res.error);
       localStorage.setItem("token", res.data.token); // Store JWT token
       setMessage("Login successful!");
-      if (res.data.patient.is_active == true) {
+      if (res.data.patient.verified == true) {
         navigate("/home");
         localStorage.setItem("token", res.data.token); // Store JWT token
       } else {
