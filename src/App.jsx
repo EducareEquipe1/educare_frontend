@@ -14,6 +14,7 @@ import Users from './AdminComponents/Users';
 import MedicalForm from './medicalcomponents/MedicalForm';
 import User from './medicalcomponents/Users';
 import AddFile from './medicalcomponents/AddFile';
+import FaceDetectionUploader from "./FaceDetectionComponents/FaceDetectionUploader";
 
 const NotFound = () => <div>404 Not Found</div>;
 
