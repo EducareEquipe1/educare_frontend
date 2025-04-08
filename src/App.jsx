@@ -11,9 +11,6 @@ import Doctors from './AdminComponents/Doctors';
 import Home from './Home'
 import Dashboard from './AdminComponents/Dashboard';
 import Users from './AdminComponents/Users';
-{/*import MedicalForm from './medicalcomponents/MedicalForm';
-import User from './medicalcomponents/Users';
-import AddFile from './medicalcomponents/AddFile';*/}
 
 const NotFound = () => <div>404 Not Found</div>;
 
@@ -22,9 +19,6 @@ function App() {
       <Router>
       <Routes>
          <Route path="/" element={<Signin/>} />
-     {/*  <Route path="/user" element={<User/>} />
-       <Route path="/file" element={<AddFile/>} />
-       <Route  path="/" element={<MedicalForm/>}/>*/}
         <Route path="/home" element={<Home/>}/>
         <Route path="/signin" element={<Signin />}/>
         <Route path="/signup" element={<Signup />} />
