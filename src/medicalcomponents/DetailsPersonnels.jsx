@@ -65,8 +65,8 @@ const DetailsPersonnels = ({ formData, handleChange,readOnly }) => (
       {/* 🔹 Third Row (Nom, Prénom, Date Naissance, Lieu Naissance) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { label: "Nom", name: "last_name", type: "text" },
-          { label: "Prénom", name: "first_name", type: "text" },
+          { label: "Nom", name: "nom", type: "text" },
+          { label: "Prénom", name: "prenom", type: "text" },
           { label: "Date de Naissance", name: "dateNaissance", type: "date" },
         ].map(({ label, name, type }) => (
           <div key={name}>

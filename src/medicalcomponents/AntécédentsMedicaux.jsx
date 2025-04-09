@@ -9,8 +9,8 @@ export default function AntécédentsMedicaux({formData, handleChange,readOnly})
       <div className="mb-4">
         <label className="block font-medium text-gray-600 mb-1">Infections congénitales</label>
         <textarea
-          name="infectionsCongenitales"
-          value={formData.infectionsCongenitales || ""}
+          name="affectionsCongenitales"
+          value={formData.affectionsCongenitales || ""}
           onChange={handleChange}
           readOnly={readOnly}
           placeholder="Ex: rubéole, toxoplasmose..."
