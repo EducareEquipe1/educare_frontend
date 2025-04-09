@@ -38,6 +38,7 @@ export default function AntécédentsPersonels({formData, handleChange,readOnly}
               Non
             </label>
           </div>
+          <label>Nombre de cigarettes</label>
           <input
             type="number"
             name="tabacFumerBoites"
@@ -78,6 +79,7 @@ export default function AntécédentsPersonels({formData, handleChange,readOnly}
               Non
             </label>
           </div>
+          <label>Nombre de boites</label>
           <input
             type="number"
             name="tabac_chque_nombre"
@@ -88,6 +90,47 @@ export default function AntécédentsPersonels({formData, handleChange,readOnly}
             className="border border-gray-300 rounded-md px-3 py-2 w-40"
           />
         </div>
+
+        {/* Tabac pris */}
+<div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+  <label className="w-24 font-medium text-gray-600">Tabac pris</label>
+  <div className="flex items-center gap-4">
+    <label className="flex items-center">
+      <input 
+        type="radio" 
+        name="tabac_pris" 
+        value="oui" 
+        checked={formData.tabac_pris === "oui"}
+        onChange={handleChange} 
+        readOnly={readOnly}
+        className="mr-2" 
+      />
+      Oui
+    </label>
+    <label className="flex items-center">
+      <input 
+        type="radio" 
+        name="tabac_pris" 
+        value="non" 
+        checked={formData.tabac_pris === "non"}
+        onChange={handleChange} 
+        readOnly={readOnly}
+        className="mr-2" 
+      />
+      Non
+    </label>
+  </div>
+  <label>Nombre de boites</label>
+  <input
+    type="number"
+    name="tabac_pris_nombre"
+    value={formData.tabac_pris_nombre || ""}
+    onChange={handleChange}
+    readOnly={readOnly}
+    placeholder="Boîtes / jour"
+    className="border border-gray-300 rounded-md px-3 py-2 w-40"
+  />
+</div>
 
         {/* Âge à la première prise */}
         <div className="mb-4">
