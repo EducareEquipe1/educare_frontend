@@ -31,15 +31,14 @@ const MedicalForm = () => {
   ];
 
   const [formData, setFormData] = useState({
-
+    email:"",
     numSecuritéSociale: "",
     groupeSanguin: "A+",
     nom: "",
     prenom: "",
     date_naissance: "",
     situation_famille: "Célibataire",
-    sexe: "Homme",
-    statut: "étudiant",
+    statut: "",
     addresse: "",
     telephone: "",
     notes: "",
@@ -164,7 +163,7 @@ const MedicalForm = () => {
     // Determine if this is an update or create operation
     const method = formData.email ? 'PUT' : 'POST';
     const url = formData.email 
-      ? `https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-update/${formData.id}/`
+      ? `https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-update/${formData.email}/`
       : 'https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-create/';
 
     fetch(url, {
@@ -218,8 +217,8 @@ const MedicalForm = () => {
                 alt="Patient"
                 className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
               />
-              <h2 className="mt-4 text-black text-lg font-semibold">{first_name}{last_name}</h2>
-              <h2 className="mt-4 text-gray-600 text-lg font-semibold">{email}</h2>
+              <h2 className="mt-4 text-black text-lg font-semibold">{patientData.first_name}{patientData.last_name}</h2>
+              <h2 className="mt-4 text-gray-600 text-lg font-semibold">{patientData.email}</h2>
               <span
                 className={`text-sm px-3 py-1 rounded-full mt-2 ${
                 status === false ? "text-green-500" : "text-red-500"

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  MailIcon, Lock, Eye,EyeOff, Calendar, Phone, IdCard,
+  MailIcon, Lock, Eye,EyeOff, Calendar, Phone, IdCard,Tag
 } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 export default function Form() {
   const [email, setEmail] = useState("");
+  const [statut,setStatut]=useState("")
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [first_name, setFirstname] = useState("");
@@ -60,7 +61,7 @@ export default function Form() {
       console.log("im trying");
       const res = await axios.post(
         "https://educare-backend-l6ue.onrender.com/patients/register",
-        { email, password, first_name, last_name, birth_date, phone, matricule }
+        { email, password, first_name, last_name, birth_date, phone, matricule,statut }
       );
       console.log("not getting the response from the server ");
       setMessage(res.data.message);
@@ -140,6 +141,20 @@ export default function Form() {
               className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
             />
           </div>
+          {/*statut */}
+          <div className="relative mt-[30px]">
+            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
+            <input
+              type="text"
+              value={statut
+              }
+              onChange={(e) => setStatut(e.target.value)}
+              placeholder="Staut:"
+              className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
+            />
+          </div>
+
+
           {/*email*/}
           <div className="relative mt-[30px]">
             <MailIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
