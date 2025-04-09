@@ -118,7 +118,7 @@ const DetailsPersonnels = ({ formData, handleChange,readOnly }) => (
 
         {[
           { label: "Situation Familiale", name: "situation_familiale", options: ["Célibataire", "Marié(e)", "Divorcé(e)", "Veuf(ve)"] },
-          { label: "Sexe", name: "sexe", options: ["Homme", "Femme"] },
+
         ].map(({ label, name, options }) => (
           <div key={name}>
             <label className="block text-[14px] text-gray-600 font-semibold mb-1">
@@ -128,7 +128,6 @@ const DetailsPersonnels = ({ formData, handleChange,readOnly }) => (
               name={name}
               value={formData[name]}
               onChange={handleChange}
-              readOnly={readOnly}
               className="w-full border border-gray-300 rounded-md px-3 py-2"
             >
               {options.map((option) => (
@@ -158,19 +157,13 @@ const DetailsPersonnels = ({ formData, handleChange,readOnly }) => (
         </div>
         <div>
           <label className="block text-[14px] text-gray-600 font-semibold mb-1">Statut</label>
-          <select
+          <input
             name="statut"
             value={formData.statut}
-            onChange={handleChange}
             readOnly={readOnly}
+            readonly
             className="w-full border border-gray-300 rounded-md px-3 py-2"
-          >
-            {["étudiant", "Ats", "Enseignant"].map((statut) => (
-              <option key={statut} value={statut}>
-                {statut}
-              </option>
-            ))}
-          </select>
+          />
         </div>
       </div>
     </div>

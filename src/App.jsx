@@ -28,10 +28,10 @@ function App() {
   return (
     <Router>
       <Routes>
-       {/* <Route path="/signin" element={<Signin />} />*/}
-        <Route path="/" element={<User/>} />
-       <Route path="/file" element={<AddFile/>} />
-       <Route  path="/" element={<MedicalForm/>}/>
+       <Route path="/" element={<Signin />} />
+        <Route path="/user" element={<User/>} />
+       <Route path="/addfile" element={<AddFile/>} />
+       <Route  path="/medicalform" element={<MedicalForm/>}/>
         <Route path="/home" element={<Home />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
