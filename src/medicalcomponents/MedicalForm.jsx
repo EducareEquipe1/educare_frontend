@@ -49,6 +49,8 @@ const MedicalForm = () => {
     tabac_fume_nombre: "",
     tabac_chique: "",
     tabac_chique_nombre: "",
+    tabac_pris:"",
+    tabac_pris_nombre:"",
     age_pris: "",
     ancien_fume: "",
     periode_exposition: "",
