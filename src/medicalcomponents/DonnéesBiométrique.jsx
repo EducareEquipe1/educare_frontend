@@ -6,7 +6,7 @@ export default function DonnéesBiométrique( {formData, handleChange,readOnly})
               <h2 className="text-2xl font-bold text-gray-800 mb-4">Données Biométriques</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                  <div>
-                  <lablel className="block text-[14px] text-gray-600 font-semibold mb-1">Taille</lablel>
+                  <label className="block text-[14px] text-gray-600 font-semibold mb-1">Taille</label>
                   <input 
                   type="text"
                   name="taille"
@@ -16,7 +16,7 @@ export default function DonnéesBiométrique( {formData, handleChange,readOnly})
                   className="w-full border border-gray-300 rounded-md px-3 py-2"></input>
                  </div>
                  <div>
-                  <lablel className="block text-[14px] text-gray-600 font-semibold mb-1">Poids</lablel>
+                  <label className="block text-[14px] text-gray-600 font-semibold mb-1">Poids</label>
                   <input 
                   type="text"
                   name="poids"

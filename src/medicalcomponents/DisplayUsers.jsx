@@ -15,16 +15,16 @@ export default function DisplayUsers() {
       
       if (response.status === 200) {
         // Medical record exists
-        navigate(`/medicalForm/${email}`);
+        navigate(`/medicalform/${email}`);
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {
         // Medical record not found
-        navigate(`/addFile/${email}`);
+        navigate(`/addfile/${email}`);
       } else {
         // Some other error (e.g., network or auth issue)
         console.error("Erreur lors de la vérification du dossier médical", error);
-        navigate(`/addFile/${email}`);
+        navigate(`/addfile/${email}`);
       }
     }
   };
@@ -32,8 +32,10 @@ export default function DisplayUsers() {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6..."; // Récupération du token
+        if (!token) throw new Error("Authentication token is missing");
 
-        const response = await axios.get("https://educare-backend-l6ue.onrender.com/admin/get-all-patients", {
+        const response = await axios.get("https://educare-backend-l6ue.onrender.com/admin/get-users/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -43,6 +45,9 @@ export default function DisplayUsers() {
         setFilteredPatients(response.data);
       } catch (error) {
         console.error('Error fetching patients:', error);
+        console.log("Envoi de requête à l’URL :", "https://educare-backend-l6ue.onrender.com/admin/get-users");
+        console.log("Avec token :", localStorage.getItem('token'));
+
       }
     };
 

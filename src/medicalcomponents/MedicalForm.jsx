@@ -14,7 +14,8 @@ const MedicalForm = () => {
   const [medicalRecordLoading, setMedicalRecordLoading] = useState(false);
 
   const location = useLocation();
-  const email = new URLSearchParams(location.search).get("email");
+  /*const email = new URLSearchParams(location.search).get("email");*/
+  const email = "ahlemyyy@esi-sba.dz";
 
   const [patientData, setPatientData] = useState({
     first_name: '',
@@ -30,7 +31,7 @@ const MedicalForm = () => {
   ];
 
   const [formData, setFormData] = useState({
-    id: "",
+
     numSecuritéSociale: "",
     groupeSanguin: "A+",
     nom: "",
@@ -54,7 +55,6 @@ const MedicalForm = () => {
     periode_exposition: "",
     alcool: "",
     medicaments: "",
-    autres: "",
     
     // AntécédentsMedicaux fields
     infectionsCongenitales: "",
@@ -65,11 +65,11 @@ const MedicalForm = () => {
   });
 
   // Fetch patient basic info
-  useEffect(() => {
+ /* useEffect(() => {
     const fetchPatientData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/api/patient/${email}`);
+        const response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/dossier-medical/${email}`);
         if (!response.ok) throw new Error("Patient not found");
         const data = await response.json();
         setPatientData(data);
@@ -89,16 +89,29 @@ const MedicalForm = () => {
     };
   
     if (email) fetchPatientData();
-  }, [email]);
+  }, [email]);*/
 
   // Fetch medical record data
   useEffect(() => {
     const fetchMedicalRecord = async () => {
       if (!email) return;
+
+      const token = localStorage.getItem("token"); // Get token from local storage
+
+      if (!token) {
+        alert("Access denied. Please log in.");
+        return;
+      }
       
       setMedicalRecordLoading(true);
       try {
-        const response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/dossier-medical/${email}`);
+        const response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-dossier-medical/${email}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, // Pass the token in the header
+          },
+        });
         if (!response.ok) {
           if (response.status === 404) {
             console.log("No medical record found for this patient");
@@ -119,6 +132,7 @@ const MedicalForm = () => {
         console.error("Error fetching medical record:", err);
       } finally {
         setMedicalRecordLoading(false);
+        console.log("Email utilisé:", email);
       }
     };
     
@@ -148,8 +162,8 @@ const MedicalForm = () => {
     console.log("Formulaire soumis :", formData);
 
     // Determine if this is an update or create operation
-    const method = formData.id ? 'PUT' : 'POST';
-    const url = formData.id 
+    const method = formData.email ? 'PUT' : 'POST';
+    const url = formData.email 
       ? `https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-update/${formData.id}/`
       : 'https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-create/';
 
@@ -204,8 +218,8 @@ const MedicalForm = () => {
                 alt="Patient"
                 className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
               />
-              <h2 className="mt-4 text-black text-lg font-semibold">{patientData.first_name} {patientData.last_name}</h2>
-              <h2 className="mt-4 text-gray-600 text-lg font-semibold">{patientData.email}</h2>
+              <h2 className="mt-4 text-black text-lg font-semibold">{first_name}{last_name}</h2>
+              <h2 className="mt-4 text-gray-600 text-lg font-semibold">{email}</h2>
               <span
                 className={`text-sm px-3 py-1 rounded-full mt-2 ${
                 status === false ? "text-green-500" : "text-red-500"
