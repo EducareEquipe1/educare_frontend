@@ -10,8 +10,40 @@ function FaceDetectionUploader() {
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState("");
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const fileInputRef = useRef(null);
+
+  // Fetch existing photo when component mounts
+  useEffect(() => {
+    const fetchPatientPhoto = async () => {
+      try {
+        const patientId = localStorage.getItem("patientId");
+        if (!patientId) return;
+
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `http://localhost:3000/patients/get-patient-photo/${patientId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data?.photoUrl) {
+            setExistingPhotoUrl(data.data.photoUrl);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching patient photo:", error);
+      }
+    };
+
+    fetchPatientPhoto();
+  }, []);
 
   // Cloudinary configuration
   const cloudName = "dhefudthm";
@@ -149,12 +181,19 @@ function FaceDetectionUploader() {
       const formData = new FormData();
       formData.append("image", image);
 
+      // Retrieve patient ID from local storage and append it
+      const patientId = localStorage.getItem("patientId");
+      formData.append("patientId", patientId);
+
+      const token = localStorage.getItem("token");
       const response = await fetch(
-        "http://localhost:3000/api/patients/upload-id-photo",
+        "http://localhost:3000/patients/upload-id-photo",
         {
           method: "POST",
           body: formData,
-        
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -206,7 +245,7 @@ function FaceDetectionUploader() {
       </div>
 
       <div className="w-full mb-6">
-        {!imageUrl ? (
+        {!imageUrl && !existingPhotoUrl ? (
           <div
             className="border-2 border-dashed border-gray-300 rounded-lg p-12 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-all"
             onClick={() => fileInputRef.current.click()}
@@ -236,7 +275,7 @@ function FaceDetectionUploader() {
         ) : (
           <div className="relative">
             <img
-              src={imageUrl}
+              src={imageUrl || existingPhotoUrl}
               alt="ID preview"
               className="w-full h-64 object-contain rounded-lg border border-gray-300"
             />
@@ -342,7 +381,7 @@ function FaceDetectionUploader() {
         </div>
       )}
 
-      {uploadedUrl && (
+      {(uploadedUrl || existingPhotoUrl) && (
         <div className="flex items-center justify-center mb-4 w-full">
           <div className="flex items-center space-x-2 p-3 bg-green-50 text-green-600 rounded-md w-full">
             <svg
