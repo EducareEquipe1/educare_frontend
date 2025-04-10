@@ -63,10 +63,10 @@ const DetailsPersonnels = ({ formData, handleChange,readOnly }) => (
       </div>
 
       {/* 🔹 Third Row (Nom, Prénom, Date Naissance, Lieu Naissance) */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
-          { label: "Nom", name: "last_name", type: "text" },
-          { label: "Prénom", name: "first_name", type: "text" },
+          { label: "Nom", name: "nom", type: "text" },
+          { label: "Prénom", name: "prenom", type: "text" },
           { label: "Date de Naissance", name: "dateNaissance", type: "date" },
         ].map(({ label, name, type }) => (
           <div key={name}>
@@ -86,7 +86,7 @@ const DetailsPersonnels = ({ formData, handleChange,readOnly }) => (
       </div>
 
       {/* 🔹 Fourth Row (Situation Familiale, Sexe) */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
       <div>
           <label className="block text-[14px] text-gray-600 font-semibold mb-1">
             Adresse
@@ -141,7 +141,7 @@ const DetailsPersonnels = ({ formData, handleChange,readOnly }) => (
       </div>
 
       {/* 🔹 Fifth Row (Date Admission, Filière, Statut) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Filière (default value) */}
         <div>
           <label className="block text-[14px] text-gray-600 font-semibold mb-1">

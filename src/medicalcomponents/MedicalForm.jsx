@@ -49,6 +49,8 @@ const MedicalForm = () => {
     tabac_fume_nombre: "",
     tabac_chique: "",
     tabac_chique_nombre: "",
+    tabac_pris:"",
+    tabac_pris_nombre:"",
     age_pris: "",
     ancien_fume: "",
     periode_exposition: "",
@@ -56,11 +58,10 @@ const MedicalForm = () => {
     medicaments: "",
     
     // AntécédentsMedicaux fields
-    infectionsCongenitales: "",
+    affectionsCongenitales: "",
     maladiesGenerales: "",
     interventionsChirurgicales: "",
     reactionsAllergiques: "",
-    notesMedecin: "",
   });
 
   // Fetch patient basic info
@@ -181,10 +182,9 @@ const MedicalForm = () => {
       })
       .then((data) => {
         console.log('Réponse du serveur :', data);
-        // Update form data with any changes returned from the server (like ID for new records)
         setFormData(prev => ({
           ...prev,
-          ...data
+          ...data.dossier, // <-- instead of spreading all of data
         }));
         alert(formData.id ? 'Dossier médical mis à jour avec succès !' : 'Dossier médical créé avec succès !');
       })
