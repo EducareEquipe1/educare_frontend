@@ -39,8 +39,8 @@ const MedicalForm = () => {
     date_naissance: "",
     situation_famille: "Célibataire",
     statut: "",
-    addresse: "",
-    telephone: "",
+    adresse: "",
+    num_tel: "",
     notes: "",
     poids: "",
     taille: "",
@@ -160,17 +160,25 @@ const MedicalForm = () => {
   // Function to submit the form
   const handleSubmit = () => {
     console.log("Formulaire soumis :", formData);
-
-    // Determine if this is an update or create operation
+  
     const method = formData.email ? 'PUT' : 'POST';
     const url = formData.email 
-      ? `https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-update/${formData.email}/`
-      : 'https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-create/';
-
+      ? `https://educare-backend-l6ue.onrender.com/medecins/medical-records-update/${formData.email}/`
+      : 'https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-create';
+  
+    // Get the token from localStorage
+    const token = localStorage.getItem("token");
+  
+    if (!token) {
+      alert("Access denied. Please log in.");
+      return;
+    }
+  
     fetch(url, {
       method,
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Add Authorization header
       },
       body: JSON.stringify(formData),
     })
@@ -178,7 +186,7 @@ const MedicalForm = () => {
         if (!response.ok) {
           throw new Error('Une erreur est survenue lors de l\'envoi du formulaire');
         }
-        return response.json(); 
+        return response.json();
       })
       .then((data) => {
         console.log('Réponse du serveur :', data);

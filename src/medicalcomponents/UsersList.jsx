@@ -2,21 +2,21 @@ import React from "react";
 
 const UsersList = ({
   matricule,
-  first_name,
-  last_name,
+  prenom,
+  nom,
   email,
-  role,
+  //role,
   onConsult,
 }) => {
   return (
     <div className="text-[13px] w-full">
-      <div className="flex flex-wrap sm:flex-nowrap gap-4 items-center justify-between p-2">
+      <div className="text-black flex flex-wrap sm:flex-nowrap gap-4 items-center justify-between p-2">
         <span className="capitalize w-1/2 sm:w-[150px]">{matricule}</span>
         <span className="capitalize w-1/2 sm:w-[150px]">
-          {first_name} {last_name}
+          {prenom} {nom}
         </span>
         <span className="w-1/2 sm:w-[200px] truncate">{email}</span>
-        <span className="w-1/2 sm:w-[120px]">{role}</span>
+       {/* <span className="w-1/2 sm:w-[120px]">{role}</span>*/}
         <div className="p-1">
           <button
             onClick={() => onConsult?.(email)}

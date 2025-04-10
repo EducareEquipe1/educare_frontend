@@ -30,7 +30,7 @@ setMessage(res.error);
       localStorage.setItem("token", res.data.token); // Store JWT token
       setMessage("Login successful!");
       if (res.data.patient.verified == true) {
-        navigate("/medicalform");
+        navigate("/user");
         localStorage.setItem("token", res.data.token); // Store JWT token
       } else {
         navigate("/checkemail", { state: { email: email } });

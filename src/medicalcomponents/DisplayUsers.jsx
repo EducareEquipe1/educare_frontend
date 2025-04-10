@@ -31,30 +31,56 @@ export default function DisplayUsers() {
 
   useEffect(() => {
     const fetchPatients = async () => {
+      const token = localStorage.getItem("token"); // Get token from local storage
+  
+      // Log the token for debugging purposes
+      console.log("Token:", token);
+  
+      if (!token) {
+        alert("Access denied. Please log in.");
+        return;
+      }
+  
       try {
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6..."; // Récupération du token
-        if (!token) throw new Error("Authentication token is missing");
-
-        const response = await axios.get("https://educare-backend-l6ue.onrender.com/admin/get-users/", {
+        const token = localStorage.getItem("token"); // Get token from local storage
+  
+      // Log the token for debugging purposes
+      console.log("Token:", token);
+  
+      if (!token) {
+        alert("Access denied. Please log in.");
+        return;
+      }
+        const response = await axios.get("https://educare-backend-l6ue.onrender.com/admin/get-all-patients/", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        setPatients(response.data);
-        setFilteredPatients(response.data);
+  
+        if (response.status === 200) {
+          setPatients(response.data);
+          setFilteredPatients(response.data);
+        } else {
+          console.error("Unexpected response status:", response.status);
+        }
       } catch (error) {
-        console.error('Error fetching patients:', error);
-        console.log("Envoi de requête à l’URL :", "https://educare-backend-l6ue.onrender.com/admin/get-users");
-        console.log("Avec token :", localStorage.getItem('token'));
-
+        if (error.response) {
+          console.error("Error fetching patients:", error.response);
+          if (error.response.status === 403) {
+            alert("Access forbidden. Please check your permissions.");
+          }
+        } else {
+          console.error("Network error:", error);
+          alert("Network error. Please try again later.");
+        }
       }
     };
-
+  
     fetchPatients();
   }, []);
+  
 
-  useEffect(() => {
+/*  useEffect(() => {
     if (roleFilter === '') {
       setFilteredPatients(patients);
     } else {
@@ -64,12 +90,12 @@ export default function DisplayUsers() {
         )
       );
     }
-  }, [roleFilter, patients]);
+  }, [roleFilter, patients]);*/
 
   return (
     <div className="h-screen flex flex-col justify-end items-end bg-[#FFFEFE] mx-8 mb-6 rounded-[15px] border border-[#CACACA] shadow-md py-2 px-4 ml-[150px] mt-[50px]">
       {/* Filter input */}
-      <div className="w-full mb-4">
+    {/*  <div className="w-full mb-4">
         <label className="text-sm font-medium text-gray-600 mr-2">Filter by role:</label>
         <input
           type="text"
@@ -78,7 +104,7 @@ export default function DisplayUsers() {
           placeholder="e.g. admin, doctor, user"
           className="text-black border border-gray-300 rounded px-2 py-1 text-sm"
         />
-      </div>
+      </div>*/ }
 
       <div className="w-full grid grid-cols-1 gap-2 items-center p-3 h-full">
         {/* Titles */}
@@ -86,26 +112,26 @@ export default function DisplayUsers() {
           <span className="md:w-[140px]">Matricule</span>
           <span className="md:w-[180px]">Name</span>
           <span className="md:w-[130px]">Email</span>
-          <span className="md:w-[100px]">Role</span>
+        {/*<span className="md:w-[100px]">Role</span>*/}  
         </div>
 
         <div className="max-h-[300px] min-h-[250px] flex flex-col overflow-x-auto overflow-y-auto">
-          {filteredPatients.length > 0 ? (
-            filteredPatients.map((patient) => (
-              <UsersList
-                key={patient.matricule}
-                matricule={patient.matricule}
-                first_name={patient.first_name}
-                last_name={patient.last_name}
-                email={patient.email}
-                role={patient.role}
-                onConsult={handleConsult}
-              />
-            ))
-          ) : (
-            <p className="text-center text-gray-500">No patients found.</p>
-          )}
-        </div>
+  {patients.length > 0 ? (
+    patients.map((patient) => (
+      <UsersList
+        key={patient.matricule}
+        matricule={patient.matricule}
+        first_name={patient.prenom}
+        last_name={patient.nom}
+        email={patient.email}
+        onConsult={handleConsult}
+      />
+    ))
+  ) : (
+    <p className="text-center text-gray-500">No patients found.</p>
+  )}
+</div>
+
       </div>
     </div>
   );

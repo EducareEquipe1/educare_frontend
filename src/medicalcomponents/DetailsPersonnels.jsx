@@ -36,7 +36,7 @@ const DetailsPersonnels = ({ formData, handleChange,readOnly }) => (
             name="bloodGroup"
             value={formData.groupeSanguin}
             onChange={handleChange}
-            readOnly={readOnly}
+            disabled={readOnly} 
             className="w-full border border-gray-300 rounded-md px-3 py-2"
           >
             {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((group) => (
@@ -67,7 +67,7 @@ const DetailsPersonnels = ({ formData, handleChange,readOnly }) => (
         {[
           { label: "Nom", name: "nom", type: "text" },
           { label: "Prénom", name: "prenom", type: "text" },
-          { label: "Date de Naissance", name: "dateNaissance", type: "date" },
+          { label: "Date de Naissance", name: "date_naissance", type: "date" },
         ].map(({ label, name, type }) => (
           <div key={name}>
             <label className="block text-[14px] text-gray-600 font-semibold mb-1">
@@ -108,7 +108,7 @@ const DetailsPersonnels = ({ formData, handleChange,readOnly }) => (
           <input
             type="tel"
             name="telephone"
-            value={formData.telephone}
+            value={formData.num_tel}
             onChange={handleChange}
             readOnly={readOnly}
             className="w-full border border-gray-300 rounded-md px-3 py-2"
