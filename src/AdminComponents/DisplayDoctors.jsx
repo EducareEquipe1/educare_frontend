@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import OneDoctor from "./OneDoctor";
 import { FaPlus } from "react-icons/fa6";
 
+
 const DisplayDoctors = (/*{ doctors, addDoctor }*/) => {
   const [addOpen, setAddOpen] = useState(false);
   const [doctors, setDoctors] = useState([]);

@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { MdDeleteOutline } from "react-icons/md";
+import Confirmation from "./Confirmation";
 
 const Oneuser = ({
   matricule,
@@ -10,6 +11,17 @@ const Oneuser = ({
   is_active,
   onDelete,
 }) => {
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [actionType, setActionType] = useState(""); // 'archiver' ou 'modifier'
+
+  const handleConfirm = () => {
+    if (actionType === "archiver") {
+     
+    }
+    // Si c'est "modifier", tu peux ajouter ici la logique de modification
+    setShowConfirmation(false);
+  };
+
   return (
     <div className="text-[13px] w-full">
       <div className="flex flex-wrap sm:flex-nowrap gap-4 items-center justify-between p-2">
@@ -26,16 +38,37 @@ const Oneuser = ({
         >
           {is_active ? "Active" : "Inactive"}
         </span>
-        <div className=" p-1   rounded-">
+        <div className="flex p-1">
           <button
             className="border border-[#929A9B] text-[13px] px-2 py-1 hover:bg-[#679294] hover:text-white cursor-pointer rounded"
-            onClick={() => onDelete(email)}
+            onClick={() => {
+              setActionType("archiver");
+              setShowConfirmation(true);
+            }}
           >
-            Delete
+            Archiver
+          </button>
+          <button
+            className="ml-2 border border-[#929A9B] text-[13px] px-2 py-1 hover:bg-[#679294] hover:text-white cursor-pointer rounded"
+            onClick={() => {
+              setActionType("modifier");
+              setShowConfirmation(true);
+            }}
+          >
+            Modifier
           </button>
         </div>
       </div>
+
       <div className="h-[1px] bg-[#BBBBBF] w-full" />
+
+      {showConfirmation && (
+        <Confirmation
+          type={actionType}
+          onCancel={() => setShowConfirmation(false)}
+          onConfirm={handleConfirm}
+        />
+      )}
     </div>
   );
 };
