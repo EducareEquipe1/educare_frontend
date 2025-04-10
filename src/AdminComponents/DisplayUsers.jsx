@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Oneuser from "./Oneuser";
 import { FaPlus } from "react-icons/fa6";
-import Confirmation from "./Confirmation";
 
 const DisplayUsers = () => {
   const [patients, setPatients] = useState([]);
@@ -14,18 +13,18 @@ const DisplayUsers = () => {
     password: "",
     dob: "",
     role: "",
-    speciality: "",
   });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
 
-  // Static Admin Token
-  const adminToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjEsImVtYWlsIjoibmkubWVyem91a0Blc2ktc2JhLmR6IiwiaWF0IjoxNzQ0MDM2ODMyLCJleHAiOjE3NDY2Mjg4MzJ9.GbF_0vPxlAfPuh7V6RcDiZ3o5iSKxRcMcmwnS5lTyU4";
+  const adminToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjEsImVtYWlsIjoibmkubWVyem91a0Blc2ktc2JhLmR6IiwiaWF0IjoxNzQ0MDM2ODMyLCJleHAiOjE3NDY2Mjg4MzJ9.GbF_0vPxlAfPuh7V6RcDiZ3o5iSKxRcMcmwnS5lTyU4";
 
-  // Fetch the list of all users
-  const fetchPatients = async () => {
+  // Fetch users
+  const fetchUsers = async () => {
     try {
       const response = await fetch(
-        " https://educare-backend-l6ue.onrender.com/admin/get-users/ ",
+        "https://educare-backend-l6ue.onrender.com/Admin/get-users",
         {
           method: "GET",
           headers: {
@@ -35,54 +34,23 @@ const DisplayUsers = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch patients");
+        throw new Error("Failed to fetch users");
       }
 
       const data = await response.json();
-      setPatients(data);
+      setPatients(data.utilisateurs || []);
+      console.log("Users fetched:", data.utilisateurs || []);
+
     } catch (error) {
-      console.error("Error fetching patients:", error);
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPatients();
+    fetchUsers();
   }, []);
-
-  // Delete patient handler
-  const handleDelete = async (email) => {
-    const confirmed = window.confirm("Are you sure you want to delete this user?");
-    if (!confirmed) return;
-
-    try {
-      const response = await fetch(
-        `https://educare-backend-l6ue.onrender.com/admin/delete-user/${encodeURIComponent(email)}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to delete user: ${errorText}`);
-      }
-
-      setPatients((prevPatients) =>
-        prevPatients.filter((user) => user.email !== email)
-      );
-    } catch (error) {
-      console.error("Error deleting user:", error);
-    }
-  };
-
-  // Input change handler
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   // Form validation
   const validateForm = () => {
@@ -99,7 +67,6 @@ const DisplayUsers = () => {
     }
     if (!formData.dob) newErrors.dob = "Date of birth is required";
     if (!formData.role) newErrors.role = "Please select a role";
-    if (!formData.speciality) newErrors.speciality = "Please select a speciality";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -133,7 +100,7 @@ const DisplayUsers = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error("Failed to add patient");
+        throw new Error("Failed to add user");
       }
 
       setFormData({
@@ -144,60 +111,63 @@ const DisplayUsers = () => {
         password: "",
         dob: "",
         role: "",
-        speciality: "",
       });
       setAddOpen(false);
-      fetchPatients(); // Refresh list
+      fetchUsers(); // Refresh user list
     } catch (error) {
-      console.error("Error adding patient:", error);
+      console.error("Error adding user:", error);
     }
   };
 
+  // Handle input changes
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const formFields = [
-    { name: "firstName", type: "text", placeholder: "Nom" },
-    { name: "lastName", type: "text", placeholder: "Prenom" },
+    { name: "firstName", type: "text", placeholder: "First Name" },
+    { name: "lastName", type: "text", placeholder: "Last Name" },
     { name: "email", type: "email", placeholder: "Email" },
-    { name: "phone", type: "text", placeholder: "Numero de telephone" },
-    { name: "password", type: "password", placeholder: "mot de passe" },
-    { name: "dob", type: "date", placeholder: "date de naissance" },
+    { name: "phone", type: "text", placeholder: "Phone Number" },
+    { name: "password", type: "password", placeholder: "Password" },
+    { name: "dob", type: "date", placeholder: "Date of Birth" },
   ];
 
   const dropdowns = [
     { name: "role", options: ["Role", "Medecin", "Directeur", "Aide-soignant"] },
   ];
 
+
   return (
     <div className="flex flex-col justify-end items-end bg-[#FFFEFE] mx-8 mb-6 rounded-[15px] border border-[#CACACA] shadow-md py-2 px-4">
       <div className="w-full grid grid--6 gap-2 items-center p-3 h-full">
         <div className="flex justify-between font-medium text-[#BBBBBF] border-b pb-2">
           <span className="md:w-[150px]">Matricule</span>
-          <span className="md:w-[180px]">Name</span>
+          <span className="md:w-[100px]">Name</span>
           <span className="md:w-[120px]">Email</span>
-          <span className="md:w-[100px]">Role</span>
-          <span className="md:w-[10px]">State</span>
-          <span className="md:w-[100px]"></span>
+          <span className="md:w-[90px]">Role</span>
+          <span className="md:w-[130px]">State</span>
           <span className="md:w-[100px]"></span>
         </div>
-       
-       
-     
+
         <div className="max-h-[300px] min-h-[250px] flex flex-col overflow-y-auto">
-        
-          {patients.length > 0 ? (
-            patients.map((patient, index) => (
+          {loading ? (
+            <p className="text-center text-gray-500">Loading users...</p>
+          ) : patients.length > 0 ? (
+            patients.map((user, index) => (
               <Oneuser
                 key={index}
-                matricule={patient.matricule}
-                first_name={patient.first_name}
-                last_name={patient.last_name}
-                email={patient.email}
-                role={patient.role}
-                is_active={patient.is_active}
-                onDelete={handleDelete}
+                matricule={user.matricule || "--"}
+                first_name={user.prenom || ""}
+                last_name={user.nom || ""}
+                email={user.email}
+                role={user.role}
+                is_active={true} // Assuming all users are active
+                onDelete={() => {}} // Placeholder if needed later
               />
             ))
           ) : (
-            <p className="text-center text-gray-500">No patients found.</p>
+            <p className="text-center text-gray-500">No users found.</p>
           )}
         </div>
       </div>
@@ -235,9 +205,7 @@ const DisplayUsers = () => {
                     className="border border-gray-400 p-2 rounded w-full"
                   />
                   {errors[field.name] && (
-                    <p className="text-red-500 text-[12px]">
-                      {errors[field.name]}
-                    </p>
+                    <p className="text-red-500 text-[12px]">{errors[field.name]}</p>
                   )}
                 </div>
               ))}
@@ -251,19 +219,13 @@ const DisplayUsers = () => {
                     className="border border-gray-400 p-2 rounded w-full"
                   >
                     {dropdown.options.map((option, idx) => (
-                      <option
-                        key={idx}
-                        value={idx === 0 ? "" : option}
-                        disabled={idx === 0}
-                      >
+                      <option key={idx} value={idx === 0 ? "" : option} disabled={idx === 0}>
                         {option}
                       </option>
                     ))}
                   </select>
                   {errors[dropdown.name] && (
-                    <p className="text-red-500 text-[12px]">
-                      {errors[dropdown.name]}
-                    </p>
+                    <p className="text-red-500 text-[12px]">{errors[dropdown.name]}</p>
                   )}
                 </div>
               ))}
@@ -280,7 +242,6 @@ const DisplayUsers = () => {
           </div>
         </div>
       )}
-      
     </div>
   );
 };

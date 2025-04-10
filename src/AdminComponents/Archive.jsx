@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import SideBar from './SideBar';
 import axios from 'axios';
-import OneUser from './OneUser'; // Assure-toi que ce composant existe
+import OneArchive from './OneArchive'; // Assure-toi que ce composant existe
 
 const Archive = () => {
   const [activeTab, setActiveTab] = useState('utilisateur');
   const [archivedUsers, setArchivedUsers] = useState([]);
-
-  // Fetch archived users when the activeTab is 'utilisateur'
+  
+  const adminToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjEsImVtYWlsIjoibmkubWVyem91a0Blc2ktc2JhLmR6IiwiaWF0IjoxNzQ0MDM2ODMyLCJleHAiOjE3NDY2Mjg4MzJ9.GbF_0vPxlAfPuh7V6RcDiZ3o5iSKxRcMcmwnS5lTyU4"; // Static Admin Token
+  
   useEffect(() => {
     if (activeTab === 'utilisateur') {
       axios.get('https://educare-backend-l6ue.onrender.com/Admin/get-archived-users/', {
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjEsImVtYWlsIjoibmkubWVyem91a0Blc2ktc2JhLmR6IiwiaWF0IjoxNzQ0MDM2ODMyLCJleHAiOjE3NDY2Mjg4MzJ9.GbF_0vPxlAfPuh7V6RcDiZ3o5iSKxRcMcmwnS5lTyU4`
+          Authorization: `Bearer ${adminToken}`
         }
       })
       .then(res => {
-        if (Array.isArray(res.data.utilisateurs)) {
+        // Vérifie si la réponse est un tableau
+        if (Array.isArray(res.data)) {
+          setArchivedUsers(res.data);
+        } else if (Array.isArray(res.data.utilisateurs)) {
           setArchivedUsers(res.data.utilisateurs);
         } else {
           console.error("Données inattendues", res.data);
@@ -29,6 +33,12 @@ const Archive = () => {
       });
     }
   }, [activeTab]);
+
+  // Handle Restore action (or other actions like delete)
+  const handleRestore = (email) => {
+    // Logic to restore the user or perform another action
+    console.log(`Restoring user with email: ${email}`);
+  };
 
   return (
     <div className="relative flex bg-[#EFEFEF]">
@@ -47,11 +57,7 @@ const Archive = () => {
             <li>
               <button
                 onClick={() => setActiveTab('utilisateur')}
-                className={`transition-all duration-300 pb-2 border-b-2 ${
-                  activeTab === 'utilisateur'
-                    ? 'border-[#F4A261] font-semibold'
-                    : 'border-transparent hover:border-[#F4A261]'
-                }`}
+                className={`transition-all duration-300 pb-2 border-b-2 ${activeTab === 'utilisateur' ? 'border-[#F4A261] font-semibold' : 'border-transparent hover:border-[#F4A261]'}`}
               >
                 Utilisateur
               </button>
@@ -59,11 +65,7 @@ const Archive = () => {
             <li>
               <button
                 onClick={() => setActiveTab('dossiers')}
-                className={`transition-all duration-300 pb-2 border-b-2 ${
-                  activeTab === 'dossiers'
-                    ? 'border-[#F4A261] font-semibold'
-                    : 'border-transparent hover:border-[#F4A261]'
-                }`}
+                className={`transition-all duration-300 pb-2 border-b-2 ${activeTab === 'dossiers' ? 'border-[#F4A261] font-semibold' : 'border-transparent hover:border-[#F4A261]'}`}
               >
                 Dossiers Medicaux
               </button>
@@ -72,31 +74,34 @@ const Archive = () => {
           <div className="h-[1.5px] bg-[rgba(146,154,155,0.35)] mt-[-2px]"></div>
         </div>
 
-        {/* User Table */}
+        {/* Table Headers for archived users */}
         {activeTab === 'utilisateur' && (
           <div className="flex justify-start my-6 mx-6">
             <div className="flex flex-col w-full bg-[#FFFEFE] mx-8 mb-6 rounded-[15px] border border-[#CACACA] shadow-md py-2 px-4">
-              <div className="w-full grid grid-cols-6 gap-2 items-center p-3 h-full font-medium text-[#BBBBBF] border-b pb-2">
-                <span className="md:w-[150px]">Matricule</span>
+              <div className="w-full flex gap-2 items-center pb-4  mt-3 mb- font-medium text-[#BBBBBF] border-b">
+              <span className="md:w-[160px]">Matricule</span>
                 <span className="md:w-[180px]">Name</span>
-                <span className="md:w-[120px]">Email</span>
-                <span className="md:w-[100px]">Role</span>
+                <span className="md:w-[230px]">Email</span>
+                <span className="md:w-[130px]">Role</span>
                 <span className="md:w-[100px]">State</span>
                 <span className="md:w-[100px]"></span>
               </div>
 
-              {/* Display Archived Users */}
+                <div className='max-h-[350px] min-h-[250px] flex flex-col overflow-y-auto'>
+
+                
+              {/* Utilisateurs */}
               {Array.isArray(archivedUsers) && archivedUsers.length > 0 ? (
                 archivedUsers.map((user, index) => (
-                  <OneUser
+                  <OneArchive
                     key={index}
-                    matricule={user.matricule}
-                    first_name={user.nom}
-                    last_name={user.prenom}
-                    email={user.email}
-                    role={user.role}
-                    is_active={user.is_active}
-                    onDelete={() => console.log(`Deleting user: ${user.matricule}`)} // Adjust delete logic here
+                    matricule={user.matricule || "—"}
+                    first_name={user.nom || "—"}
+                    last_name={user.prenom || "—"}
+                    email={user.email || "—"}
+                    role={user.role || "unknown"}
+                    is_active={false} // Assuming archived users are inactive
+                    onDelete={() => handleRestore(user.email)}
                   />
                 ))
               ) : (
@@ -105,8 +110,11 @@ const Archive = () => {
                 </div>
               )}
             </div>
+            </div>
           </div>
         )}
+
+        {/* Tu peux ajouter un autre bloc ici pour Dossiers Medicaux si besoin */}
       </div>
     </div>
   );

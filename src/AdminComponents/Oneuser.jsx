@@ -38,7 +38,7 @@ const Oneuser = ({
         >
           {is_active ? "Active" : "Inactive"}
         </span>
-        <div className="p-1">
+        <div className="flex p-1">
           <button
             className="border border-[#929A9B] text-[13px] px-2 py-1 hover:bg-[#679294] hover:text-white cursor-pointer rounded"
             onClick={() => {

@@ -1,7 +1,24 @@
-import React from 'react'
+import React, { useState } from "react";
+import { MdDeleteOutline } from "react-icons/md";
+import Confirmation from "./Confirmation";
+import RestaureConfirmation from "./RestaureConfirmation";
+const OneArchive = ({
+  matricule,
+  first_name,
+  last_name,
+  email,
+  role,
+  is_active,
+  onDelete,
+}) => {
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
-const OneArchive = () => {
+  const handleConfirm = () => {
+    
+  };
+
   return (
+    
     <div className="text-[13px] w-full">
       <div className="flex flex-wrap sm:flex-nowrap gap-4 items-center justify-between p-2">
         <span className="capitalize w-1/2 sm:w-[150px]">{matricule}</span>
@@ -21,29 +38,19 @@ const OneArchive = () => {
           <button
             className="border border-[#929A9B] text-[13px] px-2 py-1 hover:bg-[#679294] hover:text-white cursor-pointer rounded"
             onClick={() => {
-              setActionType("archiver");
               setShowConfirmation(true);
             }}
           >
-            Archiver
+            Restaurer
           </button>
-          <button
-            className="ml-2 border border-[#929A9B] text-[13px] px-2 py-1 hover:bg-[#679294] hover:text-white cursor-pointer rounded"
-            onClick={() => {
-              setActionType("modifier");
-              setShowConfirmation(true);
-            }}
-          >
-            Modifier
-          </button>
+          
         </div>
       </div>
 
       <div className="h-[1px] bg-[#BBBBBF] w-full" />
 
       {showConfirmation && (
-        <Confirmation
-          type={actionType}
+        <RestaureConfirmation
           onCancel={() => setShowConfirmation(false)}
           onConfirm={handleConfirm}
         />
