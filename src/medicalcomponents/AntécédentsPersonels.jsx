@@ -83,7 +83,7 @@ export default function AntécédentsPersonels({formData, handleChange,readOnly}
           <input
             type="number"
             name="tabac_chque_nombre"
-            value={formData.tabacChiquerBoites || ""}
+            value={formData.tabac_chique_nombre}
             onChange={handleChange}
             readOnly={readOnly}
             placeholder="Boîtes / jour"
@@ -124,7 +124,7 @@ export default function AntécédentsPersonels({formData, handleChange,readOnly}
   <input
     type="number"
     name="tabac_pris_nombre"
-    value={formData.tabac_pris_nombre || ""}
+    value={formData.tabac_pris_nombre}
     onChange={handleChange}
     readOnly={readOnly}
     placeholder="Boîtes / jour"
@@ -138,7 +138,7 @@ export default function AntécédentsPersonels({formData, handleChange,readOnly}
           <input
             type="number"
             name="agePremierePrise"
-            value={formData.age_pris || ""}
+            value={formData.age_pris}
             onChange={handleChange}
             readOnly={readOnly}
             placeholder="ex: 16"
@@ -193,7 +193,7 @@ export default function AntécédentsPersonels({formData, handleChange,readOnly}
         <h3 className="font-semibold text-gray-700 mb-2">Alcool</h3>
         <textarea
           name="alcool"
-          value={formData.alcool || ""}
+          value={formData.alcool }
           onChange={handleChange}
           readOnly={readOnly}
           placeholder="Détails de consommation d'alcool"

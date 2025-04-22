@@ -30,8 +30,11 @@ function App() {
     <Router>
       <Routes>
        <Route path="/" element={<Signin />} />
+       <Route path="/medicalform/:email" element={<MedicalForm />} />
+
         <Route path="/user" element={<User/>} />
        <Route path="/addfile" element={<AddFile/>} />
+       <Route path="/addfile/:email" element={<AddFile />} />
        <Route  path="/medicalform" element={<MedicalForm/>}/>
         <Route path="/home" element={<Home />} />
         <Route path="/signin" element={<Signin />} />
