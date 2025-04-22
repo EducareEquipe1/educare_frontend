@@ -20,6 +20,7 @@ import MedicalForm from './medicalcomponents/MedicalForm';
 import User from './medicalcomponents/Users';
 import AddFile from './medicalcomponents/AddFile';
 import Archive from "./AdminComponents/Archive";
+import Settings from "./AdminComponents/Settings";
 {/*import FaceDetectionUploader from "./FaceDetectionComponents/FaceDetectionUploader";*/}
 
 const NotFound = () => <div>404 Not Found</div>;
@@ -44,6 +45,7 @@ function App() {
         <Route path="/Dashboard" element={<Dashboard />} />
         <Route path="/Users" element={<Users />} />
         <Route path="/archive" element={<Archive />} />
+        <Route path="/Settings" element={<Settings />} />
         <Route path="*" element={<NotFound />} />{" "}
         {/* Catch-all for unknown routes */}
       </Routes>

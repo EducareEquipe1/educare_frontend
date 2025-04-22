@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SideBar from './SideBar';
 import axios from 'axios';
-import OneArchive from './OneArchive'; // Assure-toi que ce composant existe
+import OneArchive from './OneArchive';
 
 const Archive = () => {
   const [activeTab, setActiveTab] = useState('utilisateur');
@@ -17,27 +17,37 @@ const Archive = () => {
         }
       })
       .then(res => {
-        // Vérifie si la réponse est un tableau
         if (Array.isArray(res.data)) {
           setArchivedUsers(res.data);
         } else if (Array.isArray(res.data.utilisateurs)) {
           setArchivedUsers(res.data.utilisateurs);
         } else {
-          console.error("Données inattendues", res.data);
+          console.error("Unexpected data:", res.data);
           setArchivedUsers([]);
         }
       })
       .catch(err => {
-        console.error('Erreur lors du fetch :', err);
+        console.error('Error fetching archived users:', err);
         setArchivedUsers([]);
       });
     }
   }, [activeTab]);
 
-  // Handle Restore action (or other actions like delete)
+  // Handle Restore action
   const handleRestore = (email) => {
-    // Logic to restore the user or perform another action
-    console.log(`Restoring user with email: ${email}`);
+    axios.post(`https://educare-backend-l6ue.onrender.com/admin/restore-user/${email}/`, {}, {
+      headers: {
+        Authorization: `Bearer ${adminToken}`
+      }
+    })
+    .then(res => {
+      console.log(`User with email: ${email} has been restored`);
+      // Optionally, re-fetch the archived users list to reflect the changes
+      setArchivedUsers(archivedUsers.filter(user => user.email !== email));
+    })
+    .catch(err => {
+      console.error('Error restoring user:', err);
+    });
   };
 
   return (
@@ -78,8 +88,8 @@ const Archive = () => {
         {activeTab === 'utilisateur' && (
           <div className="flex justify-start my-6 mx-6">
             <div className="flex flex-col w-full bg-[#FFFEFE] mx-8 mb-6 rounded-[15px] border border-[#CACACA] shadow-md py-2 px-4">
-              <div className="w-full flex gap-2 items-center pb-4  mt-3 mb- font-medium text-[#BBBBBF] border-b">
-              <span className="md:w-[160px]">Matricule</span>
+              <div className="w-full flex gap-2 items-center pb-4 mt-3 mb- font-medium text-[#BBBBBF] border-b">
+                <span className="md:w-[160px]">Matricule</span>
                 <span className="md:w-[180px]">Name</span>
                 <span className="md:w-[230px]">Email</span>
                 <span className="md:w-[130px]">Role</span>
@@ -87,34 +97,30 @@ const Archive = () => {
                 <span className="md:w-[100px]"></span>
               </div>
 
-                <div className='max-h-[350px] min-h-[250px] flex flex-col overflow-y-auto'>
-
-                
-              {/* Utilisateurs */}
-              {Array.isArray(archivedUsers) && archivedUsers.length > 0 ? (
-                archivedUsers.map((user, index) => (
-                  <OneArchive
-                    key={index}
-                    matricule={user.matricule || "—"}
-                    first_name={user.nom || "—"}
-                    last_name={user.prenom || "—"}
-                    email={user.email || "—"}
-                    role={user.role || "unknown"}
-                    is_active={false} // Assuming archived users are inactive
-                    onDelete={() => handleRestore(user.email)}
-                  />
-                ))
-              ) : (
-                <div className="text-center text-sm text-gray-400 mt-4">
-                  Aucun utilisateur archivé trouvé.
-                </div>
-              )}
-            </div>
+              <div className='max-h-[350px] min-h-[250px] flex flex-col overflow-y-auto'>
+                {/* Users */}
+                {Array.isArray(archivedUsers) && archivedUsers.length > 0 ? (
+                  archivedUsers.map((user, index) => (
+                    <OneArchive
+                      key={index}
+                      matricule={user.matricule || "—"}
+                      first_name={user.nom || "—"}
+                      last_name={user.prenom || "—"}
+                      email={user.email || "—"}
+                      role={user.role || "unknown"}
+                      is_active={false} // Assuming archived users are inactive
+                      onDelete={() => handleRestore(user.email)} // Restore action
+                    />
+                  ))
+                ) : (
+                  <div className="text-center text-sm text-gray-400 mt-4">
+                    Aucun utilisateur archivé trouvé.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
-
-        {/* Tu peux ajouter un autre bloc ici pour Dossiers Medicaux si besoin */}
       </div>
     </div>
   );

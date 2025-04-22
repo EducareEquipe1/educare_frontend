@@ -7,7 +7,6 @@ const Confirmation = ({ onCancel, onConfirm, type }) => {
       ? "Êtes-vous sûr de vouloir archiver cet élément ? Cette action peut être annulée."
       : "Êtes-vous sûr de vouloir modifier cet élément ?";
 
-  // Fonction appelée uniquement si on clique sur le fond, pas la boîte blanche
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
       onCancel();
@@ -21,9 +20,7 @@ const Confirmation = ({ onCancel, onConfirm, type }) => {
     >
       <div className="px-5 py-12 rounded-[25px] flex flex-col justify-center items-center bg-white">
         <p className="font-bold text-[26px]">{title}</p>
-        <p className="font-medium text-[15px] text-[rgba(46,61,64,0.6)] text-center">
-          {message}
-        </p>
+        <p className="font-medium text-[15px] text-[rgba(46,61,64,0.6)] text-center">{message}</p>
         <div className="flex gap-2">
           <button
             onClick={onCancel}

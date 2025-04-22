@@ -39,7 +39,7 @@ const SideBar = () => {
                 <p>Utilisateurs</p>
               </a>
             </li>
-            <li>
+            {/* <li>
               <a
                 href=""
                 className="flex  items-center gap-2 hover:bg-[linear-gradient(to_left,#2E3D40,transparent)] hover:text-white transition-[5s]  py-2 rounded-full"
@@ -47,9 +47,9 @@ const SideBar = () => {
                 <RiFolderUserLine />
                 <p className="whitespace-nowrap">Roles</p>
               </a>
-            </li>
+            </li> */}
 
-            <li>
+            {/* <li>
               <a
                 href=""
                 className="flex items-center gap-2 hover:bg-[linear-gradient(to_left,#2E3D40,transparent)] hover:text-white transition-[5s]  py-2 rounded-full"
@@ -57,7 +57,7 @@ const SideBar = () => {
                 <FaNotesMedical />
                 <p className="whitespace-nowrap">Dossier med</p>
               </a>
-            </li>
+            </li> */}
             
 
             <li>
@@ -76,7 +76,7 @@ const SideBar = () => {
                 className="flex items-center gap-2  hover:bg-[linear-gradient(to_left,#2E3D40,transparent)] hover:text-white transition-[5s]  py-2 rounded-full"
               >
                 <IoSettingsSharp />
-                <p>Settings </p>
+                <p>Paramètre </p>
               </a>
             </li>
           </ul>
