@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import {
-  MailIcon, Lock, Eye,EyeOff, Calendar, Phone, IdCard,Tag
+  MailIcon,
+  Lock,
+  Eye,
+  EyeOff,
+  Calendar,
+  Phone,
+  IdCard,
+  Tag,
 } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -8,10 +15,13 @@ import { Outlet, Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-
 export default function Form() {
   const [email, setEmail] = useState("");
+<<<<<<< HEAD
   const [categorie, setCategorie] = useState("Etudiant");
+=======
+  const [categorie, setCategorie] = useState("");
+>>>>>>> 1c7fcd98d8ed290265cc8bef6ed53433caf6e9f3
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [first_name, setFirstname] = useState("");
@@ -37,7 +47,7 @@ export default function Form() {
     if (loading) return; // Prevent multiple clicks
     setLoading(true); // Start loading
     // Validate birth date format
-   /* if (!/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
+    /* if (!/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
       setError("Invalid birth date format. Please enter YYYY-MM-DD.");
       setLoading(false);
       return;
@@ -52,7 +62,9 @@ export default function Form() {
 
     // Validate phone number format
     if (!/^0\d{9}$/.test(phone)) {
-      setError("Invalid phone number. It must start with 0 and be exactly 10 digits.");
+      setError(
+        "Invalid phone number. It must start with 0 and be exactly 10 digits."
+      );
       setLoading(false);
       return;
     }
@@ -61,7 +73,20 @@ export default function Form() {
       console.log("im trying");
       const res = await axios.post(
         "https://educare-backend-l6ue.onrender.com/patients/register",
+<<<<<<< HEAD
         { email, password, first_name, last_name, birth_date, phone, matricule,categorie }
+=======
+        {
+          email,
+          password,
+          first_name,
+          last_name,
+          birth_date,
+          phone,
+          matricule,
+          categorie,
+        }
+>>>>>>> 1c7fcd98d8ed290265cc8bef6ed53433caf6e9f3
       );
       console.log("not getting the response from the server ");
       setMessage(res.data.message);
@@ -113,7 +138,9 @@ export default function Form() {
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
             <DatePicker
               selected={birth_date ? new Date(birth_date) : null} // Convert string to Date object
-              onChange={(date) => setBirthdate(date.toISOString().split("T")[0])} // Convert Date to string "YYYY-MM-DD"
+              onChange={(date) =>
+                setBirthdate(date.toISOString().split("T")[0])
+              } // Convert Date to string "YYYY-MM-DD"
               dateFormat="yyyy-MM-dd"
               placeholderText="YYYY-MM-DD"
               className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
@@ -142,6 +169,7 @@ export default function Form() {
             />
           </div>
           {/*categorie */}
+<<<<<<< HEAD
           <div className="relative mt-[30px]">
   <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
   <select
@@ -156,7 +184,24 @@ export default function Form() {
   </select>
 </div>
 
-
+=======
+    
+          <div className="relative mt-[30px]">
+            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
+            <select
+              value={categorie}
+              onChange={(e) => setStatut(e.target.value)}
+              className="border border-white rounded-[10px] text-white bg-transparent w-[420px] p-2 pl-10 appearance-none"
+            >
+              <option value="" disabled>
+                Choisissez un statut
+              </option>
+              <option value="Etudiant">Etudiant</option>
+              <option value="Enseignant">Enseignant</option>
+              <option value="Ats">Ats</option>
+            </select>
+          </div>
+>>>>>>> 1c7fcd98d8ed290265cc8bef6ed53433caf6e9f3
 
           {/*email*/}
           <div className="relative mt-[30px]">

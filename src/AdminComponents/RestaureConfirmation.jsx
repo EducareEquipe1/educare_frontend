@@ -1,14 +1,13 @@
-import React from 'react'
+import React from 'react';
 
-const RestaureConfirmation = ({onCancel, onConfirm}) => {
+const RestaureConfirmation = ({ onCancel, onConfirm }) => {
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-[rgba(0,0,0,0.5)] z-50"
-    >
+    <div className="fixed inset-0 flex items-center justify-center bg-[rgba(0,0,0,0.5)] z-50">
       <div className="px-5 py-12 rounded-[25px] flex flex-col justify-center items-center bg-white">
         <p className="font-bold text-[26px]">Êtes-vous sûr ? </p>
         <p className="font-medium text-[15px] text-[rgba(46,61,64,0.6)] text-center">
-        Êtes-vous sûr  de vouloir archiver cet élément ? Cette action peut être annulée.        </p>
+          Êtes-vous sûr de vouloir restaurer cet utilisateur ?
+        </p>
         <div className="flex gap-2">
           <button
             onClick={onCancel}
@@ -27,7 +26,7 @@ const RestaureConfirmation = ({onCancel, onConfirm}) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RestaureConfirmation
+export default RestaureConfirmation;

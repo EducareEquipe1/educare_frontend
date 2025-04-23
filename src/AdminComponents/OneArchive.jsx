@@ -1,24 +1,15 @@
 import React, { useState } from "react";
-import { MdDeleteOutline } from "react-icons/md";
-import Confirmation from "./Confirmation";
 import RestaureConfirmation from "./RestaureConfirmation";
-const OneArchive = ({
-  matricule,
-  first_name,
-  last_name,
-  email,
-  role,
-  is_active,
-  onDelete,
-}) => {
+
+const OneArchive = ({ matricule, first_name, last_name, email, role, is_active, onDelete }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleConfirm = () => {
-    
+    onDelete(email); // Pass the email to the handleRestore function in the parent component
+    setShowConfirmation(false); // Close the confirmation dialog
   };
 
   return (
-    
     <div className="text-[13px] w-full">
       <div className="flex flex-wrap sm:flex-nowrap gap-4 items-center justify-between p-2">
         <span className="capitalize w-1/2 sm:w-[150px]">{matricule}</span>
@@ -27,11 +18,7 @@ const OneArchive = ({
         </span>
         <span className="w-1/2 sm:w-[200px] truncate">{email}</span>
         <span className="w-1/2 sm:w-[120px]">{role}</span>
-        <span
-          className={`w-1/2 sm:w-[100px] ${
-            is_active ? "text-green-600" : "text-red-600"
-          }`}
-        >
+        <span className={`w-1/2 sm:w-[100px] ${is_active ? "text-green-600" : "text-red-600"}`}>
           {is_active ? "Active" : "Inactive"}
         </span>
         <div className="p-1">
@@ -43,7 +30,6 @@ const OneArchive = ({
           >
             Restaurer
           </button>
-          
         </div>
       </div>
 
@@ -52,11 +38,11 @@ const OneArchive = ({
       {showConfirmation && (
         <RestaureConfirmation
           onCancel={() => setShowConfirmation(false)}
-          onConfirm={handleConfirm}
+          onConfirm={handleConfirm} // Confirm and restore the user
         />
       )}
     </div>
-  )
-}
+  );
+};
 
-export default OneArchive
+export default OneArchive;
