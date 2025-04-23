@@ -11,7 +11,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 export default function Form() {
   const [email, setEmail] = useState("");
-  const [statut,setStatut]=useState("")
+  const [categorie, setCategorie] = useState("Etudiant");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [first_name, setFirstname] = useState("");
@@ -61,7 +61,7 @@ export default function Form() {
       console.log("im trying");
       const res = await axios.post(
         "https://educare-backend-l6ue.onrender.com/patients/register",
-        { email, password, first_name, last_name, birth_date, phone, matricule,statut }
+        { email, password, first_name, last_name, birth_date, phone, matricule,categorie }
       );
       console.log("not getting the response from the server ");
       setMessage(res.data.message);
@@ -141,18 +141,21 @@ export default function Form() {
               className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
             />
           </div>
-          {/*statut */}
+          {/*categorie */}
           <div className="relative mt-[30px]">
-            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
-            <input
-              type="text"
-              value={statut
-              }
-              onChange={(e) => setStatut(e.target.value)}
-              placeholder="Staut:"
-              className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
-            />
-          </div>
+  <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
+  <select
+    name="categorie"
+    value={categorie}
+    onChange={(e) => setCategorie(e.target.value)}
+    className=" border border-white rounded-[10px] text-white w-[420px] p-2 pl-10 bg-transparent"
+  >
+    <option className="text-black" value="Etudiant">Étudiant</option>
+    <option className="text-black" value="Enseignant">Enseignant</option>
+    <option className="text-black" value="Ats">Ats</option>
+  </select>
+</div>
+
 
 
           {/*email*/}

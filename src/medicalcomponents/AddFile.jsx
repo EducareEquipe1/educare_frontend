@@ -2,62 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import SideBar from './SideBar';
+import AddFile from './AddFile'; 
+
 
 export default function AddFile() {
   const [activeTab, setActiveTab] = useState('dossier');
-  const [patientData, setPatientData] = useState(null);
   const [status, setStatus] = useState('Active');
   const [loading, setLoading] = useState(false);
+ 
 
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const email = queryParams.get("email");
 
-  const token = localStorage.getItem("doctorToken");
+  
 
-  useEffect(() => {
-    if (email && token) {
-      fetchPatientInfo(email);
-    }
-  }, [email]);
-
-  const fetchPatientInfo = async (email) => {
+  const goToMedicalForm = async () => {
+    if (!email) return;
+  
     try {
-      const response = await axios.get(`https://educare-backend-l6ue.onrender.com/patients/${email}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setPatientData(response.data);
-      setStatus(response.data.statut);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des infos patient :", error);
-    }
-  };
-
-  const createDossier = async () => {
-    if (!patientData) return;
-    setLoading(true);
-
-    try {
-      await axios.post(
-        "https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-create/",
-        {
-          email: patientData.email,
-          nom: patientData.nom,
-          prenom: patientData.prenom,
-          statut: patientData.statut,
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      const userInfo = response.data;
+      console.log("User Info:", userInfo);
+  
+      navigate(`/medicalform/${email}`, {
+        state: {
+          userInfo: {
+            nom: userInfo.nom,
+            prenom: userInfo.prenom,
+            num_tel: userInfo.num_tel,
+            statut: userInfo.statut,
+            date_naissance: userInfo.date_naissance,
+          }
         }
-      );
-      alert("Dossier médical créé avec succès !");
-    } catch (error) {
-      console.error("Erreur lors de la création du dossier médical :", error);
-    } finally {
-      setLoading(false);
+      });
+    } catch (err) {
+      console.error("Erreur lors de la récupération des infos utilisateur:", err);
     }
   };
+  
 
   const tabs = [
     { id: 'dossier', label: 'Medical Dossier' },
@@ -113,9 +103,9 @@ export default function AddFile() {
                   ) : (
                     <button
                       className="rounded text-white bg-[#679294] w-[140px] h-[40px]"
-                      onClick={createDossier}
+                      onClick={goToMedicalForm}
                     >
-                      Créer Dossier
+                      ajouter
                     </button>
                   )}
                 </div>
