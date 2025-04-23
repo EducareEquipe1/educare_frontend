@@ -19,6 +19,7 @@ import Users from "./AdminComponents/Users";
 import MedicalForm from './medicalcomponents/MedicalForm';
 import User from './medicalcomponents/Users';
 import AddFile from './medicalcomponents/AddFile';
+import Medecin from './medicalcomponents/Medecin';
 import Archive from "./AdminComponents/Archive";
 import Settings from "./AdminComponents/Settings";
 {/*import FaceDetectionUploader from "./FaceDetectionComponents/FaceDetectionUploader";*/}
@@ -27,12 +28,14 @@ const NotFound = () => <div>404 Not Found</div>;
 
 function App() {
   return (
+  
     <Router>
       <Routes>
        <Route path="/" element={<Signin />} />
        <Route path="/medicalform/:email" element={<MedicalForm />} />
 
         <Route path="/user" element={<User/>} />
+        <Route path="/medecin/:email" element={<Medecin />} />
        <Route path="/addfile" element={<AddFile/>} />
        <Route path="/addfile/:email" element={<AddFile />} />
        <Route  path="/medicalform" element={<MedicalForm/>}/>

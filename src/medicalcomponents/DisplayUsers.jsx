@@ -23,7 +23,7 @@ export default function DisplayUsers() {
       console.log("Medical form found:", response.data);
 
       if (response.status === 200) {
-        navigate(`/medicalform/${email}`);
+        navigate(`/medecin/${email}`);
       }
     } catch (error) {
       console.error("API error:", error);
@@ -34,9 +34,9 @@ export default function DisplayUsers() {
 
       // Handle cases where dossier doesn't exist
       if (error.response && error.response.status === 404) {
-        navigate(`/addfile?email=${email}`);
+        navigate(`/medecin/${email}`);
       } else {
-        navigate(`/addfile?email=${email}`);
+        navigate(`/medecin/${email}`);
       }
     }
   };

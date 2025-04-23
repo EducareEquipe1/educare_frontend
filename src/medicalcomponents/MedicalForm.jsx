@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react"; 
+import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from 'react-router-dom';
 import SideBar from './SideBar';
 import AntécédentsMedicaux from './AntécédentsMedicaux';
 import AntécédentsPersonels from './AntécédentsPersonels';
 import DonnéesBiométrique from './DonnéesBiométrique';
 import DetailsPersonnels from './DetailsPersonnels';
-import AddFile from './AddFile'
 
 const MedicalForm = () => {
-  const [activeTab, setActiveTab] = useState('dossier');
+  
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [medicalRecordLoading, setMedicalRecordLoading] = useState(false);
@@ -63,7 +62,7 @@ const MedicalForm = () => {
   ];
 
   useEffect(() => {
-    const fetchPatientData = async () => {
+    const fetchInitialData = async () => {
       if (!email) return;
 
       const token = localStorage.getItem("token");
@@ -73,8 +72,8 @@ const MedicalForm = () => {
       }
 
       try {
-        // Fetch patient data
-        const patientResponse = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-utilisateur/${email}`, {
+        // 1. Get user info
+        const userResponse = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -82,17 +81,28 @@ const MedicalForm = () => {
           },
         });
 
-        if (!patientResponse.ok) throw new Error("Failed to fetch patient data");
+        if (!userResponse.ok) throw new Error("Failed to fetch user info");
 
-        const patientData = await patientResponse.json();
+        const userInfo = await userResponse.json();
+
         setPatientData({
-          prenom: patientData.utilisateur.prenom,
-          nom: patientData.utilisateur.nom,
-          email: patientData.utilisateur.email,
-          isActif: patientData.utilisateur.isActif,
+          prenom: userInfo.prenom,
+          nom: userInfo.nom,
+          email: userInfo.email,
+          isActif: userInfo.isActif,
         });
 
-        // Fetch dossier
+        setFormData(prev => ({
+          ...prev,
+          nom: userInfo.nom,
+          prenom: userInfo.prenom,
+          num_tel: userInfo.num_tel,
+          statut: userInfo.statut,
+          date_naissance: userInfo.date_naissance,
+          email: userInfo.email
+        }));
+
+        // 2. Check if medical record exists
         const recordResponse = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-dossier-medical/${email}`, {
           method: 'GET',
           headers: {
@@ -102,7 +112,6 @@ const MedicalForm = () => {
         });
 
         if (recordResponse.status === 404) {
-          console.log("Aucun dossier trouvé");
           setRecordExists(false);
           return;
         }
@@ -117,28 +126,8 @@ const MedicalForm = () => {
       }
     };
 
-    fetchPatientData();
+    fetchInitialData();
   }, [email]);
-
-  //récupérer info pour fromdata
- 
-  useEffect(() => {
-    const state = location.state;
-    if (recordExists && state?.userInfo) {
-
-      const { nom, prenom, num_tel, statut, date_naissance } = state.userInfo;
-      setFormData(prev => ({
-        ...prev,
-        nom,
-        prenom,
-        num_tel,
-        statut,
-        date_naissance,
-        email: email 
-      }));
-    }
-  }, [recordExists, location.state, email]);
-
 
   const handleChange = (e) => {
     if (!recordExists || isEditing) {
@@ -177,7 +166,6 @@ const MedicalForm = () => {
       });
 
       if (!response.ok) {
-        // Detailed error handling
         const errorResponse = await response.json();
         if (response.status === 400) {
           alert(`Validation error: ${errorResponse.message || 'Please check the form data.'}`);
@@ -202,128 +190,75 @@ const MedicalForm = () => {
 
   return (
     <div className="relative flex bg-[#EFEFEF]">
-      <SideBar />
-
-      <div className="flex flex-col w-full">
-        <div className="flex h-[40px] md:max-h-[60px] justify-between items-center px-4 md:px-12 shadow-md bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1]">
-          <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-l md:text-2xl font-bold ml-[95px]">
-            Patients
-          </h1>
-        </div>
-
-        <div className="flex flex-row">
-          <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 ml-[200px] mt-[10px]">
-            <div className="flex flex-col items-center">
-              <img
-                src="./logo.png"
-                alt="Patient"
-                className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
-              />
-              <h2 className="mt-4 text-black text-lg font-semibold">{patientData.nom} {patientData.prenom}</h2>
-              <h2 className="mt-4 text-gray-600 text-lg font-semibold">{patientData.email}</h2>
-              <span
-                className={`text-sm px-3 py-1 rounded-full mt-2 ${
-                  patientData.isActif === false ? "text-red-500" : "text-green-500"
-                }`}
-              >
-                {patientData.isActif === false ? "Inactive" : "Active"}
-              </span>
-            </div>
-
-            <div>
-              <label className="block text-black text-sm font-bold mb-1">Notes du médecin</label>
-              <textarea
-                name="notesMedecin"
-                value={formData.notesMedecin || ''}
-                onChange={handleChange}
-                placeholder="Écrire des observations ici..."
-                rows="6"
-                className="w-full text-black border border-gray-300 rounded-md px-3 py-2 resize-none"
-                readOnly={!isEditing}
-              />
-            </div>
+      <div className="flex flex-row">
+        <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 ml-[200px] mt-[10px]">
+          <div className="flex flex-col items-center">
+            <img
+              src="./logo.png"
+              alt="Patient"
+              className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
+            />
+            <h2 className="mt-4 text-black text-lg font-semibold">{patientData.nom} {patientData.prenom}</h2>
+            <h2 className="mt-4 text-gray-600 text-lg font-semibold">{patientData.email}</h2>
+            <span
+              className={`text-sm px-3 py-1 rounded-full mt-2 ${
+                patientData.isActif === false ? "text-red-500" : "text-green-500"
+              }`}
+            >
+              {patientData.isActif === false ? "Inactive" : "Active"}
+            </span>
           </div>
 
-          <div className="flex flex-col w-full px-4 md:px-12 mt-4">
-            <div className="flex space-x-6 border-b border-gray-300 pb-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  className={`text-black font-bold md:text-base border-b-2 transition duration-300 ease-in-out ${
-                    activeTab === tab.id 
-                      ? 'border-[#F4A261]' 
-                      : 'border-transparent hover:border-[#F4A261]'
-                  }`}
-                  onClick={() => setActiveTab(tab.id)}
-                >
-                  {tab.label}
-                </button>
-              ))}
+          <div>
+            <label className="block text-black text-sm font-bold mb-1">Notes du médecin</label>
+            <textarea
+              name="notesMedecin"
+              value={formData.notesMedecin || ''}
+              onChange={handleChange}
+              placeholder="Écrire des observations ici..."
+              rows="6"
+              className="w-full text-black border border-gray-300 rounded-md px-3 py-2 resize-none"
+              readOnly={!isEditing}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col w-full px-4 md:px-12 mt-4">
+          {(loading) ? (
+            <div className="flex justify-center items-center p-6">
+              <p className="text-gray-600">Chargement des données...</p>
             </div>
-
-            <div className="py-4">
-              {activeTab === 'dossier' && (
-                <div>
-                  {(loading || medicalRecordLoading) ? (
-                    <div className="flex justify-center items-center p-6">
-                      <p className="text-gray-600">Chargement des données...</p>
-                    </div>
-                  ) : (
-                    <form className="flex flex-col w-full space-y-6 px-6 mt-[10px]">
-                      <DetailsPersonnels 
-                        formData={formData} 
-                        handleChange={handleChange} 
-                        readOnly={!isEditing}
-                      />
-                      <DonnéesBiométrique 
-                        formData={formData} 
-                        handleChange={handleChange} 
-                        readOnly={!isEditing}
-                      />
-                      <AntécédentsPersonels 
-                        formData={formData} 
-                        handleChange={handleChange} 
-                        readOnly={!isEditing}
-                      />
-                      <AntécédentsMedicaux 
-                        formData={formData} 
-                        handleChange={handleChange} 
-                        readOnly={!isEditing}
-                      />
-                      <button 
-                        type="button" 
-                        onClick={toggleEditMode} 
-                        className="rounded text-white bg-[#679294] w-[109px] h-[34px]"
-                      >
-                        {isEditing ? 'Sauvegarder' : 'Modifier'}
-                      </button>
-                    </form>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'examen' && (
-                <div className="p-4 bg-gray-50 rounded-md">
-                  <h2 className="text-xl font-bold mb-4">Examen Médicale</h2>
-                  <p>Résultats des examens médicaux récents...</p>
-                </div>
-              )}
-
-              {activeTab === 'rendezvous' && (
-                <div className="p-4 bg-gray-50 rounded-md">
-                  <h2 className="text-xl font-bold mb-4">Rendez-vous</h2>
-                  <p>Liste des prochains rendez-vous médicaux...</p>
-                </div>
-              )}
-
-              {activeTab === 'ordonnances' && (
-                <div className="p-4 bg-gray-50 rounded-md">
-                  <h2 className="text-xl font-bold mb-4">Ordonnances</h2>
-                  <p>Liste des ordonnances actives...</p>
-                </div>
-              )}
-            </div>
-          </div> 
+          ) : (
+            <form className="flex flex-col w-full space-y-6 px-6 mt-[10px]">
+              <DetailsPersonnels 
+                formData={formData} 
+                handleChange={handleChange} 
+                readOnly={!isEditing}
+              />
+              <DonnéesBiométrique 
+                formData={formData} 
+                handleChange={handleChange} 
+                readOnly={!isEditing}
+              />
+              <AntécédentsPersonels 
+                formData={formData} 
+                handleChange={handleChange} 
+                readOnly={!isEditing}
+              />
+              <AntécédentsMedicaux 
+                formData={formData} 
+                handleChange={handleChange} 
+                readOnly={!isEditing}
+              />
+              <button 
+                type="button" 
+                onClick={toggleEditMode} 
+                className="rounded text-white bg-[#679294] w-[109px] h-[34px]"
+              >
+                {isEditing ? 'Sauvegarder' : 'Modifier'}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

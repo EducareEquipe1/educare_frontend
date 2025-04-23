@@ -17,11 +17,8 @@ import "react-datepicker/dist/react-datepicker.css";
 
 export default function Form() {
   const [email, setEmail] = useState("");
-<<<<<<< HEAD
   const [categorie, setCategorie] = useState("Etudiant");
-=======
-  const [categorie, setCategorie] = useState("");
->>>>>>> 1c7fcd98d8ed290265cc8bef6ed53433caf6e9f3
+
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [first_name, setFirstname] = useState("");
@@ -73,20 +70,9 @@ export default function Form() {
       console.log("im trying");
       const res = await axios.post(
         "https://educare-backend-l6ue.onrender.com/patients/register",
-<<<<<<< HEAD
+
         { email, password, first_name, last_name, birth_date, phone, matricule,categorie }
-=======
-        {
-          email,
-          password,
-          first_name,
-          last_name,
-          birth_date,
-          phone,
-          matricule,
-          categorie,
-        }
->>>>>>> 1c7fcd98d8ed290265cc8bef6ed53433caf6e9f3
+
       );
       console.log("not getting the response from the server ");
       setMessage(res.data.message);
@@ -169,7 +155,7 @@ export default function Form() {
             />
           </div>
           {/*categorie */}
-<<<<<<< HEAD
+
           <div className="relative mt-[30px]">
   <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
   <select
@@ -184,24 +170,7 @@ export default function Form() {
   </select>
 </div>
 
-=======
-    
-          <div className="relative mt-[30px]">
-            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
-            <select
-              value={categorie}
-              onChange={(e) => setStatut(e.target.value)}
-              className="border border-white rounded-[10px] text-white bg-transparent w-[420px] p-2 pl-10 appearance-none"
-            >
-              <option value="" disabled>
-                Choisissez un statut
-              </option>
-              <option value="Etudiant">Etudiant</option>
-              <option value="Enseignant">Enseignant</option>
-              <option value="Ats">Ats</option>
-            </select>
-          </div>
->>>>>>> 1c7fcd98d8ed290265cc8bef6ed53433caf6e9f3
+
 
           {/*email*/}
           <div className="relative mt-[30px]">
