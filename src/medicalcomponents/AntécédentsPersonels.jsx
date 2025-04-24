@@ -1,199 +1,155 @@
-import React from 'react'
+import React from 'react';
 
-export default function AntécédentsPersonels({formData, handleChange,readOnly}) {
+export default function AntécédentsPersonels({ formData, handleChange, readOnly }) {
   return (
     <div className="bg-white shadow-md rounded-xl p-6 text-black">
-              
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Antécédents Personnels</h2>
       <h2 className="text-[#F4A261] font-bold text-2xl">Intoxications</h2>
-      <div>
-        <h3 className="font-bold text-[#679294] mb-2 ml-[12px]">Tabac:</h3>
 
-        {/* À fumer */}
-        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-          <label className="w-24 font-medium text-gray-600">À fumer</label>
-          <div className="flex items-center gap-4">
-            <label className="flex items-center">
-              <input 
-                type="radio" 
-                name="tabac_fume" 
-                value="oui" 
-                checked={formData.tabac_fume === "oui"}
-                onChange={handleChange} 
-                readOnly={readOnly}
-                className="mr-2" 
+      {/* 🔸 Tabac - À fumer */}
+      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+        <label className="w-24 font-medium text-gray-600">À fumer</label>
+        <div className="flex items-center gap-4">
+          {["oui", "non"].map((val) => (
+            <label key={val} className="flex items-center">
+              <input
+                type="radio"
+                name="tabac_fume"
+                value={val}
+                checked={formData.tabac_fume === val}
+                onChange={handleChange}
+                disabled={readOnly}
+                className="mr-2"
               />
-              Oui
+              {val.charAt(0).toUpperCase() + val.slice(1)}
             </label>
-            <label className="flex items-center">
-              <input 
-                type="radio" 
-                name="tabacFumer" 
-                value="non" 
-                checked={formData.tabac_fume === "non"}
-                onChange={handleChange} 
-                readOnly={readOnly}
-                className="mr-2" 
-              />
-              Non
-            </label>
-          </div>
-          <label>Nombre de cigarettes</label>
-          <input
-            type="number"
-            name="tabacFumerBoites"
-            value={formData.tabac_fume_nombre || ""}
-            onChange={handleChange}
-            readOnly={readOnly}
-            placeholder="Boîtes / jour"
-            className="border border-gray-300 rounded-md px-3 py-2 w-40"
-          />
+          ))}
         </div>
-
-        {/* À chiquer */}
-        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-          <label className="w-24 font-medium text-gray-600">À chiquer</label>
-          <div className="flex items-center gap-4">
-            <label className="flex items-center">
-              <input 
-                type="radio" 
-                name="tabac_chique" 
-                value="oui" 
-                checked={formData.tabac_chique === "oui"}
-                onChange={handleChange} 
-                readOnly={readOnly}
-                className="mr-2" 
-              />
-              Oui
-            </label>
-            <label className="flex items-center">
-              <input 
-                type="radio" 
-                name="tabacChiquer" 
-                value="non" 
-                checked={formData.tabac_chique === "non"}
-                onChange={handleChange} 
-                readOnly={readOnly}
-                className="mr-2" 
-              />
-              Non
-            </label>
-          </div>
-          <label>Nombre de boites</label>
-          <input
-            type="number"
-            name="tabac_chque_nombre"
-            value={formData.tabac_chique_nombre}
-            onChange={handleChange}
-            readOnly={readOnly}
-            placeholder="Boîtes / jour"
-            className="border border-gray-300 rounded-md px-3 py-2 w-40"
-          />
-        </div>
-
-        {/* Tabac pris */}
-<div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-  <label className="w-24 font-medium text-gray-600">Tabac pris</label>
-  <div className="flex items-center gap-4">
-    <label className="flex items-center">
-      <input 
-        type="radio" 
-        name="tabac_pris" 
-        value="oui" 
-        checked={formData.tabac_pris === "oui"}
-        onChange={handleChange} 
-        readOnly={readOnly}
-        className="mr-2" 
-      />
-      Oui
-    </label>
-    <label className="flex items-center">
-      <input 
-        type="radio" 
-        name="tabac_pris" 
-        value="non" 
-        checked={formData.tabac_pris === "non"}
-        onChange={handleChange} 
-        readOnly={readOnly}
-        className="mr-2" 
-      />
-      Non
-    </label>
-  </div>
-  <label>Nombre de boites</label>
-  <input
-    type="number"
-    name="tabac_pris_nombre"
-    value={formData.tabac_pris_nombre}
-    onChange={handleChange}
-    readOnly={readOnly}
-    placeholder="Boîtes / jour"
-    className="border border-gray-300 rounded-md px-3 py-2 w-40"
-  />
-</div>
-
-        {/* Âge à la première prise */}
-        <div className="mb-4">
-          <label className="block font-medium text-gray-600 mb-1">Âge à la première prise</label>
-          <input
-            type="number"
-            name="agePremierePrise"
-            value={formData.age_pris}
-            onChange={handleChange}
-            readOnly={readOnly}
-            placeholder="ex: 16"
-            className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-60"
-          />
-        </div>
-
-        {/* Ancien fumeur */}
-        <div className="mb-2">
-          <label className="block font-medium text-gray-600 mb-1">Ancien fumeur :</label>
-          <div className="flex items-center gap-6 mb-2">
-            <label className="flex items-center">
-              <input 
-                type="radio" 
-                name="ancienFumeur" 
-                value="oui" 
-                checked={formData.ancien_fume === "oui"}
-                onChange={handleChange} 
-                readOnly={readOnly}
-                className="mr-2" 
-              />
-              Oui
-            </label>
-            <label className="flex items-center">
-              <input 
-                type="radio" 
-                name="ancienFumeur" 
-                value="non" 
-                checked={formData.ancien_fume === "non"}
-                onChange={handleChange} 
-                readOnly={readOnly}
-                className="mr-2" 
-              />
-              Non
-            </label>
-            <label className="block font-medium text-gray-600 mb-1">Période d'exposition:</label>
-            <input
-              type="text"
-              name="periodeExposition"
-              value={formData.periode_exposition || ""}
-              onChange={handleChange}
-              readOnly={readOnly}
-              placeholder="Période d'exposition"
-              className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/2"
-            />
-          </div>
-        </div>
+        <label>Nombre de cigarettes</label>
+        <input
+          type="number"
+          name="tabac_fume_nombre"
+          value={formData.tabac_fume_nombre || ''}
+          onChange={handleChange}
+          readOnly={readOnly}
+          placeholder="Boîtes / jour"
+          className="border border-gray-300 rounded-md px-3 py-2 w-40"
+        />
       </div>
 
-      {/* Alcool */}
+      {/* 🔸 Tabac - À chiquer */}
+      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+        <label className="w-24 font-medium text-gray-600">À chiquer</label>
+        <div className="flex items-center gap-4">
+          {["oui", "non"].map((val) => (
+            <label key={val} className="flex items-center">
+              <input
+                type="radio"
+                name="tabac_chique"
+                value={val}
+                checked={formData.tabac_chique === val}
+                onChange={handleChange}
+                disabled={readOnly}
+                className="mr-2"
+              />
+              {val.charAt(0).toUpperCase() + val.slice(1)}
+            </label>
+          ))}
+        </div>
+        <label>Nombre de boîtes</label>
+        <input
+          type="number"
+          name="tabac_chique_nombre"
+          value={formData.tabac_chique_nombre || ''}
+          onChange={handleChange}
+          readOnly={readOnly}
+          placeholder="Boîtes / jour"
+          className="border border-gray-300 rounded-md px-3 py-2 w-40"
+        />
+      </div>
+
+      {/* 🔸 Tabac pris */}
+      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+        <label className="w-24 font-medium text-gray-600">Tabac pris</label>
+        <div className="flex items-center gap-4">
+          {["oui", "non"].map((val) => (
+            <label key={val} className="flex items-center">
+              <input
+                type="radio"
+                name="tabac_pris"
+                value={val}
+                checked={formData.tabac_pris === val}
+                onChange={handleChange}
+                disabled={readOnly}
+                className="mr-2"
+              />
+              {val.charAt(0).toUpperCase() + val.slice(1)}
+            </label>
+          ))}
+        </div>
+        <label>Nombre de boîtes</label>
+        <input
+          type="number"
+          name="tabac_pris_nombre"
+          value={formData.tabac_pris_nombre || ''}
+          onChange={handleChange}
+          readOnly={readOnly}
+          placeholder="Boîtes / jour"
+          className="border border-gray-300 rounded-md px-3 py-2 w-40"
+        />
+      </div>
+
+      {/* 🔸 Âge à la première prise */}
+      <div className="mb-4">
+        <label className="block font-medium text-gray-600 mb-1">Âge à la première prise</label>
+        <input
+          type="number"
+          name="age_pris"
+          value={formData.age_pris || ''}
+          onChange={handleChange}
+          readOnly={readOnly}
+          placeholder="ex: 16"
+          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-60"
+        />
+      </div>
+
+      {/* 🔸 Ancien fumeur */}
+      <div className="mb-2">
+        <label className="block font-medium text-gray-600 mb-1">Ancien fumeur :</label>
+        <div className="flex items-center gap-6 mb-2">
+          {["oui", "non"].map((val) => (
+            <label key={val} className="flex items-center">
+              <input
+                type="radio"
+                name="ancien_fume"
+                value={val}
+                checked={formData.ancien_fume === val}
+                onChange={handleChange}
+                disabled={readOnly}
+                className="mr-2"
+              />
+              {val.charAt(0).toUpperCase() + val.slice(1)}
+            </label>
+          ))}
+        </div>
+        <label className="block font-medium text-gray-600 mb-1">Période d'exposition</label>
+        <input
+          type="text"
+          name="periode_exposition"
+          value={formData.periode_exposition || ''}
+          onChange={handleChange}
+          readOnly={readOnly}
+          placeholder="ex: 2010 - 2015"
+          className="border border-gray-300 rounded-md px-3 py-2 w-full md:w-1/2"
+        />
+      </div>
+
+      {/* 🔸 Alcool */}
       <div className="mt-4">
         <h3 className="font-semibold text-gray-700 mb-2">Alcool</h3>
         <textarea
           name="alcool"
-          value={formData.alcool }
+          value={formData.alcool || ''}
           onChange={handleChange}
           readOnly={readOnly}
           placeholder="Détails de consommation d'alcool"
@@ -202,12 +158,12 @@ export default function AntécédentsPersonels({formData, handleChange,readOnly}
         />
       </div>
 
-      {/* Médicaments */}
+      {/* 🔸 Médicaments */}
       <div className="mt-4">
         <h3 className="font-semibold text-gray-700 mb-2">Médicaments</h3>
         <textarea
-          name="medicament"
-          value={formData.medicaments || ""}
+          name="medicaments"
+          value={formData.medicaments || ''}
           onChange={handleChange}
           readOnly={readOnly}
           placeholder="Liste ou détails de médicaments"
@@ -215,7 +171,6 @@ export default function AntécédentsPersonels({formData, handleChange,readOnly}
           rows="3"
         />
       </div>
-
     </div>
-  )
+  );
 }
