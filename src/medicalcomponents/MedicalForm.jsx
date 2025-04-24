@@ -321,7 +321,6 @@ const MedicalForm = () => {
                 {activeTab === 'rendezvous' && (
                   <div className="p-4 bg-gray-50 rounded-md">
                     <h2 className="text-xl font-bold mb-4">Rendez-vous</h2>
-                    <p>Liste des prochains rendez-vous médicaux...</p>
                   </div>
                 )}
                 

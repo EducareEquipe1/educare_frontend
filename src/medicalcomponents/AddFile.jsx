@@ -62,7 +62,7 @@ export default function AddFile() {
   const tabs = [
     { id: 'dossier', label: 'Medical Dossier' },
     { id: 'examen', label: 'Medical Exam' },
-    { id: 'rendezvous', label: 'Appointments' },
+    { id: 'rendezvous', label: 'Rendez-vous' },
     { id: 'ordonnances', label: 'Prescriptions' },
   ];
 
@@ -131,7 +131,7 @@ export default function AddFile() {
               {activeTab === 'rendezvous' && (
                 <div>
                   <h2 className="text-xl font-bold mb-4">Appointments</h2>
-                  <p>List of upcoming medical appointments...</p>
+                  
                 </div>
               )}
 
