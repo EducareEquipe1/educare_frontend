@@ -4,7 +4,7 @@ import Mesures from "./Mesures";
 import ExamenAppareil from "./ExamenAppareil";
 import ExplorationFonctionnels from "./ExplorationFonctionnels";
 import ExamenComplementaire from "./ExamenComplementaire";
-import PatientCard from "./PatientCard"
+
 
 const ExamenPhysique = ({ consultationId }) => {
   const [formData, setFormData] = useState({
@@ -112,7 +112,6 @@ const ExamenPhysique = ({ consultationId }) => {
     <div className="relative flex bg-[#EFEFEF]">
       <div className="flex flex-row">
         
-          <PatientCard/>
         
     <div className="bg-white flex flex-col w-full px-4 md:px-12 mt-4">
       <h1 className="text-black">Examen Physique</h1>
