@@ -3,44 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import UsersList from './UsersList';
 import axios from 'axios';
 
-export default function DisplayUsers() {
+const DisplayUsers = ({ searchQuery = '' }) => {
   const [patients, setPatients] = useState([]);
+  const [filteredPatients, setFilteredPatients] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const handleConsult = async (email) => {
-    const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Access denied. Please log in.");
-        return;
-      }
-    try {
-      
-      const response = await axios.get(`https://educare-backend-l6ue.onrender.com/medecins/get-dossier-medical/${email}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      
-      console.log("Medical form found:", response.data);
-
-      if (response.status === 200) {
-        navigate(`/medecin/${email}`);
-      }
-    } catch (error) {
-      console.error("API error:", error);
-      if (error.response) {
-        console.error("Error Status:", error.response.status);
-        console.error("Error Data:", error.response.data);
-      }
-
-      // Handle cases where dossier doesn't exist
-      if (error.response && error.response.status === 404) {
-        navigate(`/medecin/${email}`);
-      } else {
-        navigate(`/medecin/${email}`);
-      }
-    }
-  };
-
+  // Fetch all patients on initial load
   useEffect(() => {
     const fetchPatients = async () => {
       const token = localStorage.getItem("token");
@@ -50,27 +20,94 @@ export default function DisplayUsers() {
       }
 
       try {
-        const response = await axios.get("https://educare-backend-l6ue.onrender.com/admin/get-all-patients/", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          "https://educare-backend-l6ue.onrender.com/admin/get-all-patients/",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         if (response.status === 200) {
           setPatients(response.data);
-        } else {
-          console.error("Unexpected response status:", response.status);
+          setFilteredPatients(response.data);
         }
       } catch (error) {
-        if (error.response?.status === 403) {
-          alert("Access forbidden. Please check your permissions.");
-        } else {
-          console.error("Network error:", error);
-          alert("Network error. Please try again later.");
-        }
+        console.error("Error fetching patients:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchPatients();
   }, []);
+
+  // Handle search when searchQuery changes
+  useEffect(() => {
+    const searchPatients = async () => {
+      if (!searchQuery.trim()) {
+        setFilteredPatients(patients);
+        return;
+      }
+
+      setIsSearching(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Access denied. Please log in.");
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          `https://educare-backend-l6ue.onrender.com/medecins/search-patient?q=${searchQuery}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setFilteredPatients(response.data.results || []);
+      } catch (error) {
+        console.error("Search error:", error);
+        setFilteredPatients([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      searchPatients();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, patients]);
+
+  const handleConsult = async (email) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Access denied. Please log in.");
+      return;
+    }
+
+    try {
+      await axios.get(
+        `https://educare-backend-l6ue.onrender.com/medecins/get-dossier-medical/${email}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      navigate(`/medecin/${email}`);
+    } catch (error) {
+      console.error("Consult error:", error);
+      // Still navigate even if medical record doesn't exist yet
+      navigate(`/medecin/${email}`);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FFFEFE]">
+        <p className="text-gray-500">Loading patients...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-end bg-[#FFFEFE] mx-8 mb-6 rounded-[15px] border border-[#CACACA] shadow-md py-6 px-6 ml-[150px] mt-[50px]">
@@ -83,22 +120,28 @@ export default function DisplayUsers() {
         </div>
 
         <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-          {patients.length > 0 ? (
-            patients.map((patient) => (
+          {isSearching ? (
+            <p className="text-center text-gray-500 mt-4">Searching patients...</p>
+          ) : filteredPatients.length > 0 ? (
+            filteredPatients.map((patient) => (
               <UsersList
                 key={patient.email}
                 matricule={patient.matricule}
                 prenom={patient.prenom}
                 nom={patient.nom}
                 email={patient.email}
-                onConsult={handleConsult}
+                onConsult={() => handleConsult(patient.email)}
               />
             ))
           ) : (
-            <p className="text-center text-gray-500 mt-4">No patients found.</p>
+            <p className="text-center text-gray-500 mt-4">
+              {searchQuery ? "No matching patients found" : "No patients available"}
+            </p>
           )}
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default DisplayUsers;

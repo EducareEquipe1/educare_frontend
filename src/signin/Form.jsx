@@ -24,7 +24,7 @@ export default function Form() {
     try {
       const res = await axios.post(
         "https://educare-backend-l6ue.onrender.com/patients/login/",
-        { email, password }
+        { email, password },
       );
 setMessage(res.error);
       localStorage.setItem("token", res.data.token); // Store JWT token

@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import SideBar from './SideBar';
 import MedicalForm from './MedicalForm';
+import ConsultationList from '../consultationcomp/ConsultationList'
+
 
 const Medecin = () => {
   const [activeTab, setActiveTab] = useState('dossier');
@@ -10,11 +12,11 @@ const Medecin = () => {
 
   const { email } = useParams();
 
-  const tabs = [
+  const tabs = [ 
+    { id: 'consultation', label: 'Consultation' },
     { id: 'dossier', label: 'Dossier Médicale' },
-    { id: 'examen', label: 'Examen Médicale' },
     { id: 'rendezvous', label: 'Rendez-vous' },
-    { id: 'ordonnances', label: 'Ordonnances' },
+    { id: 'ordonnances', label: 'Ordonnances' }
   ];
 
   useEffect(() => {
@@ -90,13 +92,9 @@ const Medecin = () => {
             </div>
           ) : (
             <>
-              {activeTab === 'dossier' && <MedicalForm />}
-              {activeTab === 'examen' && (
-                <div className="p-4 bg-gray-50 rounded-md">
-                  <h2 className="text-xl font-bold mb-4">Examen Médicale</h2>
-                  <p>Résultats des examens médicaux récents...</p>
-                </div>
-              )}
+              {activeTab === 'consultation' && <ConsultationList/>  }
+              {activeTab === 'dossier' && <MedicalForm/>}
+            
 
               {activeTab === 'rendezvous' && (
                 <div className="p-4 bg-gray-50 rounded-md">

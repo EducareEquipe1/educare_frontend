@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from 'react-router-dom';
-import SideBar from './SideBar';
+
 import AntécédentsMedicaux from './AntécédentsMedicaux';
 import AntécédentsPersonels from './AntécédentsPersonels';
 import DonnéesBiométrique from './DonnéesBiométrique';
@@ -37,11 +37,11 @@ const MedicalForm = () => {
     notes: "none",
     poids: "",
     taille: "",
-    tabac_fume: "",
+    tabac_fume: "false",
     tabac_fume_nombre: "",
-    tabac_chique: "",
+    tabac_chique: "false",
     tabac_chique_nombre: "",
-    tabac_pris: "",
+    tabac_pris: "false",
     tabac_pris_nombre: "",
     age_pris: "",
     ancien_fume: "",
@@ -54,13 +54,7 @@ const MedicalForm = () => {
     reactionsAllergiques: "",
   });
 
-  const tabs = [
-    { id: 'dossier', label: 'Dossier Médicale' },
-    { id: 'examen', label: 'Examen Médicale' },
-    { id: 'rendezvous', label: 'Rendez-vous' },
-    { id: 'ordonnances', label: 'Ordonnances' }
-  ];
-
+  
   useEffect(() => {
     const fetchInitialData = async () => {
       if (!email) return;
@@ -166,6 +160,7 @@ const MedicalForm = () => {
       });
 
       if (!response.ok) {
+        // Detailed error handling
         const errorResponse = await response.json();
         if (response.status === 400) {
           alert(`Validation error: ${errorResponse.message || 'Please check the form data.'}`);
