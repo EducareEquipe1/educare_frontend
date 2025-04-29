@@ -2,15 +2,63 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, Paperclip, Link as LinkIcon, Plus } from 'lucide-react';
 import axios from 'axios';
+import SideBar from './SideBar';
 
 const ConsultationForm = () => {
   const { id_consultation } = useParams();
   const navigate = useNavigate();
+  const email = localStorage.getItem('selectedEmail');
+ 
+  const [patientData, setPatientData] = useState({
+    prenom: '',
+    nom: '',
+    email: '',
+    isActif: "",
+  });
+  
+  //fetch patientcard info 
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      if (!email) return;
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert("Access denied. Please log in.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch patient data');
+
+        const data = await response.json();
+
+        setPatientData({
+          prenom: data.prenom,
+          nom: data.nom,
+          email: data.email,
+          isActif: data.isActif,
+        });
+      } catch (error) {
+        console.error('Error fetching patient data:', error);
+      }
+    };
+
+    fetchPatientData();
+  }, [email]);
+
   const token = localStorage.getItem("token");
   
   if (!token) {
     alert("Access denied. Please log in.");
-    return;
+    return null;
   }
 
   const [consultationData, setConsultationData] = useState({
@@ -20,14 +68,13 @@ const ConsultationForm = () => {
     symptomes: '',
     observations: '',
     diagnostic: '',
-    id_rendezVous:'',
-    piece:'',
-    patient_id:""
+    id_rendezVous: '',
+    piece: '',
+    patient_id: ""
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch consultation data
   useEffect(() => {
     const fetchConsultationData = async () => {
       if (!id_consultation) return;
@@ -39,27 +86,33 @@ const ConsultationForm = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         
-        const apiData = response.data[0] ;
- // <<<<< Notice .data here
-  
-        console.log("Fetched consultation data:", apiData); // now this will show { motif: "...", symptomes: "...", ... }
-  
-        setConsultationData(prev => ({
-          ...prev,
-          date: apiData.date || '',
+        const apiData = response.data.find(item => item.id_consultation == id_consultation);
+        
+        if (!apiData) {
+          throw new Error("Consultation not found");
+        }
+
+        // Convert ISO date to yyyy-MM-dd format for the date input
+        const isoDate = new Date(apiData.date);
+        const formattedDate = apiData.date 
+          ? `${isoDate.getFullYear()}-${String(isoDate.getMonth() + 1).padStart(2, '0')}-${String(isoDate.getDate()).padStart(2, '0')}`
+          : '';
+
+        setConsultationData({
+          date: formattedDate,
+          type: apiData.type || 'generale',
           motif: apiData.motif || '',
           symptomes: apiData.symptomes || '',
           observations: apiData.observations || '',
           diagnostic: apiData.diagnostic || '',
-          type: apiData.type || 'routine',
-          id_rendezVous: apiData.id_rendezVous || '',
-          patient_id: apiData.patient_id || '',
-          piece: apiData.piece ? { name: apiData.piece } : null,
-        }));
+          id_rendezVous: apiData.id_rendezVous || null,
+          piece: apiData.piece || '',
+          patient_id: apiData.patient_id || ""
+        });
         
       } catch (error) {
         console.error('Error fetching consultation:', error);
-        alert(`Error loading consultation: ${error.response?.data?.message || error.message}`);
+        alert(`Error loading consultation: ${error.message}`);
       } finally {
         setIsLoading(false);
       }
@@ -67,40 +120,63 @@ const ConsultationForm = () => {
   
     fetchConsultationData();
   }, [id_consultation, token]);
-  
 
-  // Handle form submission
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (!id_consultation) {
-      alert("No consultation ID provided for update");
-      return;
-    }
-
     setIsLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('date', consultationData.date);
-      formData.append('type', consultationData.type);
-      formData.append('motif', consultationData.motif);
-      formData.append('symptomes', consultationData.symptomes);
-      formData.append('observations', consultationData.observations);
-      formData.append('diagnostic', consultationData.diagnostic);
-      
-      if (consultationData.piece instanceof File) {
-        formData.append('file', consultationData.piece);
-      }
 
-      await axios.put(
+    // Prepare the payload according to your backend's expected format
+    const payload = {
+      date: consultationData.date ? new Date(consultationData.date).toISOString() : null,
+      type: consultationData.type,
+      motif: consultationData.motif,
+      symptomes: consultationData.symptomes,
+      observations: consultationData.observations,
+      diagnostic: consultationData.diagnostic,
+      id_rendezVous: consultationData.id_rendezVous,
+      patient_id: consultationData.patient_id,
+      piece: consultationData.piece
+    };
+
+    try {
+      const response = await axios.put(
         `https://educare-backend-l6ue.onrender.com/medecins/modify-consultation/${id_consultation}`,
-        formData,
-        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
-      alert('Consultation mise à jour avec succès!');
+      if (response.status === 200) {
+        const updatedData = Array.isArray(response.data) 
+          ? response.data.find(item => item.id_consultation == id_consultation)
+          : response.data;
+
+        if (updatedData) {
+          const updatedDate = updatedData.date 
+            ? updatedData.date.split('T')[0] 
+            : '';
+            
+          setConsultationData(prev => ({
+            ...prev,
+            ...updatedData,
+            date: updatedDate,
+            piece: updatedData.piece || ''
+          }));
+        }
+        
+        alert('Consultation updated successfully!');
+        navigate(`/consultation/${id_consultation}`);
+      }
     } catch (error) {
-      console.error('Update error:', error);
-      alert(`Erreur lors de la mise à jour: ${error.response?.data?.message || error.message}`);
+      console.error('Error updating consultation:', {
+        error: error.response?.data || error.message,
+        config: error.config
+      });
+      alert(`Error updating consultation: ${error.response?.data?.message || error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -125,254 +201,215 @@ const ConsultationForm = () => {
 
   // Navigation to physical exam
   const handleAddPhysicalExam = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Create new empty physical exam with all required fields
-      const response = await axios.post(
-        `https://educare-backend-l6ue.onrender.com/medecins/examenphysique-create/${id_consultation}`,
-        {
-          poids: "",
-          taille: "",
-          IMC: "",
-          tesion: "",
-          vision_d: "",
-          vision_g: "",
-          larmoiement: "",
-          douleur: "",
-          taches_yeux: "",
-          audition_d: "",
-          audition_g: "",
-          sifflements: "",
-          angines: "",
-          epistaxis: "",
-          rhinorrhee: "",
-          cephalees: "",
-          vertiges: "",
-          troubles_sommeil: "",
-          peau_normale: "",
-          peau_anormale: "",
-          douleurs_musculaire: "",
-          doleur_articulaire: "",
-          palpitation: "",
-          oedemes: "",
-          cyanose: "",
-          pyrosis: "",
-          vomissements: "",
-          doleur_abdominales: "",
-          dysurie: "",
-          hematurie: "",
-          cycles_irrigulier: "",
-          fonction_respiratoire: "",
-          fonction_circulatoire: "",
-          fonction_motrice: "",
-          sanguins: "",
-          urinaires: "",
-          radiologiques: "",
-          hepatite_pos: "",
-          hepatite_neg: "",
-          syphilis_pos: "",
-          syphilis_neg: "",
-          vih_po: "",
-          vih_neg: "",
-          // Include any other required fields with empty values
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-  
-      if (!response.data?.id_examen) {
-        throw new Error("No exam ID returned from server");
-      }
-  
-      // Store the exam ID in localStorage if needed
-      localStorage.setItem('currentExamId', response.data.id_examen);
-      
-      // Navigate to the newly created physical exam
-      navigate(`/examenphysique/${response.data.id_examen}`);
-      
-    } catch (error) {
-      console.error('Error creating physical exam:', error);
-      alert(`Failed to create physical exam: ${error.response?.data?.message || error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
+    navigate(`/examenphysique/${id_consultation}`);
   };
 
   // Navigation to prescription
   const handleAddPrescription = () => {
-    navigate(`/consultation/${id_consultation}/ordonnance`);
+    navigate(`/ordonnace/${id_consultation}`);
   };
 
   return (
-    <div className="relative flex bg-[#EFEFEF]">
-      <div className="flex flex-col w-full px-4 md:px-12 mt-4">
-        <form onSubmit={handleFormSubmit} className="flex flex-col w-full space-y-6 px-6 mt-[10px]">
-          {/* Basic Info Section */}
-          <div className="bg-gray-100 p-4 rounded-lg">
-            <div className="mb-4">
-              <label className="block text-sm font-bold text-gray-700 mb-1">Motif</label>
-              <input
-                type="text"
-                name="motif"
-                value={consultationData.motif}
-                onChange={handleInputChange}
-                className="w-full text-black rounded-md border border-gray-300 py-2 px-3 bg-white"
-                required
-              />
+    <div className="relative flex bg-[#EFEFEF] min-h-screen">
+      <div className="flex flex-col md:flex-row w-full overflow-hidden">
+        <div className="w-full md:w-24 bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
+          <SideBar />
+        </div>
+
+        <div className="flex flex-col w-full md:ml-24">
+          <div className="h-16 flex items-center px-8 shadow bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1] z-10">
+            <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-xl md:text-2xl font-bold">
+              Patients
+            </h1>
+          </div>
+
+          <div className="flex flex-col md:flex-row w-full">
+            {/* Patient Sidebar */}
+            <div className="w-full md:w-[239px] h-[346px] bg-white shadow-lg rounded-xl p-6 space-y-6 md:ml-[200px] mt-[10px]">
+              <div className="flex flex-col items-center">
+                <img
+                  src="./logo.png"
+                  alt="Patient"
+                  className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
+                />
+                <h2 className="mt-4 text-black text-lg font-semibold">{patientData.nom} {patientData.prenom}</h2>
+                <h2 className="mt-4 text-gray-600 text-lg font-semibold">{patientData.email}</h2>
+                <span
+                  className={`text-sm px-3 py-1 rounded-full mt-2 ${
+                    patientData.isActif === false ? "text-red-500" : "text-green-500"
+                  }`}
+                >
+                  {patientData.isActif === false ? "Inactive" : "Active"}
+                </span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Date</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black-400" />
-                  <input
-                    type="date"
-                    name="date"
-                    value={consultationData.date}
+            {/* Consultation Form */}
+            <div className="flex flex-col w-full px-4 md:px-12 mt-4">
+              <form onSubmit={handleFormSubmit} className="flex flex-col w-full space-y-6 px-6">
+                {/* Basic Info Section */}
+                <div className="bg-gray-100 p-4 rounded-lg">
+                  <div className="mb-4">
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Motif</label>
+                    <input
+                      type="text"
+                      name="motif"
+                      value={consultationData.motif}
+                      onChange={handleInputChange}
+                      className="w-full text-black rounded-md border border-gray-300 py-2 px-3 bg-white"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">Date</label>
+                      <div className="relative">
+                        <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          type="date"
+                          name="date"
+                          value={consultationData.date}
+                          onChange={handleInputChange}
+                          className="pl-10 text-black w-full rounded-md border border-gray-300 py-2 px-3 bg-white"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">Type</label>
+                      <select
+                        name="type"
+                        value={consultationData.type}
+                        onChange={handleInputChange}
+                        className={`w-full rounded-md border py-2 px-3 ${getConsultationTypeColor()}`}
+                        required
+                      >
+                        <option value="routine">Routinière</option>
+                        <option value="urgent">Urgente</option>
+                        <option value="followup">Suivi</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Symptoms Section */}
+                <div>
+                  <label className="block text-sm font-bold text-black mb-1">Symptômes Rapportés</label>
+                  <textarea
+                    name="symptomes"
+                    value={consultationData.symptomes}
                     onChange={handleInputChange}
-                    className="pl-10 text-black w-full rounded-md border border-gray-300 py-2 px-3 bg-white"
+                    rows={3}
+                    className="w-full text-black rounded-md border border-gray-300 py-2 px-3"
                     required
                   />
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Type</label>
-                <select
-                  name="type"
-                  value={consultationData.type}
-                  onChange={handleInputChange}
-                  className={`w-full rounded-md border py-2 px-3 ${getConsultationTypeColor()}`}
-                  required
-                >
-                  <option value="routine">Routinière</option>
-                  <option value="urgent">Urgente</option>
-                  <option value="followup">Suivi</option>
-                </select>
-              </div>
+                {/* Observations Section */}
+                <div>
+                  <label className="block text-sm font-bold text-black mb-1">Observations du Médecin</label>
+                  <textarea
+                    name="observations"
+                    value={consultationData.observations}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className="w-full text-black rounded-md border border-gray-300 py-2 px-3"
+                    required
+                  />
+                </div>
+
+                {/* Diagnosis Section */}
+                <div>
+                  <label className="block text-sm font-bold text-black mb-1">Diagnostic</label>
+                  <textarea
+                    name="diagnostic"
+                    value={consultationData.diagnostic}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full text-black rounded-md border border-gray-300 py-2 px-3"
+                    required
+                  />
+                </div>
+
+                {/* Physical Exam Section */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-sm font-bold text-black">Examen Physique</h3>
+                    <button
+                      type="button"
+                      onClick={handleAddPhysicalExam}
+                      disabled={isLoading}
+                      className="flex items-center text-sm text-[#679294] hover:text-[#51797a] disabled:opacity-50"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Ajouter
+                    </button>
+                  </div>
+                  <div className="text-gray-500 text-sm">
+                    {isLoading ? 'Chargement...' : 'Aucun examen physique enregistré'}
+                  </div>
+                </div>
+
+                {/* Prescription Section */}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-sm font-bold text-black">Ordonnance</h3>
+                    <button
+                      type="button"
+                      onClick={handleAddPrescription}
+                      disabled={isLoading}
+                      className="flex items-center text-sm text-[#679294] hover:text-[#51797a] disabled:opacity-50"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Ajouter
+                    </button>
+                  </div>
+                  <div className="text-gray-500 text-sm">
+                    {isLoading ? 'Chargement...' : 'Aucune ordonnance enregistrée'}
+                  </div>
+                </div>
+
+                {/* File Attachment */}
+                <div>
+                  <label className="block text-sm font-bold text-black mb-1">Pièce Jointe</label>
+                  <label className="flex items-center space-x-2 cursor-pointer p-3 border border-gray-300 rounded-md hover:bg-gray-50">
+                    <Paperclip className="h-5 w-5 text-gray-400" />
+                    <span className="text-sm text-gray-600">
+                      {consultationData.piece || 'Aucun fichier sélectionné'}
+                    </span>
+                    <input
+                      type="text"
+                      name="piece"
+                      onChange={handleInputChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-4 pb-6">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="rounded text-white bg-[#679294] w-[109px] h-[34px] disabled:opacity-50"
+                  >
+                    {isLoading ? 'En cours...' : 'Sauvegarder'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate(-1)}
+                    className="rounded text-[#679294] bg-white w-[109px] h-[34px] border border-[#679294]"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-
-          {/* Symptoms Section */}
-          <div>
-            <label className="block text-sm font-bold text-black mb-1">Symptômes Rapportés</label>
-            <textarea
-              name="symptomes"
-              value={consultationData.symptomes}
-              onChange={handleInputChange}
-              rows={3}
-              className="w-full text-black rounded-md border border-gray-300 py-2 px-3"
-              required
-            />
-          </div>
-
-      
-
-          {/* Observations Section */}
-          <div>
-            <label className="block text-sm font-bold text-black mb-1">Observations du Médecin</label>
-            <textarea
-              name="observations"
-              value={consultationData.observations}
-              onChange={handleInputChange}
-              rows={4}
-              className="w-full text-black rounded-md border border-gray-300 py-2 px-3"
-              required
-            />
-          </div>
-
-          {/* Diagnosis Section */}
-          <div>
-            <label className="block text-sm font-bold text-black mb-1">Diagnostic</label>
-            <textarea
-              name="diagnostic"
-              value={consultationData.diagnostic}
-              onChange={handleInputChange}
-              rows={3}
-              className="w-full text-black rounded-md border border-gray-300 py-2 px-3"
-              required
-            />
-          </div>
-
-          {/*Physical Examen*/}
-           <div className="bg-white p-4 rounded-lg border border-gray-200">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-bold text-black">Examen Physique</h3>
-              <button
-                type="button"
-                onClick={handleAddPhysicalExam}
-                className="flex items-center text-sm text-[#679294] hover:text-[#51797a]"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Ajouter
-              </button>
-            </div>
-            {/* Placeholder for physical exam content */}
-            <div className="text-gray-500 text-sm">
-              Aucun examen physique enregistré
-            </div>
-          </div>
-
-          {/* Prescription Section */}
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-sm font-bold text-black">Ordonnance</h3>
-              <button
-                type="button"
-                onClick={handleAddPrescription}
-                className="flex items-center text-sm text-[#679294] hover:text-[#51797a]"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Ajouter
-              </button>
-            </div>
-            {/* Placeholder for prescription content */}
-            <div className="text-gray-500 text-sm">
-              Aucune ordonnance enregistrée
-            </div>
-          </div>
-
-          {/* File Attachment */}
-          <div>
-            <label className="block text-sm font-bold text-black mb-1">Pièce Jointe</label>
-            <label className="flex items-center space-x-2 cursor-pointer p-3 border border-gray-300 rounded-md hover:bg-gray-50">
-              <Paperclip className="h-5 w-5 text-gray-400" />
-              <span className="text-sm text-gray-600">
-                {consultationData.piece ? consultationData.piece.name : 'Choisir un fichier'}
-              </span>
-              <input
-                type="file"
-                name="piece"
-                onChange={handleInputChange}
-                className="hidden"
-              />
-            </label>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex space-x-4">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="rounded text-white bg-[#679294] w-[109px] h-[34px] disabled:opacity-50"
-            >
-              {isLoading ? 'En cours...' : 'Sauvegarder'}
-            </button>
-
-            <button
-              type="button"
-              className="rounded text-[#679294] bg-white w-[109px] h-[34px]"
-            >
-              Annuler
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   );

@@ -93,6 +93,7 @@ const DisplayUsers = ({ searchQuery = '' }) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+      localStorage.setItem('selectedEmail', email);
       navigate(`/medecin/${email}`);
     } catch (error) {
       console.error("Consult error:", error);
