@@ -3,12 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import SideBar from './SideBar';
 import MedicalForm from './MedicalForm';
-<<<<<<< HEAD
 import TabRendezvous from '../doctorcomponents/TabRendezvous';
-=======
-import ConsultationList from '../consultationcomp/ConsultationList'
-
->>>>>>> 73e635f256e840d225f372ccdc52c82c0f338d32
 
 const Medecin = () => {
   const [activeTab, setActiveTab] = useState('dossier');
@@ -113,13 +108,8 @@ const Medecin = () => {
               )}
 
               {activeTab === 'ordonnances' && (
-<<<<<<< HEAD
-                <div className="p-4 bg-gray-50 rounded-md ">
-                  <h2 className="text-xl font-bold mb-4">Ordonnances</h2>
-=======
                 <div className="p-4 bg-gray-50 rounded-md">
                   <h2 className="text-xl font-bold mb-4">Demande de rendez-vous</h2>
->>>>>>> 73e635f256e840d225f372ccdc52c82c0f338d32
                   <p>Liste des ordonnances actives...</p>
                 </div>
               )}
