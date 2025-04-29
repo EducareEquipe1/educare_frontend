@@ -23,6 +23,7 @@ import Medecin from './medicalcomponents/Medecin';
 import Archive from "./AdminComponents/Archive";
 import Settings from "./AdminComponents/Settings";
 import RendezVous from "./doctorcomponents/RendezVous";
+import TabRendezvous from "./doctorcomponents/TabRendezvous";
 {/*import FaceDetectionUploader from "./FaceDetectionComponents/FaceDetectionUploader";*/}
 
 const NotFound = () => <div>404 Not Found</div>;
@@ -55,6 +56,8 @@ function App() {
         <Route path="/Settings" element={<Settings />} />
         <Route path="*" element={<NotFound />} />{" "}
         <Route path="/RendezVous" element={<RendezVous />} />
+        <Route path="/TabRendezvous/:email" element={<TabRendezvous />} />
+
         {/* Catch-all for unknown routes */}
       </Routes>
     </Router>
