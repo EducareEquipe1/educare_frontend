@@ -147,7 +147,7 @@ const ConsultationList = () => {
                 </span>
               </div>
               <p className="text-gray-600 mt-1">{consultation.motif || 'Pas de motif précisé'}</p>
-              <p className='text-black'>{consultation.id_consultation}</p>
+             
               <div className="mt-3 flex justify-end">
                 <button
                   onClick={() => handleConsultationClick(consultation.id_consultation)}

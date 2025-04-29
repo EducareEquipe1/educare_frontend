@@ -216,7 +216,7 @@ const ConsultationForm = () => {
           <SideBar />
         </div>
 
-        <div className="flex flex-col w-full md:ml-24">
+        <div className="flex flex-col w-full ml-[163px]">
           <div className="h-16 flex items-center px-8 shadow bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1] z-10">
             <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-xl md:text-2xl font-bold">
               Patients

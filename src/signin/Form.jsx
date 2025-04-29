@@ -8,6 +8,7 @@ export default function Form() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [role,setRole]=useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -29,8 +30,17 @@ export default function Form() {
 setMessage(res.error);
       localStorage.setItem("token", res.data.token); // Store JWT token
       setMessage("Login successful!");
+    
+        console.log(res.data.patient.role);
       if (res.data.patient.verified == true) {
-        navigate("/user");
+        switch(res.data.patient.role){
+          case 'medecin':navigate("/user");
+              break;
+          case 'admin':navigate("/Dashboard");
+              break;
+        }
+        
+        
         localStorage.setItem("token", res.data.token); // Store JWT token
       } else {
         navigate("/checkemail", { state: { email: email } });
