@@ -3,7 +3,12 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import SideBar from './SideBar';
 import MedicalForm from './MedicalForm';
+<<<<<<< HEAD
 import TabRendezvous from '../doctorcomponents/TabRendezvous';
+=======
+import ConsultationList from '../consultationcomp/ConsultationList'
+
+>>>>>>> 73e635f256e840d225f372ccdc52c82c0f338d32
 
 const Medecin = () => {
   const [activeTab, setActiveTab] = useState('dossier');
@@ -11,11 +16,12 @@ const Medecin = () => {
 
   const { email } = useParams();
 
-  const tabs = [
+  const tabs = [ 
     { id: 'dossier', label: 'Dossier Médicale' },
-    { id: 'examen', label: 'Examen Médicale' },
+    { id: 'consultation', label: 'Consultation' },
+   
     { id: 'rendezvous', label: 'Rendez-vous' },
-    { id: 'ordonnances', label: 'Ordonnances' },
+    { id: 'ordonnances', label: 'Ordonnances' }
   ];
 
   useEffect(() => {
@@ -91,13 +97,10 @@ const Medecin = () => {
             </div>
           ) : (
             <>
-              {activeTab === 'dossier' && <MedicalForm />}
-              {activeTab === 'examen' && (
-                <div className="p-4 bg-gray-50 rounded-md">
-                  <h2 className="text-xl font-bold mb-4">Examen Médicale</h2>
-                  <p>Résultats des examens médicaux récents...</p>
-                </div>
-              )}
+            {activeTab === 'dossier' && <MedicalForm/>}
+              {activeTab === 'consultation' && <ConsultationList/>  }
+              
+            
 
               {activeTab === 'rendezvous' && (
                 <div className="p-4  rounded-md ml-14">
@@ -110,8 +113,13 @@ const Medecin = () => {
               )}
 
               {activeTab === 'ordonnances' && (
+<<<<<<< HEAD
                 <div className="p-4 bg-gray-50 rounded-md ">
                   <h2 className="text-xl font-bold mb-4">Ordonnances</h2>
+=======
+                <div className="p-4 bg-gray-50 rounded-md">
+                  <h2 className="text-xl font-bold mb-4">Demande de rendez-vous</h2>
+>>>>>>> 73e635f256e840d225f372ccdc52c82c0f338d32
                   <p>Liste des ordonnances actives...</p>
                 </div>
               )}

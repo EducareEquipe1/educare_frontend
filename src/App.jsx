@@ -20,6 +20,10 @@ import MedicalForm from './medicalcomponents/MedicalForm';
 import User from './medicalcomponents/Users';
 import AddFile from './medicalcomponents/AddFile';
 import Medecin from './medicalcomponents/Medecin';
+import ConsultationForm from './consultationcomp/ConsultationForm'
+import ConsultationList from './consultationcomp/ConsultationList'
+import ExamenPhysique from './consultationcomp/ExamenPhysique'
+import Ordonnance from './consultationcomp/Ordonnance'
 import Archive from "./AdminComponents/Archive";
 import Settings from "./AdminComponents/Settings";
 import RendezVous from "./doctorcomponents/RendezVous";
@@ -33,9 +37,15 @@ function App() {
   
     <Router>
       <Routes>
-       <Route path="/" element={<Signin />} />
-       <Route path="/medicalform/:email" element={<MedicalForm />} />
+          <Route path="/" element={<Signin />} />
+       <Route path="/ordonnace" element={<Ordonnance /> } />
 
+       <Route path="/listeconsultation" element={<ConsultationList/>} />
+       <Route path="/listeconsultation:email" element={<ConsultationList/>} />
+       <Route path="/examenphysique" element={<ExamenPhysique />} />
+       <Route path="/consultation" element={<ConsultationForm />} />
+       <Route path="/consultation/:id_consultation" element={<ConsultationForm />} />
+       <Route path="/medicalform/:email" element={<MedicalForm />} />
         <Route path="/user" element={<User/>} />
         <Route path="/medecin/:email" element={<Medecin />} />
        <Route path="/addfile" element={<AddFile/>} />
