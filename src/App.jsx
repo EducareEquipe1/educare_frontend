@@ -35,13 +35,13 @@ function App() {
   
     <Router>
       <Routes>
-        {/*  <Route path="/" element={<Signin />} />*/}
+          <Route path="/" element={<Signin />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
 
        <Route path="/listeconsultation" element={<ConsultationList/>} />
        <Route path="/listeconsultation:email" element={<ConsultationList/>} />
        <Route path="/examenphysique" element={<ExamenPhysique />} />
-       <Route path="/" element={<ConsultationForm />} />
+       <Route path="/consultation" element={<ConsultationForm />} />
        <Route path="/consultation/:id_consultation" element={<ConsultationForm />} />
        <Route path="/medicalform/:email" element={<MedicalForm />} />
         <Route path="/user" element={<User/>} />

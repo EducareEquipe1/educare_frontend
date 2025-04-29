@@ -13,8 +13,9 @@ const Medecin = () => {
   const { email } = useParams();
 
   const tabs = [ 
-    { id: 'consultation', label: 'Consultation' },
     { id: 'dossier', label: 'Dossier Médicale' },
+    { id: 'consultation', label: 'Consultation' },
+   
     { id: 'rendezvous', label: 'Rendez-vous' },
     { id: 'ordonnances', label: 'Ordonnances' }
   ];
@@ -92,8 +93,9 @@ const Medecin = () => {
             </div>
           ) : (
             <>
+            {activeTab === 'dossier' && <MedicalForm/>}
               {activeTab === 'consultation' && <ConsultationList/>  }
-              {activeTab === 'dossier' && <MedicalForm/>}
+              
             
 
               {activeTab === 'rendezvous' && (
@@ -105,7 +107,7 @@ const Medecin = () => {
 
               {activeTab === 'ordonnances' && (
                 <div className="p-4 bg-gray-50 rounded-md">
-                  <h2 className="text-xl font-bold mb-4">Ordonnances</h2>
+                  <h2 className="text-xl font-bold mb-4">Demande de rendez-vous</h2>
                   <p>Liste des ordonnances actives...</p>
                 </div>
               )}
