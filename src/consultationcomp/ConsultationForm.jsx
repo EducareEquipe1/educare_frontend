@@ -1,42 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Calendar, Paperclip, Link as LinkIcon, Plus } from 'lucide-react';
-import axios from 'axios';
-import SideBar from './SideBar';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Calendar, Paperclip, Link as LinkIcon, Plus } from "lucide-react";
+import axios from "axios";
+import SideBar from "./SideBar";
 
 const ConsultationForm = () => {
   const { id_consultation } = useParams();
   const navigate = useNavigate();
-  const email = localStorage.getItem('selectedEmail');
- 
+  const email = localStorage.getItem("selectedEmail");
+
   const [patientData, setPatientData] = useState({
-    prenom: '',
-    nom: '',
-    email: '',
+    prenom: "",
+    nom: "",
+    email: "",
     isActif: "",
   });
-  
-  //fetch patientcard info 
+
+  //fetch patientcard info
   useEffect(() => {
     const fetchPatientData = async () => {
       if (!email) return;
 
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         alert("Access denied. Please log in.");
         return;
       }
 
       try {
-        const response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        if (!response.ok) throw new Error('Failed to fetch patient data');
+        if (!response.ok) throw new Error("Failed to fetch patient data");
 
         const data = await response.json();
 
@@ -47,7 +50,7 @@ const ConsultationForm = () => {
           isActif: data.isActif,
         });
       } catch (error) {
-        console.error('Error fetching patient data:', error);
+        console.error("Error fetching patient data:", error);
       }
     };
 
@@ -55,22 +58,22 @@ const ConsultationForm = () => {
   }, [email]);
 
   const token = localStorage.getItem("token");
-  
+
   if (!token) {
     alert("Access denied. Please log in.");
     return null;
   }
 
   const [consultationData, setConsultationData] = useState({
-    date: '',
-    type: 'routine',
-    motif: '',
-    symptomes: '',
-    observations: '',
-    diagnostic: '',
-    id_rendezVous: '',
-    piece: '',
-    patient_id: ""
+    date: "",
+    type: "routine",
+    motif: "",
+    symptomes: "",
+    observations: "",
+    diagnostic: "",
+    id_rendezVous: "",
+    piece: "",
+    patient_id: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -78,46 +81,50 @@ const ConsultationForm = () => {
   useEffect(() => {
     const fetchConsultationData = async () => {
       if (!id_consultation) return;
-      
+
       setIsLoading(true);
       try {
         const response = await axios.get(
           `https://educare-backend-l6ue.onrender.com/medecins/get-consultation/${id_consultation}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        
-        const apiData = response.data.find(item => item.id_consultation == id_consultation);
-        
+
+        const apiData = response.data.find(
+          (item) => item.id_consultation == id_consultation
+        );
+
         if (!apiData) {
           throw new Error("Consultation not found");
         }
 
         // Convert ISO date to yyyy-MM-dd format for the date input
         const isoDate = new Date(apiData.date);
-        const formattedDate = apiData.date 
-          ? `${isoDate.getFullYear()}-${String(isoDate.getMonth() + 1).padStart(2, '0')}-${String(isoDate.getDate()).padStart(2, '0')}`
-          : '';
+        const formattedDate = apiData.date
+          ? `${isoDate.getFullYear()}-${String(isoDate.getMonth() + 1).padStart(
+              2,
+              "0"
+            )}-${String(isoDate.getDate()).padStart(2, "0")}`
+          : "";
 
         setConsultationData({
           date: formattedDate,
-          type: apiData.type || 'generale',
-          motif: apiData.motif || '',
-          symptomes: apiData.symptomes || '',
-          observations: apiData.observations || '',
-          diagnostic: apiData.diagnostic || '',
+          type: apiData.type || "generale",
+          motif: apiData.motif || "",
+          symptomes: apiData.symptomes || "",
+          observations: apiData.observations || "",
+          diagnostic: apiData.diagnostic || "",
           id_rendezVous: apiData.id_rendezVous || null,
-          piece: apiData.piece || '',
-          patient_id: apiData.patient_id || ""
+          piece: apiData.piece || "",
+          patient_id: apiData.patient_id || "",
         });
-        
       } catch (error) {
-        console.error('Error fetching consultation:', error);
+        console.error("Error fetching consultation:", error);
         alert(`Error loading consultation: ${error.message}`);
       } finally {
         setIsLoading(false);
       }
     };
-  
+
     fetchConsultationData();
   }, [id_consultation, token]);
 
@@ -127,7 +134,9 @@ const ConsultationForm = () => {
 
     // Prepare the payload according to your backend's expected format
     const payload = {
-      date: consultationData.date ? new Date(consultationData.date).toISOString() : null,
+      date: consultationData.date
+        ? new Date(consultationData.date).toISOString()
+        : null,
       type: consultationData.type,
       motif: consultationData.motif,
       symptomes: consultationData.symptomes,
@@ -135,48 +144,54 @@ const ConsultationForm = () => {
       diagnostic: consultationData.diagnostic,
       id_rendezVous: consultationData.id_rendezVous,
       patient_id: consultationData.patient_id,
-      piece: consultationData.piece
+      piece: consultationData.piece,
     };
 
     try {
-      const response = await axios.put(
+      const response = await axios.patch(
         `https://educare-backend-l6ue.onrender.com/medecins/modify-consultation/${id_consultation}`,
         payload,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
 
       if (response.status === 200) {
-        const updatedData = Array.isArray(response.data) 
-          ? response.data.find(item => item.id_consultation == id_consultation)
+        const updatedData = Array.isArray(response.data)
+          ? response.data.find(
+              (item) => item.id_consultation == id_consultation
+            )
           : response.data;
 
         if (updatedData) {
-          const updatedDate = updatedData.date 
-            ? updatedData.date.split('T')[0] 
-            : '';
-            
-          setConsultationData(prev => ({
+          const updatedDate = updatedData.date
+            ? updatedData.date.split("T")[0]
+            : "";
+
+          setConsultationData((prev) => ({
             ...prev,
             ...updatedData,
             date: updatedDate,
-            piece: updatedData.piece || ''
+            piece: updatedData.piece || "",
           }));
         }
-        
-        alert('Consultation updated successfully!');
+
+        alert("Consultation updated successfully!");
         navigate(`/consultation/${id_consultation}`);
       }
     } catch (error) {
-      console.error('Error updating consultation:', {
+      console.error("Error updating consultation:", {
         error: error.response?.data || error.message,
-        config: error.config
+        config: error.config,
       });
-      alert(`Error updating consultation: ${error.response?.data?.message || error.message}`);
+      alert(
+        `Error updating consultation: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -184,7 +199,7 @@ const ConsultationForm = () => {
 
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
-    setConsultationData(prev => ({
+    setConsultationData((prev) => ({
       ...prev,
       [name]: files ? files[0] : value,
     }));
@@ -192,10 +207,14 @@ const ConsultationForm = () => {
 
   const getConsultationTypeColor = () => {
     switch (consultationData.type) {
-      case 'urgent': return 'bg-red-100 text-red-800 border-red-200';
-      case 'routine': return 'bg-green-100 text-green-800 border-green-200';
-      case 'followup': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case "urgent":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "routine":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "followup":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -232,11 +251,17 @@ const ConsultationForm = () => {
                   alt="Patient"
                   className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
                 />
-                <h2 className="mt-4 text-black text-lg font-semibold">{patientData.nom} {patientData.prenom}</h2>
-                <h2 className="mt-4 text-gray-600 text-lg font-semibold">{patientData.email}</h2>
+                <h2 className="mt-4 text-black text-lg font-semibold">
+                  {patientData.nom} {patientData.prenom}
+                </h2>
+                <h2 className="mt-4 text-gray-600 text-lg font-semibold">
+                  {patientData.email}
+                </h2>
                 <span
                   className={`text-sm px-3 py-1 rounded-full mt-2 ${
-                    patientData.isActif === false ? "text-red-500" : "text-green-500"
+                    patientData.isActif === false
+                      ? "text-red-500"
+                      : "text-green-500"
                   }`}
                 >
                   {patientData.isActif === false ? "Inactive" : "Active"}
@@ -246,11 +271,16 @@ const ConsultationForm = () => {
 
             {/* Consultation Form */}
             <div className="flex flex-col w-full px-4 md:px-12 mt-4">
-              <form onSubmit={handleFormSubmit} className="flex flex-col w-full space-y-6 px-6">
+              <form
+                onSubmit={handleFormSubmit}
+                className="flex flex-col w-full space-y-6 px-6"
+              >
                 {/* Basic Info Section */}
                 <div className="bg-gray-100 p-4 rounded-lg">
                   <div className="mb-4">
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Motif</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">
+                      Motif
+                    </label>
                     <input
                       type="text"
                       name="motif"
@@ -263,7 +293,9 @@ const ConsultationForm = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-1">Date</label>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">
+                        Date
+                      </label>
                       <div className="relative">
                         <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                         <input
@@ -278,7 +310,9 @@ const ConsultationForm = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-1">Type</label>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">
+                        Type
+                      </label>
                       <select
                         name="type"
                         value={consultationData.type}
@@ -295,40 +329,50 @@ const ConsultationForm = () => {
                 </div>
 
                 {/* Symptoms Section */}
+                {/* Symptômes Rapportés Section */}
                 <div>
-                  <label className="block text-sm font-bold text-black mb-1">Symptômes Rapportés</label>
+                  <label className="block text-sm font-bold text-black mb-1">
+                    Symptômes Rapportés
+                  </label>
                   <textarea
                     name="symptomes"
-                    value={consultationData.symptomes}
+                    value={consultationData.symptomes ?? ""}
                     onChange={handleInputChange}
                     rows={3}
-                    className="w-full text-black rounded-md border border-gray-300 py-2 px-3"
+                    placeholder="Ajouter des symptômes"
+                    className="w-full text-black rounded-md border border-gray-300 py-2 px-3 placeholder-gray-400"
                     required
                   />
                 </div>
 
                 {/* Observations Section */}
                 <div>
-                  <label className="block text-sm font-bold text-black mb-1">Observations du Médecin</label>
+                  <label className="block text-sm font-bold text-black mb-1">
+                    Observations du Médecin
+                  </label>
                   <textarea
                     name="observations"
-                    value={consultationData.observations}
+                    value={consultationData.observations ?? ""}
                     onChange={handleInputChange}
                     rows={4}
-                    className="w-full text-black rounded-md border border-gray-300 py-2 px-3"
+                    placeholder="Ajouter des observations"
+                    className="w-full text-black rounded-md border border-gray-300 py-2 px-3 placeholder-gray-400"
                     required
                   />
                 </div>
 
                 {/* Diagnosis Section */}
                 <div>
-                  <label className="block text-sm font-bold text-black mb-1">Diagnostic</label>
+                  <label className="block text-sm font-bold text-black mb-1">
+                    Diagnostic
+                  </label>
                   <textarea
                     name="diagnostic"
-                    value={consultationData.diagnostic}
+                    value={consultationData.diagnostic ?? ""}
                     onChange={handleInputChange}
                     rows={3}
-                    className="w-full text-black rounded-md border border-gray-300 py-2 px-3"
+                    placeholder="Ajouter un diagnostic"
+                    className="w-full text-black rounded-md border border-gray-300 py-2 px-3 placeholder-gray-400"
                     required
                   />
                 </div>
@@ -336,7 +380,9 @@ const ConsultationForm = () => {
                 {/* Physical Exam Section */}
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-sm font-bold text-black">Examen Physique</h3>
+                    <h3 className="text-sm font-bold text-black">
+                      Examen Physique
+                    </h3>
                     <button
                       type="button"
                       onClick={handleAddPhysicalExam}
@@ -348,7 +394,9 @@ const ConsultationForm = () => {
                     </button>
                   </div>
                   <div className="text-gray-500 text-sm">
-                    {isLoading ? 'Chargement...' : 'Aucun examen physique enregistré'}
+                    {isLoading
+                      ? "Chargement..."
+                      : "Aucun examen physique enregistré"}
                   </div>
                 </div>
 
@@ -367,17 +415,21 @@ const ConsultationForm = () => {
                     </button>
                   </div>
                   <div className="text-gray-500 text-sm">
-                    {isLoading ? 'Chargement...' : 'Aucune ordonnance enregistrée'}
+                    {isLoading
+                      ? "Chargement..."
+                      : "Aucune ordonnance enregistrée"}
                   </div>
                 </div>
 
                 {/* File Attachment */}
                 <div>
-                  <label className="block text-sm font-bold text-black mb-1">Pièce Jointe</label>
+                  <label className="block text-sm font-bold text-black mb-1">
+                    Pièce Jointe
+                  </label>
                   <label className="flex items-center space-x-2 cursor-pointer p-3 border border-gray-300 rounded-md hover:bg-gray-50">
                     <Paperclip className="h-5 w-5 text-gray-400" />
                     <span className="text-sm text-gray-600">
-                      {consultationData.piece || 'Aucun fichier sélectionné'}
+                      {consultationData.piece || "Aucun fichier sélectionné"}
                     </span>
                     <input
                       type="text"
@@ -395,7 +447,7 @@ const ConsultationForm = () => {
                     disabled={isLoading}
                     className="rounded text-white bg-[#679294] w-[109px] h-[34px] disabled:opacity-50"
                   >
-                    {isLoading ? 'En cours...' : 'Sauvegarder'}
+                    {isLoading ? "En cours..." : "Sauvegarder"}
                   </button>
 
                   <button

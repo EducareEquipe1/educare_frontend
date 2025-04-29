@@ -1,27 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { PlusCircle, Calendar } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { PlusCircle, Calendar, Loader2 } from "lucide-react";
 
 const ConsultationList = () => {
   const { email } = useParams();
   const navigate = useNavigate();
   const [consultations, setConsultations] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingAdd, setLoadingAdd] = useState(false);
 
-
-  
-    const [consultationData, setConsultationData] = useState({
-      date: '',
-      type: 'routine',
-      motif: '',
-      symptomes: '',
-      observations: '',
-      diagnostic: '',
-      id_rendezVous:'',
-      piece:'',
-      patient_id:""
-    });
+  const [consultationData, setConsultationData] = useState({
+    date: "",
+    type: "routine",
+    motif: "",
+    symptomes: "",
+    observations: "",
+    diagnostic: "",
+    id_rendezVous: "",
+    piece: "",
+    patient_id: "",
+  });
 
   useEffect(() => {
     const fetchConsultations = async () => {
@@ -44,7 +43,6 @@ const ConsultationList = () => {
           }
         );
         setConsultations(response.data);
-        
       } catch (error) {
         console.error("Error fetching consultations:", error);
       } finally {
@@ -56,26 +54,25 @@ const ConsultationList = () => {
   }, [email]);
 
   const handleAddNew = async () => {
+    setLoadingAdd(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         alert("Please log in first");
         return;
       }
-  
+
       // Prepare the data to send
       const consultationPayload = {
-        date: consultationData.date || null,
-        type: consultationData.type || null, //
-        motif: consultationData.motif || null,
-        symptomes: consultationData.symptomes || null,
-        observations: consultationData.observations || null,
-        diagnostic: consultationData.diagnostic || null,
-        id_rendezVous: consultationData.id_rendezVous || null,
-        piece: consultationData.piece || null,
-        patient_id: consultationData.patient_id || null
+        type: null, //
+        motif: null,
+        symptomes: null,
+        observations: null,
+        diagnostic: null,
+        id_rendezVous: null,
+        piece: null,
       };
-  
+
       // Create the new consultation
       const response = await axios.post(
         `https://educare-backend-l6ue.onrender.com/medecins/consultation-create/${email}`,
@@ -83,27 +80,32 @@ const ConsultationList = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
-  
+
       // Validate the response
       if (!response.data?.id_consultation) {
         throw new Error("Server didn't return a consultation ID");
       }
-  
+
       // Store the new consultation ID
-      localStorage.setItem('currentConsultationId', response.data.id_consultation);
-      
+      localStorage.setItem(
+        "currentConsultationId",
+        response.data.id_consultation
+      );
+
       // Navigate to the consultation page
+      setLoadingAdd(true);
+      console.log("this is the consultation id", response.data.id_consultation);
       navigate(`/consultation/${response.data.id_consultation}`);
-  
     } catch (error) {
-      console.error('Error creating consultation:', error);
-      const errorMessage = error.response?.data?.message || 
-                          error.message || 
-                          "Failed to create consultation";
+      console.error("Error creating consultation:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to create consultation";
       alert(errorMessage);
     }
   };
@@ -119,7 +121,11 @@ const ConsultationList = () => {
           onClick={handleAddNew}
           className="flex items-center gap-2 bg-[#679294] text-white px-4 py-2 rounded-md hover:bg-[#577f7f]"
         >
-          <PlusCircle size={18} />
+          {loadingAdd ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : (
+            <PlusCircle size={18} />
+          )}
           Ajouter
         </button>
       </div>
@@ -136,24 +142,33 @@ const ConsultationList = () => {
               <div className="flex justify-between">
                 <h3 className="font-semibold text-black flex items-center gap-2">
                   <Calendar size={16} className="text-gray-500" />
-                  Consultation du {consultation.date ? new Date(consultation.date).toLocaleDateString() : 'Date inconnue'}
+                  Consultation du{" "}
+                  {consultation.date
+                    ? new Date(consultation.date).toLocaleDateString()
+                    : "Date inconnue"}
                 </h3>
-                <span className={`px-2 py-1 rounded-[10px] text-xs ${
-                  consultation.type === 'urgent' ? 'bg-red-100 text-red-800' :
-                  consultation.type === 'routine' ? 'bg-green-100 text-green-800' :
-                  'bg-blue-100 text-blue-800'
-                }`}>
-                  {consultation.type || 'Autre'}
+                <span
+                  className={`px-2 py-1 rounded-[10px] text-xs ${
+                    consultation.type === "urgent"
+                      ? "bg-red-100 text-red-800"
+                      : consultation.type === "routine"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-blue-100 text-blue-800"
+                  }`}
+                >
+                  {consultation.type || "Autre"}
                 </span>
               </div>
-              <p className="text-gray-600 mt-1">{consultation.motif || 'Pas de motif précisé'}</p>
-              <p className='text-black'>{consultation.id_consultation}</p>
+              <p className="text-gray-600 mt-1">
+                {consultation.motif || "Pas de motif précisé"}
+              </p>
               <div className="mt-3 flex justify-end">
                 <button
-                  onClick={() => handleConsultationClick(consultation.id_consultation)}
+                  onClick={() =>
+                    handleConsultationClick(consultation.id_consultation)
+                  }
                   className="flex items-center gap-1 text-[#679294] px-3 py-1.5 rounded-[10px] hover:bg-[#f0f7f7] transition-all"
                 >
-                
                   Voir détail
                 </button>
               </div>
