@@ -276,8 +276,8 @@ const handlePrint = () => {
                     name="notes"
                     value={formData.notes}
                     onChange={handleChange}
-                    className="w-full h-32 p-3 text-black border border-gray-300 rounded-lg focus:border-[#679294] focus:outline-none resize-none"
-                    placeholder="Saisissez vos notes ici..."
+                   className="w-full h-32 p-3 text-black border border-transparent rounded-lg focus:border-[#679294] focus:outline-none resize-none"
+                    placeholder="Saisissez vos medicaments ici..."
                   />
                 </div>
                 <div className="flex justify-end space-x-4 mt-4">
