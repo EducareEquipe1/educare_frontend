@@ -15,6 +15,7 @@ const MedicalForm = () => {
 
   const location = useLocation();
   const { email } = useParams();
+  
 
   const [patientData, setPatientData] = useState({
     prenom: '',
