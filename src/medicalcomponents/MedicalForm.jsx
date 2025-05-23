@@ -10,32 +10,28 @@ const MedicalForm = () => {
   
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [medicalRecordLoading, setMedicalRecordLoading] = useState(false);
-  const [recordExists, setRecordExists] = useState(true);    
-
-  const location = useLocation();
+  const [recordExists, setRecordExists] = useState(false);
   const { email } = useParams();
-  
 
   const [patientData, setPatientData] = useState({
     prenom: '',
     nom: '',
     email: '',
-    isActif: "",
+    isActif: false,
   });
 
   const [formData, setFormData] = useState({
     email: "",
     numSecuritéSociale: "",
-    groupeSanguin: "A+",
+    groupeSanguin: "",
     nom: "",
     prenom: "",
     date_naissance: "",
-    situation_famille: "Célibataire",
+    situation_famille: "",
     statut: "",
     adresse: "",
     num_tel: "",
-    notes: "none",
+   
     poids: "",
     taille: "",
     tabac_fume: "false",
@@ -49,101 +45,76 @@ const MedicalForm = () => {
     periode_exposition: "",
     alcool: "",
     medicaments: "",
+    notes:"",
     affectionsCongenitales: "",
     maladiesGenerales: "",
     interventionsChirurgicales: "",
     reactionsAllergiques: "",
   });
 
-  
   useEffect(() => {
-    const fetchInitialData = async () => {
-      if (!email) return;
-
+    const fetchData = async () => {
       const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Access denied. Please log in.");
-        return;
-      }
+      if (!token || !email) return;
 
       try {
-        // 1. Get user info
-        const userResponse = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
+        // Étape 1 : Obtenir les informations de base utilisateur
+        const userRes = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
         });
-
-        if (!userResponse.ok) throw new Error("Failed to fetch user info");
-
-        const userInfo = await userResponse.json();
+        const userInfo = await userRes.json();
 
         setPatientData({
-          prenom: userInfo.prenom,
           nom: userInfo.nom,
+          prenom: userInfo.prenom,
           email: userInfo.email,
-          isActif: userInfo.isActif,
+          isActif: userInfo.isActif
         });
-
+console.log(patientData);
         setFormData(prev => ({
           ...prev,
           nom: userInfo.nom,
           prenom: userInfo.prenom,
-          num_tel: userInfo.num_tel,
+          email: userInfo.email,
           statut: userInfo.statut,
+          num_tel: userInfo.num_tel,
           date_naissance: userInfo.date_naissance,
-          email: userInfo.email
         }));
 
-        // 2. Check if medical record exists
-        const recordResponse = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-dossier-medical/${email}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
+        // Étape 2 : Tenter de récupérer le dossier médical existant
+        const recordRes = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-dossier-medical/${email}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        if (recordResponse.status === 404) {
-          setRecordExists(false);
-          return;
+        if (recordRes.ok) {
+          const record = await recordRes.json();
+          setFormData(prev => ({ ...prev, ...record }));
+          setRecordExists(true);
         }
-
-        if (!recordResponse.ok) throw new Error("Failed to fetch medical record");
-
-        const recordData = await recordResponse.json();
-        setFormData(prev => ({ ...prev, ...recordData }));
-        setRecordExists(true);
       } catch (err) {
         console.error("Erreur lors du chargement :", err);
       }
     };
 
-    fetchInitialData();
+    fetchData();
   }, [email]);
 
   const handleChange = (e) => {
-    if (!recordExists || isEditing) {
-      const { name, value } = e.target;
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    if (!isEditing) return;
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const toggleEditMode = () => {
+  const toggleEditMode = async () => {
     if (isEditing) {
-      handleSubmit();
+      await handleSubmit();
     }
     setIsEditing(!isEditing);
   };
 
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Access denied. Please log in.");
-      return;
-    }
+    if (!token) return;
 
     const method = recordExists ? "PUT" : "POST";
     const url = recordExists
@@ -157,30 +128,42 @@ const MedicalForm = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData)
       });
 
-      if (!response.ok) {
-        // Detailed error handling
-        const errorResponse = await response.json();
-        if (response.status === 400) {
-          alert(`Validation error: ${errorResponse.message || 'Please check the form data.'}`);
-        } else if (response.status === 500) {
-          alert("Server error: Unable to process your request. Please try again later.");
-        } else {
-          alert(`Unexpected error: ${errorResponse.message || 'Please try again later.'}`);
-        }
-        throw new Error("Erreur lors de la soumission du formulaire");
-      }
-
+      if (!response.ok) throw new Error("Échec de la sauvegarde");
       const data = await response.json();
-      alert(recordExists ? "Dossier mis à jour avec succès !" : "Dossier créé avec succès !");
-      setFormData(prev => ({ ...prev, ...(data?.dossier || data) }));
+      alert("Dossier médical sauvegardé avec succès.");
       setRecordExists(true);
       setIsEditing(false);
-    } catch (error) {
-      console.error("Erreur lors de la soumission :", error);
-      alert(`Error: ${error.message || 'An unexpected error occurred.'}`);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la sauvegarde");
+    }
+  };
+
+  const createEmptyRecord = async () => {
+    const token = localStorage.getItem("token");
+    if (!token || !email) return;
+
+    try {
+      const res = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-create/${email}`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!res.ok) throw new Error("Erreur de création de dossier.");
+      const data = await res.json();
+      alert("Dossier créé avec succès !");
+      setFormData(prev => ({ ...prev, ...data }));
+      setRecordExists(true);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la création du dossier.");
     }
   };
 
@@ -246,14 +229,17 @@ const MedicalForm = () => {
                 handleChange={handleChange} 
                 readOnly={!isEditing}
               />
-              <button 
-                type="button" 
-                onClick={toggleEditMode} 
-                className="rounded text-white bg-[#679294] w-[109px] h-[34px]"
-              >
-                {isEditing ? 'Sauvegarder' : 'Modifier'}
-              </button>
-            </form>
+<div className="flex gap-4">
+                <button type="button" onClick={toggleEditMode} className="bg-blue-600 text-white px-4 py-2 rounded">
+                  {isEditing ? 'Sauvegarder' : 'Modifier'}
+                </button>
+                {!recordExists && (
+                  <button type="button" onClick={createEmptyRecord} className="bg-green-600 text-white px-4 py-2 rounded">
+                    Ajouter un dossier
+                  </button>
+                )}
+              </div>
+            </form>  
           )}
         </div>
       </div>

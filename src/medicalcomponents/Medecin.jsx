@@ -3,8 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import SideBar from './SideBar';
 import MedicalForm from './MedicalForm';
-import ConsultationList from '../consultationcomp/ConsultationList'
-
+import TabRendezvous from '../doctorcomponents/TabRendezvous';
 
 const Medecin = () => {
   const [activeTab, setActiveTab] = useState('dossier');
@@ -94,14 +93,18 @@ const Medecin = () => {
           ) : (
             <>
             {activeTab === 'dossier' && <MedicalForm/>}
+            
               {activeTab === 'consultation' && <ConsultationList/>  }
               
             
 
               {activeTab === 'rendezvous' && (
-                <div className="p-4 bg-gray-50 rounded-md">
-                  <h2 className="text-xl font-bold mb-4">Rendez-vous</h2>
-                  <p>Liste des prochains rendez-vous médicaux...</p>
+                <div className="p-4  rounded-md ml-14">
+                  <TabRendezvous patient={{
+                      nom: "",
+                      prenom: "",
+                      email: ""
+}} />
                 </div>
               )}
 

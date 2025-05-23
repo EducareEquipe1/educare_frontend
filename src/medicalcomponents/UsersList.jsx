@@ -2,8 +2,8 @@ import React from "react";
 
 const UsersList = ({ matricule, prenom, nom, email, onConsult }) => {
   return (
-    <div className="text-[13px] w-full">
-      <div className="flex flex-wrap sm:flex-nowrap gap-4 items-center justify-between px-2 py-3">
+    <div className="text-[13px] w-full  ">
+      <div className="flex flex-wrap sm:flex-nowrap gap-4 items-center justify-between px-2 py-3 ">
         <span className="capitalize w-1/2 sm:w-[150px] text-gray-800">{matricule}</span>
         <span className="capitalize w-1/2 sm:w-[180px] text-gray-800">
           {prenom} {nom}

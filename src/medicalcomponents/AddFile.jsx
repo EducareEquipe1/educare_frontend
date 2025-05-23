@@ -38,6 +38,12 @@ export default function AddFile() {
     }
   };
 
+  const tabs = [
+    { id: 'dossier', label: 'Medical Dossier' },
+    { id: 'examen', label: 'Medical Exam' },
+    { id: 'rendezvous', label: 'Rendez-vous' },
+    { id: 'ordonnances', label: 'Prescriptions' },
+  ];
   const goToMedicalForm = () => {
     if (!email || !userInfo) return;
     navigate(`/medicalform/${email}`, {
@@ -70,19 +76,54 @@ export default function AddFile() {
           </div>
 
           <div className="flex flex-col w-full px-4 md:px-12 mt-4">
-            <div className='bg-white shadow-md rounded-md p-6'>
-              <h2 className="text-xl font-bold mb-4">Medical Dossier</h2>
-              {loading ? (
-                <div className="flex justify-center items-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                </div>
-              ) : (
+            <div className="flex space-x-6 border-b border-gray-300 pb-2">
+              {tabs.map((tab) => (
                 <button
-                  className="rounded text-white bg-[#679294] w-[140px] h-[40px]"
-                  onClick={goToMedicalForm}
+                  key={tab.id}
+                  className={`text-black font-bold md:text-base border-b-2 transition duration-300 ${activeTab === tab.id ? 'border-[#F4A261]' : 'border-transparent hover:border-[#F4A261]'}`}
+                  onClick={() => setActiveTab(tab.id)}
                 >
-                  Ajouter
+                  {tab.label}
                 </button>
+              ))}
+            </div>
+
+            <div className="p-6">
+              {activeTab === 'dossier' && (
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-white shadow-md rounded-md p-4'>
+                  {loading ? (
+                    <div className="col-span-2 flex justify-center items-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+                  ) : (
+                    <button
+                      className="rounded text-white bg-[#679294] w-[140px] h-[40px]"
+                      onClick={createDossier}
+                    >
+                      Créer Dossier
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'examen' && (
+                <div>
+                  <h2 className="text-xl font-bold mb-4">Medical Exam</h2>
+                  <p>Recent medical exam results...</p>
+                </div>
+              )}
+
+              {activeTab === 'rendezvous' && (
+                <div>
+                  <h2 className="text-xl font-bold mb-4">Appointments</h2>
+                </div>
+              )}
+
+              {activeTab === 'ordonnances' && (
+                <div>
+                  <h2 className="text-xl font-bold mb-4">Prescriptions</h2>
+                  <p>List of active prescriptions...</p>
+                </div>
               )}
             </div>
           </div>
