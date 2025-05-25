@@ -184,9 +184,9 @@ const MedicalForm = () => {
   };
 
   return (
-    <div className="relative flex bg-[#EFEFEF]">
-      <div className="flex flex-row">
-        <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 ml-[200px] mt-[10px]">
+    <div className="relative  flex bg-[#EFEFEF]">
+      <div className="flex flex-row ">
+        <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 ml-[200px]  mt-[10px]">
           <div className="flex flex-col items-center">
             <img
               src="./logo.png"
@@ -224,7 +224,7 @@ const MedicalForm = () => {
               <p className="text-gray-600">Chargement des données...</p>
             </div>
           ) : (
-            <form className="flex flex-col w-full space-y-6 px-6 mt-[10px]">
+            <form className="flex flex-col w-full  space-y-6 px-6 mt-[10px]">
               <DetailsPersonnels 
                 formData={formData} 
                 handleChange={handleChange} 

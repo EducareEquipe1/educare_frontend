@@ -231,13 +231,13 @@ const ConsultationForm = () => {
   return (
     <div className="relative flex bg-[#EFEFEF] min-h-screen">
       <div className="flex flex-col md:flex-row w-full overflow-hidden">
-        <div className="w-full md:w-24 bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
+        <div className="w-full z-11 md:w-24 bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
           <SideBar />
         </div>
 
         <div className="flex flex-col w-full md:ml-24">
           <div className="h-16 flex items-center px-8 shadow bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1] z-10">
-            <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-xl md:text-2xl font-bold">
+            <h1 className="text-transparent ml-[50px] bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-xl md:text-2xl font-bold">
               Patients
             </h1>
           </div>

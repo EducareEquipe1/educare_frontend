@@ -4,6 +4,8 @@ import axios from 'axios';
 import SideBar from './SideBar';
 import MedicalForm from './MedicalForm';
 import TabRendezvous from '../doctorcomponents/TabRendezvous';
+import ConsultationList from '../consultationcomp/ConsultationList'
+
 
 const Medecin = () => {
   const [activeTab, setActiveTab] = useState('dossier');
@@ -54,7 +56,7 @@ const Medecin = () => {
   return (
     <div className="flex h-screen bg-[#EFEFEF] overflow-hidden">
       {/* Sidebar */}
-      <div className="w-[100px] bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
+      <div className=" z-11 w-[100px] bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
         <SideBar />
       </div>
 

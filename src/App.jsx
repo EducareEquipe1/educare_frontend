@@ -28,6 +28,7 @@ import Archive from "./AdminComponents/Archive";
 import Settings from "./AdminComponents/Settings";
 import RendezVous from "./doctorcomponents/RendezVous";
 import TabRendezvous from "./doctorcomponents/TabRendezvous";
+import Directeur from "./DirecteurComponents/Directeur";
 {/*import FaceDetectionUploader from "./FaceDetectionComponents/FaceDetectionUploader";*/}
 
 const NotFound = () => <div>404 Not Found</div>;
@@ -39,10 +40,13 @@ function App() {
       <Routes>
           <Route path="/" element={<Signin />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
+       <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
+
 
        <Route path="/listeconsultation" element={<ConsultationList/>} />
        <Route path="/listeconsultation:email" element={<ConsultationList/>} />
        <Route path="/examenphysique" element={<ExamenPhysique />} />
+       <Route path="/examenphysique/:id_consultation" element={<ExamenPhysique />} />
        <Route path="/consultation" element={<ConsultationForm />} />
        <Route path="/consultation/:id_consultation" element={<ConsultationForm />} />
        <Route path="/medicalform/:email" element={<MedicalForm />} />
@@ -66,6 +70,7 @@ function App() {
         <Route path="/Settings" element={<Settings />} />
         <Route path="*" element={<NotFound />} />{" "}
         <Route path="/RendezVous" element={<RendezVous />} />
+        <Route path="/directeur" element={<Directeur/>} />
         <Route path="/TabRendezvous/:email" element={<TabRendezvous />} />
 
         {/* Catch-all for unknown routes */}
