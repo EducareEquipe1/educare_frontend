@@ -8,6 +8,8 @@ const ConsultationForm = () => {
   const { id_consultation } = useParams();
   const navigate = useNavigate();
   const email = localStorage.getItem("selectedEmail");
+  const [ordonnaceExists, setOrdonnaceExists] = useState(false);
+  const [examenExists, setExamenExists] = useState(false);
 
   const [patientData, setPatientData] = useState({
     prenom: "",
@@ -18,6 +20,8 @@ const ConsultationForm = () => {
 
   //fetch patientcard info
   useEffect(() => {
+    const email = localStorage.getItem("selectedEmail");
+
     const fetchPatientData = async () => {
       if (!email) return;
 
@@ -97,7 +101,6 @@ const ConsultationForm = () => {
           throw new Error("Consultation not found");
         }
 
-        // Convert ISO date to yyyy-MM-dd format for the date input
         const isoDate = new Date(apiData.date);
         const formattedDate = apiData.date
           ? `${isoDate.getFullYear()}-${String(isoDate.getMonth() + 1).padStart(
@@ -117,6 +120,34 @@ const ConsultationForm = () => {
           piece: apiData.piece || "",
           patient_id: apiData.patient_id || "",
         });
+
+        // Check if ordonnance exists
+        const ordonnanceRes = await fetch(
+          `https://educare-backend-l6ue.onrender.com/medecins/consultations/${id_consultation}/has-ordonnance`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const ordonnanceCheck = await ordonnanceRes.json();
+        if (ordonnanceCheck.exists) {
+          setOrdonnaceExists(true);
+        }
+
+        // Check if examen medical exists
+        const examenRes = await fetch(
+          `https://educare-backend-l6ue.onrender.com/medecins/consultations/${id_consultation}/has-examen-medical`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const examenCheck = await examenRes.json();
+        if (examenCheck.exists) {
+          setExamenExists(true);
+        }
       } catch (error) {
         console.error("Error fetching consultation:", error);
         alert(`Error loading consultation: ${error.message}`);
@@ -380,44 +411,82 @@ const ConsultationForm = () => {
                 {/* Physical Exam Section */}
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-sm font-bold text-black">
-                      Examen Physique
+                    <h3 className="font-semibold text-[18px] leading-[100%] text-black font-['Exo_2']">
+                      Ordonnance
                     </h3>
-                    <button
-                      type="button"
-                      onClick={handleAddPhysicalExam}
-                      disabled={isLoading}
-                      className="flex items-center text-sm text-[#679294] hover:text-[#51797a] disabled:opacity-50"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Ajouter
-                    </button>
+                    {!ordonnaceExists && (
+                      <button
+                        type="button"
+                        onClick={handleAddPrescription}
+                        disabled={isLoading}
+                        className="flex items-center text-sm text-[#679294] hover:text-[#51797a] disabled:opacity-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Ajouter
+                      </button>
+                    )}
                   </div>
+
                   <div className="text-gray-500 text-sm">
-                    {isLoading
-                      ? "Chargement..."
-                      : "Aucun examen physique enregistré"}
+                    {isLoading ? (
+                      "Chargement..."
+                    ) : ordonnaceExists ? (
+                      <span className="cursor-pointer">
+                        <span className="text-black font-bold text-[14px] leading-[100%] mr-2 font-['Exo_2']">
+                          Ordonnance n°1 —
+                        </span>
+
+                        <span
+                          onClick={handleAddPrescription}
+                          className="font-normal text-[14px] leading-[100%] underline text-[#679294] font-['Exo_2']"
+                        >
+                          📎 Voir l'ordonnance complète
+                        </span>
+                      </span>
+                    ) : (
+                      "Aucune ordonnance enregistrée"
+                    )}
                   </div>
                 </div>
 
                 {/* Prescription Section */}
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-sm font-bold text-black">Ordonnance</h3>
-                    <button
-                      type="button"
-                      onClick={handleAddPrescription}
-                      disabled={isLoading}
-                      className="flex items-center text-sm text-[#679294] hover:text-[#51797a] disabled:opacity-50"
-                    >
-                      <Plus className="h-4 w-4 mr-1" />
-                      Ajouter
-                    </button>
+                    <h3 className="font-semibold text-[18px] leading-[100%] text-black font-['Exo_2']">
+                      Examen Physique
+                    </h3>
+                    {!examenExists && (
+                      <button
+                        type="button"
+                        onClick={handleAddPhysicalExam}
+                        disabled={isLoading}
+                        className="flex items-center text-sm text-[#679294] hover:text-[#51797a] disabled:opacity-50"
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Ajouter
+                      </button>
+                    )}
                   </div>
+
                   <div className="text-gray-500 text-sm">
-                    {isLoading
-                      ? "Chargement..."
-                      : "Aucune ordonnance enregistrée"}
+                    {isLoading ? (
+                      "Chargement..."
+                    ) : examenExists ? (
+                      <span className="cursor-pointer">
+                        <span className="text-black font-bold text-[14px] leading-[100%] mr-2 font-['Exo_2']">
+                          Examen n°1 —
+                        </span>
+
+                        <span
+                          onClick={handleAddPhysicalExam}
+                          className="font-normal text-[14px] leading-[100%] underline text-[#679294] font-['Exo_2']"
+                        >
+                          📋 Voir l’examen complet
+                        </span>
+                      </span>
+                    ) : (
+                      "Aucun examen physique enregistré"
+                    )}
                   </div>
                 </div>
 
