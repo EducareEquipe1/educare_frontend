@@ -119,10 +119,10 @@ const DisplayUsers = () => {
       </div>
 
       {/* Boutons */}
-      <div className="flex justify-end p-4 gap-4">
+      <div className="flex justify-end p-4  gap-4">
         <button
           onClick={() => setShowExcelUploadForm(true)}
-          className="flex justify-center items-center gap-1 px-4 py-2 bg-white rounded-md shadow-xl hover:bg-gray-100"
+          className="flex items-center justify-center  border border-[#679294] hover:bg-gray-200 rounded-[10px] bg-gray-100 px-2 py-1 shadow-md font-semibold text-[#679294]"
         >
           <IoMdAttach /> <span>Ajouter Étudiants via Excel</span>
         </button>
