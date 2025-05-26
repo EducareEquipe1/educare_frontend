@@ -4,7 +4,12 @@ import axios from 'axios';
 import SideBar from './SideBar';
 import MedicalForm from './MedicalForm';
 import TabRendezvous from '../doctorcomponents/TabRendezvous';
+<<<<<<< HEAD
 import ConsultationList from '../consultationcomp/ConsultationList'
+=======
+import ConsultationList from '../consultationcomp/ConsultationList';
+
+>>>>>>> 6f26a659f22489b548aa981f6ecafdc29d6369df
 
 const Medecin = () => {
   const [activeTab, setActiveTab] = useState('dossier');
@@ -12,10 +17,10 @@ const Medecin = () => {
 
   const { email } = useParams();
 
-  const tabs = [ 
+  const tabs = [
     { id: 'dossier', label: 'Dossier Médicale' },
     { id: 'consultation', label: 'Consultation' },
-   
+
     { id: 'rendezvous', label: 'Rendez-vous' },
     { id: 'ordonnances', label: 'Ordonnances' }
   ];
@@ -94,10 +99,10 @@ const Medecin = () => {
           ) : (
             <>
             {activeTab === 'dossier' && <MedicalForm/>}
-            
+
               {activeTab === 'consultation' && <ConsultationList/>  }
-              
-            
+
+
 
               {activeTab === 'rendezvous' && (
                 <div className="p-4  rounded-md ml-14">
@@ -124,5 +129,3 @@ const Medecin = () => {
 };
 
 export default Medecin;
-
-
