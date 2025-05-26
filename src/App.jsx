@@ -44,10 +44,8 @@ function App() {
 
     <Router>
       <Routes>
-
-
-       {/*  <Route path="/" element={<Signin />} />*/}
-      <Route path="/" element={<PieChartCom />} />
+      <Route path="/" element={<Signin />} />
+      <Route path="/pie" element={<PieChartCom />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
