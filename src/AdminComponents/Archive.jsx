@@ -7,7 +7,7 @@ const Archive = () => {
   const [activeTab, setActiveTab] = useState('utilisateur');
   const [archivedUsers, setArchivedUsers] = useState([]);
   
-  const adminToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjEsImVtYWlsIjoibmkubWVyem91a0Blc2ktc2JhLmR6IiwiaWF0IjoxNzQ0MDM2ODMyLCJleHAiOjE3NDY2Mjg4MzJ9.GbF_0vPxlAfPuh7V6RcDiZ3o5iSKxRcMcmwnS5lTyU4"; // Static Admin Token
+  const adminToken = localStorage.getItem("token");
   
   useEffect(() => {
     if (activeTab === 'utilisateur') {
@@ -33,7 +33,6 @@ const Archive = () => {
     }
   }, [activeTab]);
 
-  // Handle Restore action
   const handleRestore = (email) => {
     axios.post(`https://educare-backend-l6ue.onrender.com/admin/restore-user/${email}/`, {}, {
       headers: {
@@ -42,7 +41,6 @@ const Archive = () => {
     })
     .then(res => {
       console.log(`User with email: ${email} has been restored`);
-      // Optionally, re-fetch the archived users list to reflect the changes
       setArchivedUsers(archivedUsers.filter(user => user.email !== email));
     })
     .catch(err => {
@@ -52,7 +50,7 @@ const Archive = () => {
 
   return (
     <div className="relative flex bg-[#EFEFEF]">
-      <SideBar />
+      <SideBar/>
       <div className="flex flex-col w-full">
         {/* Header */}
         <div className="flex h-[40px] md:max-h-[60px] justify-between items-center px-4 md:px-12 shadow-md bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1]">
@@ -61,45 +59,23 @@ const Archive = () => {
           </h1>
         </div>
 
-        {/* Tabs */}
-        <div className="mt-8 mx-8">
-          <ul className="flex gap-6 text-[15px] relative">
-            <li>
-              <button
-                onClick={() => setActiveTab('utilisateur')}
-                className={`transition-all duration-300 pb-2 border-b-2 ${activeTab === 'utilisateur' ? 'border-[#F4A261] font-semibold' : 'border-transparent hover:border-[#F4A261]'}`}
-              >
-                Utilisateur
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => setActiveTab('dossiers')}
-                className={`transition-all duration-300 pb-2 border-b-2 ${activeTab === 'dossiers' ? 'border-[#F4A261] font-semibold' : 'border-transparent hover:border-[#F4A261]'}`}
-              >
-                Dossiers Medicaux
-              </button>
-            </li>
-          </ul>
-          <div className="h-[1.5px] bg-[rgba(146,154,155,0.35)] mt-[-2px]"></div>
-        </div>
+        
 
-        {/* Table Headers for archived users */}
-        {activeTab === 'utilisateur' && (
-          <div className="flex justify-start my-6 mx-6">
-            <div className="flex flex-col w-full bg-[#FFFEFE] mx-8 mb-6 rounded-[15px] border border-[#CACACA] shadow-md py-2 px-4">
-              <div className="w-full flex gap-2 items-center pb-4 mt-3 mb- font-medium text-[#BBBBBF] border-b">
-                <span className="md:w-[160px]">Matricule</span>
-                <span className="md:w-[180px]">Name</span>
-                <span className="md:w-[230px]">Email</span>
-                <span className="md:w-[130px]">Role</span>
-                <span className="md:w-[100px]">State</span>
-                <span className="md:w-[100px]"></span>
+          <div className="mx-8 my-6">
+            <div className="bg-white rounded-[15px] border border-[#CACACA] shadow-md overflow-hidden">
+              {/* Table Header */}
+              <div className="grid grid-cols-12 gap-2 items-center p-4 border-b border-[#CACACA] text-[#BBBBBF] font-medium">
+                <div className="col-span-2">Matricule</div>
+                <div className="col-span-2">Nom</div>
+                <div className="col-span-3">Email</div>
+                <div className="col-span-2">Rôle</div>
+                <div className="col-span-2">Statut</div>
+                <div className="col-span-1">Action</div>
               </div>
-
-              <div className='max-h-[350px] min-h-[250px] flex flex-col overflow-y-auto'>
-                {/* Users */}
-                {Array.isArray(archivedUsers) && archivedUsers.length > 0 ? (
+              
+              {/* Table Body */}
+              <div className="max-h-[350px] min-h-[250px] overflow-y-auto">
+                {archivedUsers.length > 0 ? (
                   archivedUsers.map((user, index) => (
                     <OneArchive
                       key={index}
@@ -108,19 +84,18 @@ const Archive = () => {
                       last_name={user.prenom || "—"}
                       email={user.email || "—"}
                       role={user.role || "unknown"}
-                      is_active={false} // Assuming archived users are inactive
-                      onDelete={() => handleRestore(user.email)} // Restore action
+                      is_active={false}
+                      onDelete={() => handleRestore(user.email)}
                     />
                   ))
                 ) : (
-                  <div className="text-center text-sm text-gray-400 mt-4">
+                  <div className="flex items-center justify-center h-full p-8 text-gray-400">
                     Aucun utilisateur archivé trouvé.
                   </div>
                 )}
               </div>
             </div>
           </div>
-        )}
       </div>
     </div>
   );

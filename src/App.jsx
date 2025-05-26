@@ -12,6 +12,7 @@ import Checkemail from "./checkemail/Checkemail";
 import ResetPassword from "./resetPassword/ResetPassword";
 import Passwordchanged from "./passwordchanged/Passwordchanged";
 import Emailsent from "./emailsent/Emailsent";
+import  ColumnChartCom from "./ChartsComponents/ColumnChart";
 import Doctors from "./AdminComponents/Doctors";
 import Home from "./Home";
 import Dashboard from "./AdminComponents/Dashboard";
@@ -19,6 +20,7 @@ import Users from "./AdminComponents/Users";
 import MedicalForm from './medicalcomponents/MedicalForm';
 import User from './medicalcomponents/Users';
 import AddFile from './medicalcomponents/AddFile';
+import  PatientPhoto  from './medicalcomponents/image';
 import Medecin from './medicalcomponents/Medecin';
 import ConsultationForm from './consultationcomp/ConsultationForm'
 import ConsultationList from './consultationcomp/ConsultationList'
@@ -28,17 +30,32 @@ import Archive from "./AdminComponents/Archive";
 import Settings from "./AdminComponents/Settings";
 import RendezVous from "./doctorcomponents/RendezVous";
 import TabRendezvous from "./doctorcomponents/TabRendezvous";
+import Directeur from "./DirecteurComponents/Directeur";
 {/*import FaceDetectionUploader from "./FaceDetectionComponents/FaceDetectionUploader";*/}
 
 const NotFound = () => <div>404 Not Found</div>;
 
 function App() {
   return (
-  
+
     <Router>
       <Routes>
+          <Route path="/" element={<Signin />} />
+       <Route path="/ordonnace" element={<Ordonnance /> } />
+       <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
+
        {/*  <Route path="/" element={<Signin />} />*/}
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
+
+      {/*<Route path="/" element={<Signin />} />*/}
+       <Route path="/" element={<ColumnChartCom />} />
+       <Route path="/ordonnace" element={<Ordonnance /> } />
+       <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
+
+
+       {/*  <Route path="/" element={<Signin />} />*/}
+       <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
+
 
        <Route path="/listeconsultation" element={<ConsultationList/>} />
        <Route path="/listeconsultation/:email" element={<ConsultationList/>} />
@@ -67,6 +84,7 @@ function App() {
         <Route path="/Settings" element={<Settings />} />
         <Route path="*" element={<NotFound />} />{" "}
         <Route path="/RendezVous" element={<RendezVous />} />
+        <Route path="/directeur" element={<Directeur/>} />
         <Route path="/TabRendezvous/:email" element={<TabRendezvous />} />
 
         {/* Catch-all for unknown routes */}

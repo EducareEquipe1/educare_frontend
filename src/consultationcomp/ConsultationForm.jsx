@@ -17,6 +17,37 @@ const ConsultationForm = () => {
     email: "",
     isActif: "",
   });
+  //fetch image
+  const [imageSrc, setImageSrc] = useState('/default.png'); // default image at start
+
+  useEffect(() => {
+    const fetchImageUrl = async () => {
+      try {
+        const imgUrl = `https://educare-backend-l6ue.onrender.com/patients/get-patient-photo/${email}`;
+        const response = await fetch(imgUrl);
+
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.success && data.image) {
+            setImageSrc(data.image);
+            console.log('Image URL loaded:', data.image);
+          } else {
+            console.warn('No image found in response, using fallback');
+            setImageSrc('/default.png');
+          }
+        } else {
+          console.warn('Failed to fetch image URL, using fallback');
+          setImageSrc('/default.png');
+        }
+      } catch (error) {
+        console.error('Error fetching image URL:', error);
+        setImageSrc('/default.png');
+      }
+    };
+
+    fetchImageUrl();
+  }, []);
 
   //fetch patientcard info
   useEffect(() => {
@@ -263,13 +294,13 @@ const ConsultationForm = () => {
   return (
     <div className="relative flex bg-[#EFEFEF] min-h-screen">
       <div className="flex flex-col md:flex-row w-full overflow-hidden">
-        <div className="w-full md:w-24 bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
+        <div className="w-full z-11 md:w-24 bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
           <SideBar />
         </div>
 
         <div className="flex flex-col w-full ml-[163px]">
           <div className="h-16 flex items-center px-8 shadow bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1] z-10">
-            <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-xl md:text-2xl font-bold">
+            <h1 className="text-transparent ml-[50px] bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-xl md:text-2xl font-bold">
               Patients
             </h1>
           </div>
@@ -278,11 +309,16 @@ const ConsultationForm = () => {
             {/* Patient Sidebar */}
             <div className="w-full md:w-[239px] h-[346px] bg-white shadow-lg rounded-xl p-6 space-y-6 md:ml-[200px] mt-[10px]">
               <div className="flex flex-col items-center">
-                <img
-                  src="./logo.png"
-                  alt="Patient"
-                  className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
-                />
+                  <img
+      src={imageSrc}
+      alt="Patient"
+      onError={(e) => {
+        console.error('Image load error, switching to default-profile.png');
+        e.target.onerror = null;
+        e.target.src = '/default.png';
+      }}
+      className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
+    />
                 <h2 className="mt-4 text-black text-lg font-semibold">
                   {patientData.nom} {patientData.prenom}
                 </h2>

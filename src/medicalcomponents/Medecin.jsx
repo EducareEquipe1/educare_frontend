@@ -6,16 +6,17 @@ import MedicalForm from './MedicalForm';
 import TabRendezvous from '../doctorcomponents/TabRendezvous';
 import ConsultationList from '../consultationcomp/ConsultationList';
 
+
 const Medecin = () => {
   const [activeTab, setActiveTab] = useState('dossier');
   const [loading, setLoading] = useState(false);
 
   const { email } = useParams();
 
-  const tabs = [ 
+  const tabs = [
     { id: 'dossier', label: 'Dossier Médicale' },
     { id: 'consultation', label: 'Consultation' },
-   
+
     { id: 'rendezvous', label: 'Rendez-vous' },
     { id: 'ordonnances', label: 'Ordonnances' }
   ];
@@ -55,7 +56,7 @@ const Medecin = () => {
   return (
     <div className="flex h-screen bg-[#EFEFEF] overflow-hidden">
       {/* Sidebar */}
-      <div className="w-[100px] bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
+      <div className=" z-11 w-[100px] bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
         <SideBar />
       </div>
 
@@ -94,10 +95,10 @@ const Medecin = () => {
           ) : (
             <>
             {activeTab === 'dossier' && <MedicalForm/>}
-            
+
               {activeTab === 'consultation' && <ConsultationList/>  }
-              
-            
+
+
 
               {activeTab === 'rendezvous' && (
                 <div className="p-4  rounded-md ml-14">
@@ -124,5 +125,3 @@ const Medecin = () => {
 };
 
 export default Medecin;
-
-

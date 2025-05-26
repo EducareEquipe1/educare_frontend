@@ -58,11 +58,37 @@ const Demandes = () => {
     setShowRdvModal(true);
   };
 
-  const handleRefuserClick = (demandeId) => {
-    if (window.confirm("Êtes-vous sûr de vouloir refuser cette demande ?")) {
-      setDemandes(demandes.filter(d => d.id !== demandeId));
+  const handleRefuserClick = async (demandeId) => {
+  const confirmed = window.confirm("Êtes-vous sûr de vouloir refuser cette demande ?");
+  if (!confirmed) return;
+
+  try {
+    const token = localStorage.getItem('token');
+    console.log("Token:", token);
+    console.log("ID de la demande à refuser:", demandeId);
+
+    const response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/refuserdv/${demandeId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Réponse serveur :", response.status, errorText);
+      throw new Error("Échec du refus de la demande.");
     }
-  };
+
+    setDemandes(demandes.filter(d => d.id !== demandeId));
+    alert("Demande refusée avec succès.");
+  } catch (error) {
+    console.error("Erreur lors du refus de la demande :", error);
+    alert("Une erreur est survenue lors du refus de la demande.");
+  }
+};
+
 
   const handleAddRdv = async () => {
     if (!selectedDemande) return;

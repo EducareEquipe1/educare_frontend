@@ -114,7 +114,7 @@ const ConsultationList = () => {
     navigate(`/consultation/${id_consultation}`);
   };
   return (
-    <div className="p-4 bg-white rounded-lg shadow-sm">
+    <div className="p-4 bg-white ml-[150px] rounded-lg shadow-sm">
       <div className="text-black flex justify-between items-center mb-6">
         <p className="font-semibold">Ajouter une nouvelle consultation</p>
         <button

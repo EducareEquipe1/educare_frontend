@@ -23,7 +23,6 @@ const Mesures = ({ formData, handleChange }) => {
             <div className="flex items-center space-x-4 mb-4">
               <label className="w-[100px]">IMC :</label>
               <input
-                readOnly
                 inputMode="numeric"
                 className="w-full max-w-[150px] px-3 py-2 rounded-[12px]
  border border-[2px] border-[#2E3D40A6] focus:outline-none focus:ring-2 focus:ring-blue-500 

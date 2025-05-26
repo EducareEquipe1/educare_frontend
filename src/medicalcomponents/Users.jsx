@@ -10,11 +10,15 @@ export default function Users() {
     <div className='relative flex bg-[#EFEFEF]'>
       <SideBar />
       <div className="flex flex-col h-full w-full">
+
+     
+
         <div className="flex h-[40px] md:max-h-[60px] justify-between items-center px-4 md:px-12 shadow-md bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1] ml-[100px]">
           <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-l md:text-2xl font-bold ml-[95px]">
+
             Patients
           </h1>
-          
+
           {/* Search Bar in Header */}
           <div className="relative w-1/3 min-w-[200px]">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -29,7 +33,7 @@ export default function Users() {
             />
           </div>
         </div>
-        
+
         <DisplayUsers searchQuery={searchQuery} />
       </div>
     </div>
