@@ -211,7 +211,13 @@ const DisplayUsers = () => {
                       : "border-red-500 bg-red-50 text-red-700"
                   }`}
                 >
-                  <strong>{res.email} : {res.status} <br /> <span className="text-black text-[12px] font-light">{res.error}</span> </strong> — {res.message}
+                  <strong>
+                    {res.email} : {res.status} <br />{" "}
+                    <span className="text-black text-[12px] font-light">
+                      {res.error}
+                    </span>{" "}
+                  </strong>{" "}
+                  — {res.message}
                 </div>
               ))}
             </div>
