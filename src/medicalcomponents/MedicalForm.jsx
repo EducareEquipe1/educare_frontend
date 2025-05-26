@@ -11,6 +11,7 @@ const MedicalForm = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [recordExists, setRecordExists] = useState(false);
   const [initialFormData, setInitialFormData] = useState(null);
+  const [imageSrc, setImageSrc] = useState('/default.png');
   const { email } = useParams();
 
   const [patientData, setPatientData] = useState({
@@ -51,6 +52,38 @@ const MedicalForm = () => {
     reactionsAllergiques: '',
   });
 
+
+  //fetch image
+  useEffect(() => {
+    const fetchImageUrl = async () => {
+      try {
+        const imgUrl = `https://educare-backend-l6ue.onrender.com/patients/get-patient-photo/${email}`;
+        const response = await fetch(imgUrl);
+
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.success && data.image) {
+            setImageSrc(data.image);
+            console.log('Image URL loaded:', data.image);
+          } else {
+            console.warn('No image found in response, using fallback');
+            setImageSrc('/default.png');
+          }
+        } else {
+          console.warn('Failed to fetch image URL, using fallback');
+          setImageSrc('/default.png');
+        }
+      } catch (error) {
+        console.error('Error fetching image URL:', error);
+        setImageSrc('/default.png');
+      }
+    };
+
+    fetchImageUrl();
+  }, []);
+
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -82,6 +115,18 @@ const MedicalForm = () => {
           email: userInfo.email || '',
           isActif: userInfo.isActif ?? '',
         });
+
+        console.log(patientData);
+        setFormData(prev => ({
+          ...prev,
+          nom: userInfo.nom,
+          prenom: userInfo.prenom,
+          email: userInfo.email,
+          statut: userInfo.statut,
+          num_tel: userInfo.num_tel,
+          date_naissance: userInfo.date_naissance,
+        }));
+
 
         // Fetch existing medical record
         const recordRes = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-dossier-medical/${email}`, {
@@ -230,8 +275,15 @@ const MedicalForm = () => {
         <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 ml-[200px] mt-[10px]">
           <div className="flex flex-col items-center">
             <img
-              src="./logo.png"
+
+              src={imageSrc}
               alt="Patient"
+              onError={(e) => {
+                console.error('Image load error, switching to default-profile.png');
+                e.target.onerror = null;
+                e.target.src = '/default.png';
+              }}
+
               className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
             />
             <h2 className="mt-4 text-black text-lg font-semibold">{patientData.nom} {patientData.prenom}</h2>
@@ -263,6 +315,7 @@ const MedicalForm = () => {
               <p className="text-gray-600">Chargement des données...</p>
             </div>
           ) : (
+
             <form className="flex flex-col w-full space-y-6 px-6 mt-[10px]" onSubmit={(e) => e.preventDefault()}>
               <DetailsPersonnels formData={formData} handleChange={handleChange} readOnly={!isEditing} />
               <DonnéesBiométrique formData={formData} handleChange={handleChange} readOnly={!isEditing} />
@@ -276,6 +329,7 @@ const MedicalForm = () => {
                   disabled={saving || loading}
                 >
                   {isEditing ? (saving ? 'Sauvegarde...' : 'Sauvegarder') : 'Modifier'}
+
                 </button>
                 {isEditing && (
                   <button

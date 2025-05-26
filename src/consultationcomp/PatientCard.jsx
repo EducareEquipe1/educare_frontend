@@ -46,7 +46,7 @@ const PatientCard = ({ email }) => {
   }, [email]);
 
   return (
-    <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 ml-[200px] mt-[10px]">
+    <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 mr-4">
       <div className="flex flex-col items-center">
         <img
           src="./logo.png"
@@ -56,7 +56,7 @@ const PatientCard = ({ email }) => {
         <h2 className="mt-4 text-black text-lg font-semibold">
           {patientData.nom} {patientData.prenom}
         </h2>
-        <h2 className="mt-4 text-gray-600 text-lg font-semibold">
+        <h2 className="mt-4 text-gray-600 text-[12px] font-semibold">
           {patientData.email}
         </h2>
         <span

@@ -12,7 +12,10 @@ import Checkemail from "./checkemail/Checkemail";
 import ResetPassword from "./resetPassword/ResetPassword";
 import Passwordchanged from "./passwordchanged/Passwordchanged";
 import Emailsent from "./emailsent/Emailsent";
-import  LineChartCom from "./ChartsComponents/LineChart";
+import  StackedBarComponent from "./ChartsComponents/stackedBar";
+import  LineChartComponent from "./ChartsComponents/LineChart";
+import  ColumnChart from "./ChartsComponents/ColumnChart";
+import  PieChartCom from "./ChartsComponents/PieChart";
 import Doctors from "./AdminComponents/Doctors";
 import Home from "./Home";
 import Dashboard from "./AdminComponents/Dashboard";
@@ -31,6 +34,7 @@ import Settings from "./AdminComponents/Settings";
 import RendezVous from "./doctorcomponents/RendezVous";
 import TabRendezvous from "./doctorcomponents/TabRendezvous";
 import Directeur from "./DirecteurComponents/Directeur";
+import { Sign } from "@tensorflow/tfjs-core";
 {/*import FaceDetectionUploader from "./FaceDetectionComponents/FaceDetectionUploader";*/}
 
 const NotFound = () => <div>404 Not Found</div>;
@@ -41,11 +45,9 @@ function App() {
     <Router>
       <Routes>
 
-          <Route path="/" element={<Signin />} />
+      <Route path="/" element={<Signin />} />
+      <Route path="/pie" element={<PieChartCom />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
-       <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
-
-       {/*  <Route path="/" element={<Signin />} />*/}
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
 
@@ -78,6 +80,7 @@ function App() {
         <Route path="/RendezVous" element={<RendezVous />} />
         <Route path="/directeur" element={<Directeur/>} />
         <Route path="/TabRendezvous/:email" element={<TabRendezvous />} />
+
 
         {/* Catch-all for unknown routes */}
       </Routes>

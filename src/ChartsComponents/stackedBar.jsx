@@ -11,10 +11,12 @@ import {
   Cell,
 } from "recharts";
 
+
+
 const StackedBarComponent = ({ dataUrl, title }) => {
   const [data, setData] = useState([]);
   const [maxValue, setMaxValue] = useState(null);
-
+ 
 
   useEffect(() => {
     const fetchData = async () => {
