@@ -30,7 +30,7 @@ export default function Form() {
 setMessage(res.error);
       localStorage.setItem("token", res.data.token); // Store JWT token
       setMessage("Login successful!");
-    
+
         console.log(res.data.patient.role);
       if (res.data.patient.verified == true) {
         switch(res.data.patient.role){
@@ -38,9 +38,11 @@ setMessage(res.error);
               break;
           case 'admin':navigate("/Dashboard");
               break;
+           case 'directeur':navigate("/directeur");
+              break;
         }
-        
-        
+
+
         localStorage.setItem("token", res.data.token); // Store JWT token
       } else {
         navigate("/checkemail", { state: { email: email } });
