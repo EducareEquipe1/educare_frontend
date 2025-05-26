@@ -3,62 +3,57 @@ import React, { useState } from "react";
 const NewUserForm = ({ onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
     matricule: "",
-    prenom: "",
-    nom: "",
+    first_name: "",
+    last_name: "",
     email: "",
-    telephone: "",
+    phone: "",
     password: "",
-    dateNaissance: "",
-    role: "Etudiant"
+    birth_date: ""
   });
 
   const [errors, setErrors] = useState({
     matricule: "",
-    prenom: "",
-    nom: "",
+    first_name: "",
+    last_name: "",
     email: "",
-    telephone: "",
+    phone: "",
     password: "",
-    dateNaissance: ""
+    birth_date: ""
   });
 
   const validateForm = () => {
     let isValid = true;
     const newErrors = {
       matricule: "",
-      prenom: "",
-      nom: "",
+      first_name: "",
+      last_name: "",
       email: "",
-      telephone: "",
+      phone: "",
       password: "",
-      dateNaissance: ""
+      birth_date: ""
     };
 
-    // Validation matricule
     if (!formData.matricule.trim()) {
       newErrors.matricule = "Le matricule est requis";
       isValid = false;
     }
 
-    // Validation prénom
-    if (!formData.prenom.trim()) {
-      newErrors.prenom = "Le prénom est requis";
+    if (!formData.first_name.trim()) {
+      newErrors.first_name = "Le prénom est requis";
       isValid = false;
-    } else if (formData.prenom.length < 2) {
-      newErrors.prenom = "Le prénom doit contenir au moins 2 caractères";
-      isValid = false;
-    }
-
-    // Validation nom
-    if (!formData.nom.trim()) {
-      newErrors.nom = "Le nom est requis";
-      isValid = false;
-    } else if (formData.nom.length < 2) {
-      newErrors.nom = "Le nom doit contenir au moins 2 caractères";
+    } else if (formData.first_name.length < 2) {
+      newErrors.first_name = "Le prénom doit contenir au moins 2 caractères";
       isValid = false;
     }
 
-    // Validation email
+    if (!formData.last_name.trim()) {
+      newErrors.last_name = "Le nom est requis";
+      isValid = false;
+    } else if (formData.last_name.length < 2) {
+      newErrors.last_name = "Le nom doit contenir au moins 2 caractères";
+      isValid = false;
+    }
+
     if (!formData.email.trim()) {
       newErrors.email = "L'email est requis";
       isValid = false;
@@ -67,16 +62,14 @@ const NewUserForm = ({ onSuccess, onCancel }) => {
       isValid = false;
     }
 
-    // Validation téléphone
-    if (!formData.telephone.trim()) {
-      newErrors.telephone = "Le téléphone est requis";
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Le téléphone est requis";
       isValid = false;
-    } else if (!/^[0-9]{10}$/.test(formData.telephone)) {
-      newErrors.telephone = "Le téléphone doit contenir 10 chiffres";
+    } else if (!/^[0-9]{10}$/.test(formData.phone)) {
+      newErrors.phone = "Le téléphone doit contenir 10 chiffres";
       isValid = false;
     }
 
-    // Validation mot de passe
     if (!formData.password) {
       newErrors.password = "Le mot de passe est requis";
       isValid = false;
@@ -85,15 +78,14 @@ const NewUserForm = ({ onSuccess, onCancel }) => {
       isValid = false;
     }
 
-    // Validation date de naissance
-    if (!formData.dateNaissance) {
-      newErrors.dateNaissance = "La date de naissance est requise";
+    if (!formData.birth_date) {
+      newErrors.birth_date = "La date de naissance est requise";
       isValid = false;
     } else {
-      const birthDate = new Date(formData.dateNaissance);
+      const birthDate = new Date(formData.birth_date);
       const currentDate = new Date();
       if (birthDate >= currentDate) {
-        newErrors.dateNaissance = "La date de naissance doit être dans le passé";
+        newErrors.birth_date = "La date de naissance doit être dans le passé";
         isValid = false;
       }
     }
@@ -104,50 +96,86 @@ const NewUserForm = ({ onSuccess, onCancel }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Effacer l'erreur quand l'utilisateur commence à taper
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (validateForm()) {
-      console.log("Formulaire soumis:", formData);
+    if (!validateForm()) return;
+     const token = localStorage.getItem("token"); // or pass it via props/context
+
+  if (!token) {
+    alert("Token d'authentification manquant. Veuillez vous connecter.");
+    return;
+  }
+
+  try {
+    const response = await fetch("https://educare-backend-l6ue.onrender.com/medecins/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(formData)
+    });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Erreur lors de l'inscription:", errorData);
+        alert("Échec de l'inscription: " + (errorData.message || "Erreur inconnue"));
+        return;
+      }
+
+      const result = await response.json();
+      console.log("Inscription réussie:", result);
+      alert("Utilisateur ajouté avec succès !");
       onSuccess();
+    } catch (error) {
+      console.error("Erreur réseau:", error);
+      alert("Erreur réseau: impossible d'inscrire l'utilisateur");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
-        
-
         <div>
           <input
             type="text"
-            name="prenom"
-            value={formData.prenom}
+            name="matricule"
+            value={formData.matricule}
             onChange={handleChange}
-            placeholder="Prénom"
-            className={`mt-1 block w-full px-3 py-2 border ${errors.prenom ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#679294]`}
+            placeholder="Matricule"
+            className={`mt-1 block w-full px-3 py-2 border ${errors.matricule ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm`}
           />
-          {errors.prenom && <p className="mt-1 text-sm text-red-600">{errors.prenom}</p>}
+          {errors.matricule && <p className="text-sm text-red-600">{errors.matricule}</p>}
         </div>
 
         <div>
           <input
             type="text"
-            name="nom"
-            value={formData.nom}
+            name="first_name"
+            value={formData.first_name}
+            onChange={handleChange}
+            placeholder="Prénom"
+            className={`mt-1 block w-full px-3 py-2 border ${errors.first_name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm`}
+          />
+          {errors.first_name && <p className="text-sm text-red-600">{errors.first_name}</p>}
+        </div>
+
+        <div>
+          <input
+            type="text"
+            name="last_name"
+            value={formData.last_name}
             onChange={handleChange}
             placeholder="Nom"
-            className={`mt-1 block w-full px-3 py-2 border ${errors.nom ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#679294]`}
+            className={`mt-1 block w-full px-3 py-2 border ${errors.last_name ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm`}
           />
-          {errors.nom && <p className="mt-1 text-sm text-red-600">{errors.nom}</p>}
+          {errors.last_name && <p className="text-sm text-red-600">{errors.last_name}</p>}
         </div>
 
         <div>
@@ -157,21 +185,21 @@ const NewUserForm = ({ onSuccess, onCancel }) => {
             value={formData.email}
             onChange={handleChange}
             placeholder="Email"
-            className={`mt-1 block w-full px-3 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#679294]`}
+            className={`mt-1 block w-full px-3 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm`}
           />
-          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+          {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
         </div>
 
         <div>
           <input
             type="tel"
-            name="telephone"
-            value={formData.telephone}
+            name="phone"
+            value={formData.phone}
             onChange={handleChange}
-            placeholder="Téléphone (ex: 0612345678)"
-            className={`mt-1 block w-full px-3 py-2 border ${errors.telephone ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#679294]`}
+            placeholder="Téléphone"
+            className={`mt-1 block w-full px-3 py-2 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm`}
           />
-          {errors.telephone && <p className="mt-1 text-sm text-red-600">{errors.telephone}</p>}
+          {errors.phone && <p className="text-sm text-red-600">{errors.phone}</p>}
         </div>
 
         <div>
@@ -181,53 +209,37 @@ const NewUserForm = ({ onSuccess, onCancel }) => {
             value={formData.password}
             onChange={handleChange}
             placeholder="Mot de passe"
-            className={`mt-1 block w-full px-3 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#679294]`}
+            className={`mt-1 block w-full px-3 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm`}
           />
-          {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+          {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
         </div>
 
         <div>
           <input
             type="date"
-            name="dateNaissance"
-            value={formData.dateNaissance}
+            name="birth_date"
+            value={formData.birth_date}
             onChange={handleChange}
-            className={`mt-1 block w-full px-3 py-2 border ${errors.dateNaissance ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#679294]`}
+            className={`mt-1 block w-full px-3 py-2 border ${errors.birth_date ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm`}
           />
-          {errors.dateNaissance && <p className="mt-1 text-sm text-red-600">{errors.dateNaissance}</p>}
-        </div>
-
-        <div>
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#679294]"
-          >
-            <option value="Etudiant">Étudiant</option>
-            <option value="Directeur">Directeur</option>
-            <option value="ATS">ATS</option>
-            <option value="Medecin">Médecin</option>
-          </select>
+          {errors.birth_date && <p className="text-sm text-red-600">{errors.birth_date}</p>}
         </div>
       </div>
 
-      <div className="border-t border-gray-200 pt-4">
-        <div className="flex justify-end space-x-3">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#679294]"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 text-sm font-medium text-white bg-[#679294] rounded-md hover:bg-[#5a7e80] focus:outline-none focus:ring-1 focus:ring-[#679294]"
-          >
-            Ajouter
-          </button>
-        </div>
+      <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 text-sm font-medium text-white bg-[#679294] rounded-md hover:bg-[#5a7e80]"
+        >
+          Ajouter
+        </button>
       </div>
     </form>
   );
