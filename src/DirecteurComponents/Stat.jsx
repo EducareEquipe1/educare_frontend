@@ -5,6 +5,9 @@ const Stat = () => {
   const [patientsCount, setPatientsCount] = useState(0)
   const [consultationsCount, setConsultationsCount] = useState(0)
   const [casContagieuxCount, setCasContagieuxCount] = useState(0)
+  const currentYear = new Date().getFullYear();
+const currentYearPair = `${currentYear - 1}-${currentYear}`; // Par exemple : "2024-2025"
+
 
   const token = localStorage.getItem('token')
 
@@ -54,7 +57,7 @@ const Stat = () => {
         <Card title='Total Patients' number={patientsCount.toString()} />
         <Card title='Consultations' number={consultationsCount.toString()} />
         <Card title='Cas Contagieux' number={casContagieuxCount.toString()} />
-        <Card title='Annee Academique' number='2014-2015' />
+        <Card title='Annee Academique' number={`${currentYearPair}`} />
       </div>
     </div>
   )

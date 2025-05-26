@@ -159,7 +159,7 @@ const TableConsultation = forwardRef(({ consultations = [] }, ref) => {
         </div>
       )}
 
-      <div className="max-h-[300px] min-h-[250px] overflow-y-auto border border-gray-200 rounded-[10px]">
+      <div className="max-h-[300px]  overflow-y-auto border border-gray-200 rounded-[10px]">
         <table className="min-w-full bg-white">
           <thead className="sticky top-0">
             <tr className="bg-[#EAF0F1] text-gray-600">
