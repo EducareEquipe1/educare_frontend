@@ -44,6 +44,7 @@ function App() {
 
     <Router>
       <Routes>
+
       <Route path="/" element={<Signin />} />
       <Route path="/pie" element={<PieChartCom />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />

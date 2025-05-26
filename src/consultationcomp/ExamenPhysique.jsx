@@ -13,8 +13,10 @@ const ExamenPhysique = () => {
 
   const [loading, setLoading] = useState(false);
   const [examenExists, setExamenExists] = useState(false);
-  const [examenMedicalData, setExamenMedicalData] = useState({});
+
+  const [examenMedicalData, setExamenMedicalData] = useState(null);
   const [id_examen, setExamenId] = useState(null);
+
 
   const [patientData, setPatientData] = useState({
     prenom: "",
@@ -81,6 +83,7 @@ const ExamenPhysique = () => {
   });
   const [imageSrc, setImageSrc] = useState("/default.png");
 
+
   // Fetch patient photo
   useEffect(() => {
     const fetchImageUrl = async () => {
@@ -97,9 +100,9 @@ const ExamenPhysique = () => {
       }
     };
 
-    if (email) {
-      fetchImageUrl();
-    }
+
+    fetchImageUrl();
+
   }, [email]);
 
   // Fetch patient + examen data
@@ -107,97 +110,136 @@ const ExamenPhysique = () => {
   const fetchData = async () => {
     if (!email || !id_consultation) return;
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Access denied. Please log in.");
-      return;
-    }
+
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      if (!email || !id_consultation) {
+        alert("Email ou ID de consultation manquant.");
+        return;
+      }
+
+      console.log('Consultation ID:', id_consultation);
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Access denied. Please log in.");
+        return;
+      }
+
 
     try {
       setLoading(true);
 
-      // 1. Fetch patient data
-      const patientRes = await fetch(
-        `https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const patientData = await patientRes.json();
-      setPatientData(patientData);
 
-      // 2. Check if examen exists
-      const examRes = await fetch(
-        `https://educare-backend-l6ue.onrender.com/medecins/consultations/${id_consultation}/has-examen-medical`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const examData = await examRes.json();
-      setExamenExists(examData.exists);
+        const response = await fetch(
+          `https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      // 3. If examen exists, fetch the details and populate the form
-      if (examData.exists) {
-        const examDetailsRes = await fetch(
-          `https://educare-backend-l6ue.onrender.com/medecins/consultations/${id_consultation}/examen-medical`,
+        if (!response.ok) throw new Error(`Failed to fetch patient data: ${response.status}`);
+
+        const data = await response.json();
+        setPatientData({
+          prenom: data.prenom || "",
+          nom: data.nom || "",
+          email: data.email || "",
+          isActif: data.isActif ?? "",
+        });
+
+        const examenCheckRes = await fetch(
+          `https://educare-backend-l6ue.onrender.com/medecins/consultations/${id_consultation}/has-examen-medical`,
+
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        const examDetails = await examDetailsRes.json();
-        const data = examDetails.data;
-        setExamenMedicalData(data);
 
-        setFormData((prev) => ({
-          ...prev,
-          poids: data.poids || "",
-          taille: data.taille || "",
-          IMC: data.IMC || "",
-          tension: data.tension || "",
-          vision_d: data.vision_d || "",
-          vision_g: data.vision_g || "",
-          larmoiement: !!data.larmoiement,
-          douleurs: !!data.douleurs,
-          taches_yeux: !!data.taches_yeux,
-          audition_d: !!data.audition_d,
-          audition_g: !!data.audition_g,
-          sifflements: !!data.sifflements,
-          angines: !!data.angines,
-          epistaxis: !!data.epistaxis,
-          rhinorrhee: !!data.rhinorrhee,
-          cephalies: !!data.cephalies,
-          vertiges: !!data.vertiges,
-          troubles_sommeil: !!data.troubles_sommeil,
-          peau_normal: !!data.peau_normal,
-          peau_anormale: !!data.peau_anormale,
-          douleurs_musculaires: !!data.douleurs_musculaires,
-          douleurs_articulaires: !!data.douleurs_articulaires,
-          douleurs_neurologiques: !!data.douleurs_neurologiques,
-          toux: !!data.toux,
-          dyspnee: !!data.dyspnee,
-          douleurs_thoraciques: !!data.douleurs_thoraciques,
-          palpitations: !!data.palpitations,
-          oedemes: !!data.oedemes,
-          cyanose: !!data.cyanose,
-          pyrosis: !!data.pyrosis,
-          vomissements: !!data.vomissements,
-          douleurs_abdominales: !!data.douleurs_abdominales,
-          dysurie: !!data.dysurie,
-          hematurie: !!data.hematurie,
-          cycles_irreguliers: !!data.cycles_irreguliers,
-          fonction_respiratoire: data.fonction_respiratoire || "",
-          fonction_circulatoire: data.fonction_circulatoire || "",
-          fonction_motrice: data.fonction_motrice || "",
-          sanguins: data.sanguins || "",
-          urinaires: data.urinaires || "",
-          radiologiques: data.radiologiques || "",
-          hepatites_pos: !!data.hepatites_pos,
-          hepatites_neg: !!data.hepatites_neg,
-          syphilis_pos: !!data.syphilis_pos,
-          syphilis_neg: !!data.syphilis_neg,
-          vih_pos: !!data.vih_pos,
-          vih_neg: !!data.vih_neg,
-        }));
+
+        if (!examenCheckRes.ok) throw new Error(`Failed to check examen existence: ${examenCheckRes.status}`);
+
+        const examenCheck = await examenCheckRes.json();
+        console.log('Examen check response:', examenCheck);
+        setExamenExists(examenCheck.exists);
+
+        if (examenCheck.exists) {
+          const examenDataRes = await fetch(
+            `https://educare-backend-l6ue.onrender.com/medecins/consultations/${id_consultation}/examen-medical`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!examenDataRes.ok) throw new Error(`Failed to fetch examen medical data: ${examenDataRes.status}`);
+
+          const examenData = await examenDataRes.json();
+          console.log('Fetched examenMedicalData:', examenData);
+          setExamenMedicalData(examenData);
+
+          const dataToPopulate = examenData.data || examenData;
+          setFormData({
+            poids: dataToPopulate.poids?.toString() || "",
+            taille: dataToPopulate.taille?.toString() || "",
+            IMC: dataToPopulate.IMC?.toString() || "",
+            tension: dataToPopulate.tension?.toString() || "",
+            vision_d: dataToPopulate.vision_d?.toString() || "",
+            vision_g: dataToPopulate.vision_g?.toString() || "",
+            larmoiement: dataToPopulate.larmoiement ? "true" : "false",
+            douleurs: dataToPopulate.douleurs ? "true" : "false",
+            taches_yeux: dataToPopulate.taches_yeux ? "true" : "false",
+            audition_d: dataToPopulate.audition_d?.toString() || "",
+            audition_g: dataToPopulate.audition_g?.toString() || "",
+            sifflements: dataToPopulate.sifflements ? "true" : "false",
+            angines: dataToPopulate.angines ? "true" : "false",
+            epistaxis: dataToPopulate.epistaxis ? "true" : "false",
+            rhinorrhee: dataToPopulate.rhinorrhee ? "true" : "false",
+            cephalies: dataToPopulate.cephalies ? "true" : "false",
+            vertiges: dataToPopulate.vertiges ? "true" : "false",
+            troubles_sommeil: dataToPopulate.troubles_sommeil ? "true" : "false",
+            peau_normal: dataToPopulate.peau_normal ? "true" : "false",
+            peau_anormale: dataToPopulate.peau_anormale ? "true" : "false",
+            douleurs_musculaires: dataToPopulate.douleurs_musculaires ? "true" : "false",
+            douleurs_articulaires: dataToPopulate.douleurs_articulaires ? "true" : "false",
+            douleurs_neurologiques: dataToPopulate.douleurs_neurologiques ? "true" : "false",
+            toux: dataToPopulate.toux ? "true" : "false",
+            dyspnee: dataToPopulate.dyspnee ? "true" : "false",
+            douleurs_thoraciques: dataToPopulate.douleurs_thoraciques ? "true" : "false",
+            palpitations: dataToPopulate.palpitations ? "true" : "false",
+            oedemes: dataToPopulate.oedemes ? "true" : "false",
+            cyanose: dataToPopulate.cyanose ? "true" : "false",
+            pyrosis: dataToPopulate.pyrosis ? "true" : "false",
+            vomissements: dataToPopulate.vomissements ? "true" : "false",
+            douleurs_abdominales: dataToPopulate.douleurs_abdominales ? "true" : "false",
+            dysurie: dataToPopulate.dysurie ? "true" : "false",
+            hematurie: dataToPopulate.hematurie ? "true" : "false",
+            cycles_irreguliers: dataToPopulate.cycles_irreguliers ? "true" : "false",
+            fonction_respiratoire: dataToPopulate.fonction_respiratoire || "",
+            fonction_circulatoire: dataToPopulate.fonction_circulatoire || "",
+            fonction_motrice: dataToPopulate.fonction_motrice || "",
+            sanguins: dataToPopulate.sanguins || "",
+            urinaires: dataToPopulate.urinaires || "",
+            radiologiques: dataToPopulate.radiologiques || "",
+            hepatites_pos: dataToPopulate.hepatites_pos ? "true" : "false",
+            hepatites_neg: dataToPopulate.hepatites_neg ? "true" : "false",
+            syphilis_pos: dataToPopulate.syphilis_pos ? "true" : "false",
+            syphilis_neg: dataToPopulate.syphilis_neg ? "true" : "false",
+            vih_pos: dataToPopulate.vih_pos ? "true" : "false",
+            vih_neg: dataToPopulate.vih_neg ? "true" : "false",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        alert(`Erreur lors du chargement : ${error.message}`);
+      } finally {
+        setLoading(false);
+
       }
     } catch (e) {
       console.error("Erreur lors du chargement des données:", e);
@@ -210,54 +252,110 @@ const ExamenPhysique = () => {
 }, [email, id_consultation]);
 
 
-  // Handle form submit
+  const toTinyInt = (val) =>
+    val === "true" || val === true || val === 1 || val === "1" ? 1 : 0;
+
+  const handleChange = (e) => {
+    if (examenExists) return;
+    const { name, value, type, checked } = e.target;
+    const newValue = type === "checkbox" ? (checked ? "true" : "false") : value;
+    console.log(`Updating field: ${name}, value: ${newValue}, type: ${type}, event target:`, {
+      name: e.target.name,
+      value: e.target.value,
+      type: e.target.type,
+    });
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
+  };
+
+
   const handleSave = async () => {
     if (!id_consultation) {
       alert("Consultation ID manquant.");
       return;
     }
 
-    setLoading(true);
-    const token = localStorage.getItem("token");
 
-    // Prepare data in the format backend expects
-    const dataToSend = {
-      poids: parseFloat(formData.poids) || null,
-      taille: parseFloat(formData.taille) || null,
-      IMC: parseFloat(formData.IMC) || null,
-      tension: formData.tension || "",
-      // Add all other fields
-      vision_d: parseFloat(formData.vision_d) || null,
-      vision_g: parseFloat(formData.vision_g) || null,
-      larmoiement: formData.larmoiement ? 1 : 0,
-      douleurs: formData.douleurs ? 1 : 0,
-      // Convert all boolean fields to 1/0
-      peau_normal: formData.peau_normal ? 1 : 0,
-      peau_anormale: formData.peau_anormale ? 1 : 0,
-      // Include all other fields...
-    };
+    console.log('Consultation ID for save:', id_consultation);
+    console.log('Form Data before saving:', { poids: formData.poids, taille: formData.taille });
 
     try {
-      const url = `https://educare-backend-l6ue.onrender.com/medecins/consultations/${id_consultation}/examen-medical`;
-      const method = examenExists ? "PUT" : "POST";
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Token manquant.");
+      }
 
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSend),
-      });
+      const dataToSend = {
+        poids: formData.poids !== "" ? formData.poids : null,
+        taille: formData.taille !== "" ? formData.taille : null,
+        IMC: formData.IMC !== "" ? formData.IMC : null,
+        tension: formData.tension !== "" ? formData.tension : null,
+        vision_d: formData.vision_d !== "" ? formData.vision_d : null,
+        vision_g: formData.vision_g !== "" ? formData.vision_g : null,
+        larmoiement: toTinyInt(formData.larmoiement),
+        douleurs: toTinyInt(formData.douleurs),
+        taches_yeux: toTinyInt(formData.taches_yeux),
+        audition_d: formData.audition_d !== "" ? formData.audition_d : null,
+        audition_g: formData.audition_g !== "" ? formData.audition_g : null,
+        sifflements: toTinyInt(formData.sifflements),
+        angines: toTinyInt(formData.angines),
+        epistaxis: toTinyInt(formData.epistaxis),
+        rhinorrhee: toTinyInt(formData.rhinorrhee),
+        cephalies: toTinyInt(formData.cephalies),
+        vertiges: toTinyInt(formData.vertiges),
+        troubles_sommeil: toTinyInt(formData.troubles_sommeil),
+        peau_normal: toTinyInt(formData.peau_normal),
+        peau_anormale: toTinyInt(formData.peau_anormale),
+        douleurs_musculaires: toTinyInt(formData.douleurs_musculaires),
+        douleurs_articulaires: toTinyInt(formData.douleurs_articulaires),
+        douleurs_neurologiques: toTinyInt(formData.douleurs_neurologiques),
+        toux: toTinyInt(formData.toux),
+        dyspnee: toTinyInt(formData.dyspnee),
+        douleurs_thoraciques: toTinyInt(formData.douleurs_thoraciques),
+        palpitations: toTinyInt(formData.palpitations),
+        oedemes: toTinyInt(formData.oedemes),
+        cyanose: toTinyInt(formData.cyanose),
+        pyrosis: toTinyInt(formData.pyrosis),
+        vomissements: toTinyInt(formData.vomissements),
+        douleurs_abdominales: toTinyInt(formData.douleurs_abdominales),
+        dysurie: toTinyInt(formData.dysurie),
+        hematurie: toTinyInt(formData.hematurie),
+        cycles_irreguliers: toTinyInt(formData.cycles_irreguliers),
+        fonction_respiratoire: formData.fonction_respiratoire || "",
+        fonction_circulatoire: formData.fonction_circulatoire || "",
+        fonction_motrice: formData.fonction_motrice || "",
+        sanguins: formData.sanguins || "",
+        urinaires: formData.urinaires || "",
+        radiologiques: formData.radiologiques || "",
+        hepatites_pos: toTinyInt(formData.hepatites_pos),
+        hepatites_neg: toTinyInt(formData.hepatites_neg),
+        syphilis_pos: toTinyInt(formData.syphilis_pos),
+        syphilis_neg: toTinyInt(formData.syphilis_neg),
+        vih_pos: toTinyInt(formData.vih_pos),
+        vih_neg: toTinyInt(formData.vih_neg),
+      };
 
-      if (!response.ok) throw new Error("Request failed");
+      console.log('Sending dataToSend:', JSON.stringify(dataToSend, null, 2));
 
-      const result = await response.json();
-      alert(examenExists ? "Examen mis à jour" : "Examen créé");
+      const response = await axios.post(
+        `https://educare-backend-l6ue.onrender.com/medecins/examen-medical-create/${id_consultation}`,
+        dataToSend,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      console.log('Save response:', response.data);
+      setExamenId(response.data.id);
       setExamenExists(true);
-    } catch (e) {
-      console.error("Error:", e);
-      alert("Erreur lors de la sauvegarde");
+      alert("Examen médical enregistré avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde :", error.response?.data || error.message);
+      alert(`Erreur lors de la sauvegarde : ${error.response?.data?.message || error.message}`);
+
     } finally {
       setLoading(false);
     }
@@ -300,70 +398,60 @@ const ExamenPhysique = () => {
             </div>
           </div>
 
-          {/* Main content */}
-          <div className="flex-1 p-6 overflow-y-auto">
-            {loading ? (
-              <div className="text-center text-blue-500 text-lg font-semibold">
-                Chargement...
+          <div className="flex flex-col md:flex-row p-4 ml-[100px] mt-[20px]">
+            <div className="w-full md:w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6">
+              <div className="flex flex-col items-center">
+                <img
+                  src={imageSrc}
+                  alt="Patient"
+                  onError={(e) => {
+                    console.error('Image load error, switching to default-profile.png');
+                    e.target.onerror = null;
+                    e.target.src = '/default.png';
+                  }}
+                  className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
+                />
+                <h2 className="mt-4 text-black text-lg font-semibold">
+                  {patientData.nom} {patientData.prenom}
+                </h2>
+                <h2 className="mt-4 text-gray-600 text-lg font-semibold">
+                  {patientData.email}
+                </h2>
+                <span
+                  className={`text-sm px-3 py-1 rounded-full mt-2 ${
+                    patientData.isActif ? "text-green-500" : "text-red-500"
+                  }`}
+                >
+                  {patientData.isActif ? "Active" : "Inactive"}
+                </span>
               </div>
-            ) : (
-              <div className="max-w-5xl mx-auto bg-transparent rounded-xl p-8">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">
-                  Examen Médical de {patientData.prenom} {patientData.nom}
-                </h1>
+            </div>
 
-                {/* Mesures */}
-                <section className="mb-8">
-                  <h2 className="text-xl font-semibold text-[#2E3D40F2] mb-4">
-                    Mesures
-                  </h2>
-                  <Mesures formData={formData} setFormData={setFormData} />
-                </section>
+            <div className="flex-1 bg-white rounded-xl shadow-lg p-6 ml-6">
+              <h1 className="text-black text-2xl font-bold mb-6">
+                Examen Physique
+              </h1>
+              <form className="flex flex-col space-y-6" onSubmit={(e) => e.preventDefault()}>
+                <Mesures formData={formData} handleChange={handleChange} readOnly={examenExists} />
+                <ExamenAppareil formData={formData} handleChange={handleChange} readOnly={examenExists} />
+                <ExplorationFonctionnels formData={formData} handleChange={handleChange} readOnly={examenExists} />
+                <ExamenComplementaire formData={formData} handleChange={handleChange} readOnly={examenExists} />
 
-                {/* Examen Appareil */}
-                <section className="mb-8">
-                  <h2 className="text-xl font-semibold text-[#2E3D40F2] mb-4">
-                    Examen Appareil
-                  </h2>
-                  <ExamenAppareil
-                    formData={formData}
-                    setFormData={setFormData}
-                  />
-                </section>
+                {!examenExists && (
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleSave}
+                      disabled={loading}
+                      className="rounded text-white bg-[#679294] px-4 py-2 hover:bg-[#577b7d] transition-colors disabled:opacity-50"
+                    >
+                      {loading ? "Enregistrement..." : "Sauvegarder"}
+                    </button>
+                  </div>
+                )}
+              </form>
+            </div>
 
-                {/* Explorations Fonctionnelles */}
-                <section className="mb-8">
-                  <h2 className="text-xl font-semibold text-[#2E3D40F2] mb-4">
-                    Explorations Fonctionnelles
-                  </h2>
-                  <ExplorationFonctionnels
-                    formData={formData}
-                    setFormData={setFormData}
-                  />
-                </section>
-
-                {/* Examens Complémentaires */}
-                <section className="mb-8">
-                  <h2 className="text-xl font-semibold text-[#2E3D40F2] mb-4">
-                    Examens Complémentaires
-                  </h2>
-                  <ExamenComplementaire
-                    formData={formData}
-                    setFormData={setFormData}
-                  />
-                </section>
-
-                {/* Save button */}
-                <div className="flex justify-end">
-                  <button
-                    onClick={handleSave}
-                    className="bg-[#679294] hover:bg-[#679294] text-white font-semibold py-2 px-6 rounded-md transition"
-                  >
-                    Enregistrer
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
