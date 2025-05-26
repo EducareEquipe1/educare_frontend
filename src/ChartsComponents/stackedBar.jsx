@@ -10,24 +10,15 @@ import {
   LabelList,
   Cell,
 } from "recharts";
-const fakeData = [
-  { name: "Item A", value: 40 },
-  { name: "Item B", value: 85 }, // Highest value
-  { name: "Item C", value: 60 },
-  { name: "Item D", value: 30 },
-];
+
 
 
 const StackedBarComponent = ({ dataUrl, title }) => {
   const [data, setData] = useState([]);
   const [maxValue, setMaxValue] = useState(null);
-    useEffect(() => {
-    // Load fake data temporarily
-    setData(fakeData);
-    setMaxValue(Math.max(...fakeData.map((d) => d.value)));
-  }, []);
+ 
 
-  /*useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await fetch(dataUrl);
@@ -40,7 +31,7 @@ const StackedBarComponent = ({ dataUrl, title }) => {
     };
 
     fetchData();
-   }, [dataUrl]);*/
+   }, [dataUrl]);
 
 
   return (

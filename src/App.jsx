@@ -13,6 +13,9 @@ import ResetPassword from "./resetPassword/ResetPassword";
 import Passwordchanged from "./passwordchanged/Passwordchanged";
 import Emailsent from "./emailsent/Emailsent";
 import  StackedBarComponent from "./ChartsComponents/stackedBar";
+import  LineChartComponent from "./ChartsComponents/LineChart";
+import  ColumnChart from "./ChartsComponents/ColumnChart";
+import  PieChartCom from "./ChartsComponents/PieChart";
 import Doctors from "./AdminComponents/Doctors";
 import Home from "./Home";
 import Dashboard from "./AdminComponents/Dashboard";
@@ -41,13 +44,10 @@ function App() {
 
     <Router>
       <Routes>
-          <Route path="/" element={<Signin />} />
-       <Route path="/ordonnace" element={<Ordonnance /> } />
-       <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
+
 
        {/*  <Route path="/" element={<Signin />} />*/}
-       <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
-      <Route path="/" element={<Signin />} />
+      <Route path="/" element={<PieChartCom />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
