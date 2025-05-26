@@ -249,74 +249,113 @@ const ExamenPhysique = () => {
   };
 
   return (
-    <div className="relative flex bg-[#EFEFEF] min-h-screen">
-      <div className="flex flex-col md:flex-row w-full overflow-hidden">
-        <div className="w-full md:w-24 bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
-          <SideBar />
+
+
+
+
+
+
+
+    
+    <div className="flex min-h-screen bg-gray-100">
+      <SideBar />
+
+      <div className="flex flex-col w-full ml-[120px]">
+        <div className="h-16 flex items-center px-8 shadow bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1] z-10 ml-[40px]">
+          <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-xl md:text-2xl font-bold">
+            Patients
+          </h1>
         </div>
 
-        <div className="flex flex-col w-full ml-[120px]">
-          <div className="h-16 flex items-center px-8 shadow bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1] z-10 ml-[40px]">
-            <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-xl md:text-2xl font-bold">
-              Patients
-            </h1>
+        <div className="flex bg-transparent flex-col md:flex-row p-4 ml-[100px] mt-[20px]">
+          {/* Left Sidebar */}
+          <div className="w-full md:w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6">
+            <div className="flex flex-col items-center">
+              <img
+                src="./logo.png"
+                alt="Patient"
+                className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
+              />
+              <h2 className="mt-4 text-black text-lg font-semibold">
+                {patientData.nom} {patientData.prenom}
+              </h2>
+              <h2 className="mt-4 text-gray-600 text-lg font-semibold">
+                {patientData.email}
+              </h2>
+              <span
+                className={`text-sm px-3 py-1 rounded-full mt-2 ${
+                  patientData.isActif ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {patientData.isActif ? "Active" : "Inactive"}
+              </span>
+            </div>
           </div>
 
-          <div className="flex flex-col md:flex-row p-4 ml-[100px] mt-[20px]">
-            <div className="w-full md:w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6">
-              <div className="flex flex-col items-center">
-                <img
-                  src="./logo.png"
-                  alt="Patient"
-                  className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
-                />
-                <h2 className="mt-4 text-black text-lg font-semibold">
-                  {patientData.nom} {patientData.prenom}
-                </h2>
-                <h2 className="mt-4 text-gray-600 text-lg font-semibold">
-                  {patientData.email}
-                </h2>
-                <span
-                  className={`text-sm px-3 py-1 rounded-full mt-2 ${
-                    patientData.isActif ? "text-green-500" : "text-red-500"
-                  }`}
-                >
-                  {patientData.isActif ? "Active" : "Inactive"}
-                </span>
+          {/* Right Content */}
+          <div className="flex-1 p-6 overflow-y-auto">
+            {loading ? (
+              <div className="text-center text-blue-500 text-lg font-semibold">
+                Chargement...
               </div>
-            </div>
+            ) : (
+              <div className="max-w-5xl mx-auto bg-transparent  rounded-xl p-8">
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">
+                  Examen Médical de {patientData.prenom} {patientData.nom}
+                </h1>
 
-            <div className="flex-1 bg-white rounded-xl shadow-lg p-6 ml-6">
-              <h1 className="text-black text-2xl font-bold mb-6">
-                Examen Physique
-              </h1>
-              <form className="flex flex-col space-y-6">
-                <Mesures formData={formData} handleChange={handleChange} />
-                <ExamenAppareil
-                  formData={formData}
-                  handleChange={handleChange}
-                />
-                <ExplorationFonctionnels
-                  formData={formData}
-                  handleChange={handleChange}
-                />
-                <ExamenComplementaire
-                  formData={formData}
-                  handleChange={handleChange}
-                />
+                {/* Section 1: Mesures */}
+                <section className="mb-8">
+                  <h2 className="text-xl font-semibold text-[#2E3D40F2] mb-4">
+                    Mesures
+                  </h2>
+                  <Mesures formData={formData} setFormData={setFormData} />
+                </section>
 
+                {/* Section 2: Examen de l'appareil */}
+                <section className="mb-8">
+                  <h2 className="text-xl font-semibold text-[#2E3D40F2] mb-4">
+                    Examen Appareil
+                  </h2>
+                  <ExamenAppareil
+                    formData={formData}
+                    setFormData={setFormData}
+                  />
+                </section>
+
+                {/* Section 3: Exploration Fonctionnels */}
+                <section className="mb-8">
+                  <h2 className="text-xl font-semibold text-[#2E3D40F2] mb-4">
+                    Explorations Fonctionnelles
+                  </h2>
+                  <ExplorationFonctionnels
+                    formData={formData}
+                    setFormData={setFormData}
+                  />
+                </section>
+
+                {/* Section 4: Examens Complémentaires */}
+                <section className="mb-8">
+                  <h2 className="text-xl font-semibold text-[#2E3D40F2] mb-4">
+                    Examens Complémentaires
+                  </h2>
+                  <ExamenComplementaire
+                    formData={formData}
+                    setFormData={setFormData}
+                  />
+                </section>
+
+                {/* Submit Button */}
                 <div className="flex justify-end">
                   <button
-                    type="button"
                     onClick={handleSave}
-                    disabled={loading}
-                    className="rounded text-white bg-[#679294] px-4 py-2 hover:bg-[#577b7d] transition-colors disabled:opacity-50"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-md transition"
                   >
-                    {loading ? "Enregistrement..." : "Sauvegarder"}
+                    Enregistrer
                   </button>
                 </div>
-              </form>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
