@@ -97,7 +97,6 @@ export default function Form() {
 
       console.log(error.response?.data?.error || error.message); // ✅ Log actual error response
       setMessage(error.response?.data?.error || "Error signing up. Try again");
-      setMessage("Error signing up.Try again");
     }
   };
 

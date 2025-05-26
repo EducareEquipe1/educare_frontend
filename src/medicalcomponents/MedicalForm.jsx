@@ -11,7 +11,7 @@ const MedicalForm = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [recordExists, setRecordExists] = useState(false);
-   const [imageSrc, setImageSrc] = useState('/default.png');
+  const [imageSrc, setImageSrc] = useState('/default.png');
   const { email } = useParams();
 
   const [patientData, setPatientData] = useState({
@@ -55,34 +55,33 @@ const MedicalForm = () => {
 
   //fetch image
   useEffect(() => {
-      const fetchImageUrl = async () => {
-        try {
-          const imgUrl = `https://educare-backend-l6ue.onrender.com/patients/get-patient-photo/${email}`;
-          const response = await fetch(imgUrl);
+    const fetchImageUrl = async () => {
+      try {
+        const imgUrl = `https://educare-backend-l6ue.onrender.com/patients/get-patient-photo/${email}`;
+        const response = await fetch(imgUrl);
 
-          if (response.ok) {
-            const data = await response.json();
+        if (response.ok) {
+          const data = await response.json();
 
-            if (data.success && data.image) {
-              setImageSrc(data.image);
-              console.log('Image URL loaded:', data.image);
-            } else {
-              console.warn('No image found in response, using fallback');
-              setImageSrc('/default.png');
-            }
+          if (data.success && data.image) {
+            setImageSrc(data.image);
+            console.log('Image URL loaded:', data.image);
           } else {
-            console.warn('Failed to fetch image URL, using fallback');
+            console.warn('No image found in response, using fallback');
             setImageSrc('/default.png');
           }
-        } catch (error) {
-          console.error('Error fetching image URL:', error);
+        } else {
+          console.warn('Failed to fetch image URL, using fallback');
           setImageSrc('/default.png');
         }
-      };
+      } catch (error) {
+        console.error('Error fetching image URL:', error);
+        setImageSrc('/default.png');
+      }
+    };
 
-      fetchImageUrl();
-    }, []);
-
+    fetchImageUrl();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,7 +101,7 @@ const MedicalForm = () => {
           email: userInfo.email,
           isActif: userInfo.isActif
         });
-console.log(patientData);
+        console.log(patientData);
         setFormData(prev => ({
           ...prev,
           nom: userInfo.nom,
@@ -204,16 +203,16 @@ console.log(patientData);
       <div className="flex flex-row ">
         <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 ml-[200px]  mt-[10px]">
           <div className="flex flex-col items-center">
-             <img
-      src={imageSrc}
-      alt="Patient"
-      onError={(e) => {
-        console.error('Image load error, switching to default-profile.png');
-        e.target.onerror = null;
-        e.target.src = '/default.png';
-      }}
-      className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
-    />
+            <img
+              src={imageSrc}
+              alt="Patient"
+              onError={(e) => {
+                console.error('Image load error, switching to default-profile.png');
+                e.target.onerror = null;
+                e.target.src = '/default.png';
+              }}
+              className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
+            />
             <h2 className="mt-4 text-black text-lg font-semibold">{patientData.nom} {patientData.prenom}</h2>
             <h2 className="mt-4 text-gray-600 text-lg font-semibold">{patientData.email}</h2>
             <span
@@ -266,7 +265,7 @@ console.log(patientData);
                 handleChange={handleChange}
                 readOnly={!isEditing}
               />
-<div className="flex gap-4">
+              <div className="flex gap-4">
                 <button type="button" onClick={toggleEditMode} className="bg-blue-600 text-white px-4 py-2 rounded">
                   {isEditing ? 'Sauvegarder' : 'Modifier'}
                 </button>

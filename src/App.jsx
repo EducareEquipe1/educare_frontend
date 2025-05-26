@@ -12,7 +12,7 @@ import Checkemail from "./checkemail/Checkemail";
 import ResetPassword from "./resetPassword/ResetPassword";
 import Passwordchanged from "./passwordchanged/Passwordchanged";
 import Emailsent from "./emailsent/Emailsent";
-import  LineChartCom from "./ChartsComponents/LineChart";
+import  StackedBarComponent from "./ChartsComponents/stackedBar";
 import Doctors from "./AdminComponents/Doctors";
 import Home from "./Home";
 import Dashboard from "./AdminComponents/Dashboard";
@@ -31,6 +31,7 @@ import Settings from "./AdminComponents/Settings";
 import RendezVous from "./doctorcomponents/RendezVous";
 import TabRendezvous from "./doctorcomponents/TabRendezvous";
 import Directeur from "./DirecteurComponents/Directeur";
+import { Sign } from "@tensorflow/tfjs-core";
 {/*import FaceDetectionUploader from "./FaceDetectionComponents/FaceDetectionUploader";*/}
 
 const NotFound = () => <div>404 Not Found</div>;
@@ -46,13 +47,8 @@ function App() {
 
        {/*  <Route path="/" element={<Signin />} />*/}
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
-
       <Route path="/" element={<Signin />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
-       <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
-
-
-       {/*  <Route path="/" element={<Signin />} />*/}
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
 

@@ -9,10 +9,37 @@ import { RiFolderUserLine } from "react-icons/ri";
 import { IoSettingsSharp } from "react-icons/io5";
 import { FaNotesMedical } from "react-icons/fa";
 import { IoMdArchive } from "react-icons/io";
+import { IoLogOut } from "react-icons/io5";
+import { useNavigate } from "react-router-dom"; 
+
 
 
 
 const SideBar = () => {
+  const navigate = useNavigate();
+  
+    const handleLogout = async () => {
+      const token = localStorage.getItem("token");
+  
+      try {
+        const response = await fetch("https://educare-backend-l6ue.onrender.com/patients/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (response.ok) {
+          localStorage.removeItem("token"); // Supprime le token du localStorage
+          navigate("/"); // Redirige vers la page d’accueil
+        } else {
+          console.error("Logout failed");
+        }
+      } catch (error) {
+        console.error("Error during logout:", error);
+      }
+    };
   return (
     <div>
       <div className="flex ">
@@ -20,7 +47,11 @@ const SideBar = () => {
           <div className="flex justify-between items-end mx-2 mt-4    w-[80px] md:w-[120px] gap-2 md:gap-2">
             <img src={logo} alt="" className="ml-3 mt-4" />
           </div>
-          <ul className="flex flex-col gap-2 md:gap-4 px-4 md:px-6 text-[12px] md:text-[14px]">
+          <div className="flex flex-col justify-between h-full ">
+
+          
+          <div className="flex justify-between ">
+          <ul className="flex  flex-col gap-2 md:gap-4 px-4 md:px-6 text-[12px] md:text-[14px]">
             <li>
               <a
                 href="/Dashboard"
@@ -80,6 +111,14 @@ const SideBar = () => {
               </a>
             </li>
           </ul>
+          </div>
+          <button
+                      onClick={handleLogout}
+                      className="flex justify-center items-center gap-1 mb-6 font-semibold text- hover:text-white cursor-pointer"
+                    >
+                      <IoLogOut className="" /> Déconnexion
+                    </button>
+                    </div>
         </div>
       </div>
     </div>
