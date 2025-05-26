@@ -1,121 +1,231 @@
 import React, { useState, useEffect } from "react";
 import Oneuser from "./Oneuser";
+import NewUserForm from "./NewUserForm";
+import { IoMdAttach } from "react-icons/io";
 
 const DisplayUsers = () => {
   const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showNewUserForm, setShowNewUserForm] = useState(false);
+  const [showExcelUploadForm, setShowExcelUploadForm] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadResults, setUploadResults] = useState(null); // Nouveau
+  const adminToken = localStorage.getItem("token");
 
-  const handleDelete = async (email) => {
-    console.log("Trying to delete user with email:", email);
-
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this user?"
-    );
-    if (!confirmed) return;
-
+  const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem("token"); // Récupérer le token
-      if (!token) throw new Error("Authentication token is missing");
-
-      console.log(
-        `Fetching: https://educare-backend-l6ue.onrender.com/admin/delete-user/${encodeURIComponent(
-          email
-        )}`
-      );
-
       const response = await fetch(
-        `https://educare-backend-l6ue.onrender.com/admin/delete-user/${encodeURIComponent(
-          email
-        )}`,
-        //setErrorMessage(response.error);
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`, // Ajout du token
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to delete doctor: ${errorText}`);
-      }
-
-      console.log("user deleted successfully");
-
-      // Mettre à jour la liste après suppression
-      setPatients((prevPatients) =>
-        prevPatients.filter((user) => user.email !== email)
-      );
-    } catch (error) {
-      console.error("Error deleting doctor:", error);
-    }
-  };
-
-  // Fonction pour récupérer tous les patients depuis l'API
-  const fetchPatients = async () => {
-    try {
-      const token = localStorage.getItem("token"); // Récupération du token
-      if (!token) throw new Error("Authentication token is missing");
-
-      const response = await fetch(
-        "https://educare-backend-l6ue.onrender.com/admin/get-all-patients",
+        "https://educare-backend-l6ue.onrender.com/Admin/get-users",
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${adminToken}`,
           },
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch patients");
-      }
+      if (!response.ok) throw new Error("Failed to fetch users");
 
       const data = await response.json();
-      console.log("Fetched data:", data);
-      setPatients(data); // Mise à jour des patients
+      setPatients(data.utilisateurs || []);
     } catch (error) {
-      console.error("Error fetching patients:", error);
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // useEffect pour charger les patients au montage
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleExcelUpload = async () => {
+    if (!selectedFile) {
+      alert("Veuillez sélectionner un fichier Excel (XLSX)");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await fetch(
+        "https://educare-backend-l6ue.onrender.com/admin/bulk-register-pdf",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) throw new Error("Échec de l'upload du fichier Excel");
+
+      const resultData = await response.json();
+      setUploadResults(resultData.results); // Stocke le tableau de résultats
+      setShowExcelUploadForm(false);
+      setSelectedFile(null);
+      fetchUsers();
+    } catch (error) {
+      console.error("Error uploading Excel file:", error);
+      alert("Une erreur est survenue lors de l'upload du fichier Excel");
+    }
+  };
+
   useEffect(() => {
-    fetchPatients();
+    fetchUsers();
   }, []);
-  console.log(patients);
+
   return (
-    <div className="flex flex-col justify-end items-end bg-[#FFFEFE] mx-8 mb-6 rounded-[15px] border border-[#CACACA] shadow-md py-2 px-4">
-      <div className="w-full grid grid--6 gap-2 items-center p-3 h-full">
-        {/* Titles */}
-        <div className="flex justify-between font-medium text-[#BBBBBF] border-b pb-2">
-          <span className="md:w-[140px]">Matricule</span>
-          <span className="md:w-[180px]">Name</span>
-          <span className="md:w-[130px]">Email</span>
-          <span className="md:w-[100px]">Role</span>
-          <span className="md:w-[140px]">State</span> {/* Ajout de l'état */}
+    <div className="relative">
+      {/* Tableau des utilisateurs */}
+      <div className="bg-[#FFFEFE] max-h-[420px] min-h-[250px] overflow-y-auto rounded-[15px] border border-[#CACACA] shadow-md overflow-hidden mx-6  min-w-[900px]">
+        {/* En-têtes des colonnes */}
+        <div className="grid grid-cols-12 gap-4 items-center p-4 border-b border-[#CACACA] text-[#BBBBBF] font-medium">
+          <div className="col-span-2">Matricule</div>
+          <div className="col-span-2">Nom</div>
+          <div className="col-span-3">Email</div>
+          <div className="col-span-2">Rôle</div>
+          <div className="col-span-2">Statut</div>
+          <div className="col-span-1">Action</div>
         </div>
-        <div className="max-h-[300px] min-h-[250px] flex flex-col overflow-x-auto overflow-y-auto">
-          {patients.length > 0 ? (
-            patients.map((patient, index) => (
+
+        {/* Corps du tableau */}
+        <div>
+          {loading ? (
+            <div className="flex items-center justify-center h-full p-8 text-gray-500">
+              Chargement des utilisateurs...
+            </div>
+          ) : patients.length > 0 ? (
+            patients.map((user, index) => (
               <Oneuser
                 key={index}
-                matricule={patient.matricule}
-                first_name={patient.first_name}
-                last_name={patient.last_name}
-                email={patient.email}
-                role={patient.role}
-                is_active={patient.is_active}
-                onDelete={handleDelete}
-                // Ajout de l'état du patient
+                matricule={user.matricule || "--"}
+                first_name={user.prenom || "--"}
+                last_name={user.nom || "--"}
+                email={user.email}
+                role={user.role}
+                is_active="active"
+                fetchUsers={fetchUsers}
               />
             ))
           ) : (
-            <p className="text-center text-gray-500">No patients found.</p>
+            <div className="flex items-center justify-center h-full p-8 text-gray-500">
+              Aucun utilisateur trouvé.
+            </div>
           )}
         </div>
       </div>
+
+      {/* Boutons */}
+      <div className="flex justify-end p-4 gap-4">
+        <button
+          onClick={() => setShowExcelUploadForm(true)}
+          className="flex justify-center items-center gap-1 px-4 py-2 bg-white rounded-md shadow-xl hover:bg-gray-100"
+        >
+          <IoMdAttach /> <span>Ajouter Étudiants via Excel</span>
+        </button>
+
+        <button
+          onClick={() => setShowNewUserForm(true)}
+          className="bg-[#679294] text-white px-4 py-2 rounded-md hover:bg-[#5a7e80] transition-colors"
+        >
+          + Ajouter
+        </button>
+      </div>
+
+      {/* Formulaire Nouveau Utilisateur */}
+      {showNewUserForm && (
+        <div className="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+            <h2 className="text-2xl flex justify-center text-[#679294] font-bold mb-4">
+              Nouveau Utilisateur
+            </h2>
+            <NewUserForm
+              onSuccess={() => {
+                setShowNewUserForm(false);
+                fetchUsers();
+              }}
+              onCancel={() => setShowNewUserForm(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Formulaire Upload Excel */}
+      {showExcelUploadForm && (
+        <div className="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-2xl text-[#679294] font-bold mb-5">
+              Ajouter Étudiants via Excel
+            </h2>
+
+            <input
+              type="file"
+              accept=".xlsx, .xls"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#679294] file:text-white hover:file:bg-[#5a7e80]"
+            />
+            {selectedFile && (
+              <p className="mt-2 text-sm text-gray-600">
+                Fichier sélectionné : {selectedFile.name}
+              </p>
+            )}
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => {
+                  setShowExcelUploadForm(false);
+                  setSelectedFile(null);
+                }}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleExcelUpload}
+                className="px-4 py-2 bg-[#679294] text-white rounded-md hover:bg-[#5a7e80]"
+              >
+                Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Résultats Upload Excel */}
+      {uploadResults && (
+        <div className="fixed inset-0 bg-[rgba(0,0,0,0.6)] flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-lg">
+            <h2 className="text-2xl text-[#679294] font-bold mb-4 text-center">
+              Résultat de l'import Excel
+            </h2>
+            <div className="space-y-2">
+              {uploadResults.map((res, index) => (
+                <div
+                  key={index}
+                  className={`p-3 rounded-md border ${
+                    res.status === "success"
+                      ? "border-green-500 bg-green-50 text-green-700"
+                      : "border-red-500 bg-red-50 text-red-700"
+                  }`}
+                >
+                  <strong>{res.email} : {res.status} <br /> <span className="text-black text-[12px] font-light">{res.error}</span> </strong> — {res.message}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setUploadResults(null)}
+                className="px-4 py-2 bg-[#679294] text-white rounded-md hover:bg-[#5a7e80]"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

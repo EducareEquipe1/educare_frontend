@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import {
-  MailIcon, Lock, Eye,EyeOff, Calendar, Phone, IdCard,
+  MailIcon,
+  Lock,
+  Eye,
+  EyeOff,
+  Calendar,
+  Phone,
+  IdCard,
+  Tag,
 } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -8,9 +15,10 @@ import { Outlet, Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-
 export default function Form() {
   const [email, setEmail] = useState("");
+  const [categorie, setCategorie] = useState("Etudiant");
+
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [first_name, setFirstname] = useState("");
@@ -20,6 +28,8 @@ export default function Form() {
   const [matricule, setMatricule] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [sex, setSex] = useState("");
+
   const [loading, setLoading] = useState(false); // Add loading state
 
   const navigate = useNavigate();
@@ -36,7 +46,7 @@ export default function Form() {
     if (loading) return; // Prevent multiple clicks
     setLoading(true); // Start loading
     // Validate birth date format
-   /* if (!/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
+    /* if (!/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
       setError("Invalid birth date format. Please enter YYYY-MM-DD.");
       setLoading(false);
       return;
@@ -51,7 +61,9 @@ export default function Form() {
 
     // Validate phone number format
     if (!/^0\d{9}$/.test(phone)) {
-      setError("Invalid phone number. It must start with 0 and be exactly 10 digits.");
+      setError(
+        "Invalid phone number. It must start with 0 and be exactly 10 digits."
+      );
       setLoading(false);
       return;
     }
@@ -60,7 +72,17 @@ export default function Form() {
       console.log("im trying");
       const res = await axios.post(
         "https://educare-backend-l6ue.onrender.com/patients/register",
-        { email, password, first_name, last_name, birth_date, phone, matricule }
+        {
+          email,
+          password,
+          first_name,
+          last_name,
+          birth_date,
+          phone,
+          matricule,
+          categorie,
+          sex,
+        }
       );
       console.log("not getting the response from the server ");
       setMessage(res.data.message);
@@ -112,7 +134,9 @@ export default function Form() {
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
             <DatePicker
               selected={birth_date ? new Date(birth_date) : null} // Convert string to Date object
-              onChange={(date) => setBirthdate(date.toISOString().split("T")[0])} // Convert Date to string "YYYY-MM-DD"
+              onChange={(date) =>
+                setBirthdate(date.toISOString().split("T")[0])
+              } // Convert Date to string "YYYY-MM-DD"
               dateFormat="yyyy-MM-dd"
               placeholderText="YYYY-MM-DD"
               className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
@@ -140,6 +164,28 @@ export default function Form() {
               className="border border-white rounded-[10px] text-white w-[420px] p-2 pl-10"
             />
           </div>
+          {/*categorie */}
+
+          <div className="relative mt-[30px]">
+            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
+            <select
+              name="categorie"
+              value={categorie}
+              onChange={(e) => setCategorie(e.target.value)}
+              className=" border border-white rounded-[10px] text-white w-[420px] p-2 pl-10 bg-transparent"
+            >
+              <option className="text-black" value="Etudiant">
+                Étudiant
+              </option>
+              <option className="text-black" value="Enseignant">
+                Enseignant
+              </option>
+              <option className="text-black" value="Ats">
+                Ats
+              </option>
+            </select>
+          </div>
+
           {/*email*/}
           <div className="relative mt-[30px]">
             <MailIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
@@ -176,6 +222,35 @@ export default function Form() {
               )}
             </button>
           </div>
+          {/* Sex selection */}
+          <div className="relative mt-[30px] w-[420px]">
+            <label className="text-white block mb-2 pl-1">Sex</label>
+            <div className="flex gap-x-6 pl-1">
+              <label className="flex items-center text-white gap-x-2">
+                <input
+                  type="radio"
+                  name="sex"
+                  value="Male"
+                  checked={sex === "Male"}
+                  onChange={(e) => setSex(e.target.value)}
+                  className="accent-white"
+                />
+                Male
+              </label>
+              <label className="flex items-center text-white gap-x-2">
+                <input
+                  type="radio"
+                  name="sex"
+                  value="Female"
+                  checked={sex === "Female"}
+                  onChange={(e) => setSex(e.target.value)}
+                  className="accent-white"
+                />
+                Female
+              </label>
+            </div>
+          </div>
+
           <button
             type="submit"
             disabled={loading} // Disable while loading

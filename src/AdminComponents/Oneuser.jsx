@@ -1,42 +1,72 @@
-import React from "react";
-import { MdDeleteOutline } from "react-icons/md";
+import React, { useState } from "react";
+import Confirmation from "./Confirmation";
 
-const Oneuser = ({
-  matricule,
-  first_name,
-  last_name,
-  email,
-  role,
-  is_active,
-  onDelete,
-}) => {
+const Oneuser = ({ matricule, first_name, last_name, email, role, is_active, fetchUsers }) => {
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [actionType, setActionType] = useState("");
+  const adminToken = localStorage.getItem("token");
+
+  const handleConfirm = async () => {
+    if (actionType === "archiver") {
+      try {
+        const response = await fetch(
+          `https://educare-backend-l6ue.onrender.com/admin/archive-user/${email}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${adminToken}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Failed to archive user:", errorData);
+          return;
+        }
+
+        console.log("User archived successfully");
+        fetchUsers();
+      } catch (error) {
+        console.error("Error archiving user:", error);
+      }
+    }
+    setShowConfirmation(false);
+  };
+
   return (
-    <div className="text-[13px] w-full">
-      <div className="flex flex-wrap sm:flex-nowrap gap-4 items-center justify-between p-2">
-        <span className="capitalize w-1/2 sm:w-[150px]">{matricule}</span>
-        <span className="capitalize w-1/2 sm:w-[150px]">
+    <>
+      <div className="grid grid-cols-12 gap-4 items-center p-4 border-b border-[#EFEFEF] hover:bg-gray-50">
+        <div className="col-span-2 text-sm capitalize">{matricule}</div>
+        <div className="col-span-2 text-sm capitalize">
           {first_name} {last_name}
-        </span>
-        <span className="w-1/2 sm:w-[200px] truncate">{email}</span>
-        <span className="w-1/2 sm:w-[120px]">{role}</span>
-        <span
-          className={`w-1/2 sm:w-[100px] ${
-            is_active ? "text-green-600" : "text-red-600"
-          }`}
-        >
+        </div>
+        <div className="col-span-3 text-sm truncate">{email}</div>
+        <div className="col-span-2 text-sm">{role}</div>
+        <div className={`col-span-2 text-sm ${is_active ? "text-green-600" : "text-red-600"}`}>
           {is_active ? "Active" : "Inactive"}
-        </span>
-        <div className=" p-1   rounded-">
+        </div>
+        <div className="col-span-1">
           <button
-            className="border border-[#929A9B] text-[13px] px-2 py-1 hover:bg-[#679294] hover:text-white cursor-pointer rounded"
-            onClick={() => onDelete(email)}
+            className="border border-[#929A9B] text-xs px-2 py-1 hover:bg-[#679294] hover:text-white rounded transition-colors"
+            onClick={() => {
+              setActionType("archiver");
+              setShowConfirmation(true);
+            }}
           >
-            Delete
+            Archiver
           </button>
         </div>
       </div>
-      <div className="h-[1px] bg-[#BBBBBF] w-full" />
-    </div>
+
+      {showConfirmation && (
+        <Confirmation
+          type={actionType}
+          onCancel={() => setShowConfirmation(false)}
+          onConfirm={handleConfirm}
+        />
+      )}
+    </>
   );
 };
 

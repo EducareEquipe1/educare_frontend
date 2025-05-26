@@ -12,23 +12,30 @@ const SideBar = () => {
           <div className="flex justify-between items-end mx-2 mt-4    w-[80px] md:w-[120px] gap-2 md:gap-2">
             <img src="/logo.png" alt="" className="ml-[0.5px] mt-4" />
           </div>
-          <ul className="flex flex-col gap-2 md:gap-4 px-4 md:px-6 text-[12px] md:text-[16px]">
-            <li>
-                <MdDashboard />
-                <p>Home</p>
-            </li>
-            <li>
-                
-                     <FaUserDoctor />
-                            <p className="">Rendez-vous</p>
-                        </li>
-            <li>
+          <ul className="flex flex-col gap-2 md:gap-8 px-4 md:px-6 text-[12px] md:text-[16px]">
+            
+            
+            <li className="flex items-center gap-2">
+              <a
+                    href="/user"
+                    className="flex items-center gap-2 hover:bg-[linear-gradient(to_left,#2E3D40,transparent)] hover:text-white  transition-[5s]  py-2 rounded-full"
+                  >
              
                 <HiUsers />
                 <p>Patients</p>
-         
+         </a>
             </li>
-            <li>
+            <li className="flex items-center gap-2">
+              <a
+                    href="/rendezvous"
+                    className="flex items-center gap-2 hover:bg-[linear-gradient(to_left,#2E3D40,transparent)] hover:text-white  transition-[5s]  py-2  rounded-full"
+                  >
+                
+                     <FaUserDoctor />
+                            <p className="">Rendez-vous</p>
+                            </a>
+                        </li>
+            <li className="flex items-center gap-2">
              
                 <IoSettingsSharp />
                 <p>Paramètres</p>
