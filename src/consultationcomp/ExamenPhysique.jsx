@@ -10,13 +10,9 @@ import { useParams } from "react-router-dom";
 const ExamenPhysique = () => {
   const email = localStorage.getItem("selectedEmail");
   const { id_consultation } = useParams();
-
   const [loading, setLoading] = useState(false);
   const [examenExists, setExamenExists] = useState(false);
-
   const [examenMedicalData, setExamenMedicalData] = useState(null);
-  const [id_examen, setExamenId] = useState(null);
-
 
   const [patientData, setPatientData] = useState({
     prenom: "",
@@ -26,90 +22,86 @@ const ExamenPhysique = () => {
   });
 
   const [formData, setFormData] = useState({
-    // Mesures
     poids: "",
     taille: "",
     IMC: "",
     tension: "",
-
-    // Examen Appareil
     vision_d: "",
     vision_g: "",
-    larmoiement: false,
-    douleurs: false,
-    taches_yeux: false,
-    audition_d: false,
-    audition_g: false,
-    sifflements: false,
-    angines: false,
-    epistaxis: false,
-    rhinorrhee: false,
-    cephalies: false,
-    vertiges: false,
-    troubles_sommeil: false,
-    peau_normal: false,
-    peau_anormale: false,
-    douleurs_musculaires: false,
-    douleurs_articulaires: false,
-    douleurs_neurologiques: false,
-    toux: false,
-    dyspnee: false,
-    douleurs_thoraciques: false,
-    palpitations: false,
-    oedemes: false,
-    cyanose: false,
-    pyrosis: false,
-    vomissements: false,
-    douleurs_abdominales: false,
-    dysurie: false,
-    hematurie: false,
-    cycles_irreguliers: false,
-
-    // Exploration Fonctionnels
+    larmoiement: "",
+    douleurs: "",
+    taches_yeux: "",
+    audition_d: "",
+    audition_g: "",
+    sifflements: "",
+    angines: "",
+    epistaxis: "",
+    rhinorrhee: "",
+    cephalies: "",
+    vertiges: "",
+    troubles_sommeil: "",
+    peau_normal: "",
+    peau_anormale: "",
+    douleurs_musculaires: "",
+    douleurs_articulaires: "",
+    douleurs_neurologiques: "",
+    toux: "",
+    dyspnee: "",
+    douleurs_thoraciques: "",
+    palpitations: "",
+    oedemes: "",
+    cyanose: "",
+    pyrosis: "",
+    vomissements: "",
+    douleurs_abdominales: "",
+    dysurie: "",
+    hematurie: "",
+    cycles_irreguliers: "",
     fonction_respiratoire: "",
     fonction_circulatoire: "",
     fonction_motrice: "",
-
-    // Examen Complementaire
     sanguins: "",
     urinaires: "",
     radiologiques: "",
-    hepatites_pos: false,
-    hepatites_neg: false,
-    syphilis_pos: false,
-    syphilis_neg: false,
-    vih_pos: false,
-    vih_neg: false,
+    hepatites_pos: "",
+    hepatites_neg: "",
+    syphilis_pos: "",
+    syphilis_neg: "",
+    vih_pos: "",
+    vih_neg: "",
   });
-  const [imageSrc, setImageSrc] = useState("/default.png");
 
+  const [imageSrc, setImageSrc] = useState('/default.png');
 
-  // Fetch patient photo
   useEffect(() => {
     const fetchImageUrl = async () => {
       try {
-        const response = await fetch(
-          `https://educare-backend-l6ue.onrender.com/patients/get-patient-photo/${email}`
-        );
-        const data = await response.json();
-        if (response.ok && data.success && data.image) {
-          setImageSrc(data.image);
+        const imgUrl = `https://educare-backend-l6ue.onrender.com/patients/get-patient-photo/${email}`;
+        const response = await fetch(imgUrl);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.image) {
+            setImageSrc(data.image);
+            console.log('Image URL loaded:', data.image);
+          } else {
+            console.warn('No image found in response, using fallback');
+            setImageSrc('/default.png');
+          }
+        } else {
+          console.warn('Failed to fetch image URL, using fallback');
+          setImageSrc('/default.png');
         }
       } catch (error) {
-        setImageSrc("/default.png");
+        console.error('Error fetching image URL:', error);
+        setImageSrc('/default.png');
       }
     };
 
-
     fetchImageUrl();
-
   }, [email]);
 
-  // Fetch patient + examen data
- useEffect(() => {
-  const fetchData = async () => {
-    if (!email || !id_consultation) return;
-
+  const [id_examen, setExamenId] = useState(null);
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -126,10 +118,8 @@ const ExamenPhysique = () => {
         return;
       }
 
-
-    try {
-      setLoading(true);
-
+      try {
+        setLoading(true);
 
         const response = await fetch(
           `https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`,
@@ -154,12 +144,12 @@ const ExamenPhysique = () => {
 
         const examenCheckRes = await fetch(
           `https://educare-backend-l6ue.onrender.com/medecins/consultations/${id_consultation}/has-examen-medical`,
-
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
-
 
         if (!examenCheckRes.ok) throw new Error(`Failed to check examen existence: ${examenCheckRes.status}`);
 
@@ -239,18 +229,11 @@ const ExamenPhysique = () => {
         alert(`Erreur lors du chargement : ${error.message}`);
       } finally {
         setLoading(false);
-
       }
-    } catch (e) {
-      console.error("Erreur lors du chargement des données:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchData();
-}, [email, id_consultation]);
-
+    fetchPatientData();
+  }, [email, id_consultation]);
 
   const toTinyInt = (val) =>
     val === "true" || val === true || val === 1 || val === "1" ? 1 : 0;
@@ -270,13 +253,11 @@ const ExamenPhysique = () => {
     }));
   };
 
-
   const handleSave = async () => {
     if (!id_consultation) {
       alert("Consultation ID manquant.");
       return;
     }
-
 
     console.log('Consultation ID for save:', id_consultation);
     console.log('Form Data before saving:', { poids: formData.poids, taille: formData.taille });
@@ -355,47 +336,23 @@ const ExamenPhysique = () => {
     } catch (error) {
       console.error("Erreur lors de la sauvegarde :", error.response?.data || error.message);
       alert(`Erreur lors de la sauvegarde : ${error.response?.data?.message || error.message}`);
-
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <SideBar />
-
-      <div className="flex flex-col w-full ml-[120px]">
-        {/* Top header */}
-        <div className="h-16 flex items-center px-8 shadow bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1] z-10 ml-[40px]">
-          <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-xl md:text-2xl font-bold">
-            Patients
-          </h1>
+    <div className="relative flex bg-[#EFEFEF] min-h-screen">
+      <div className="flex flex-col md:flex-row w-full overflow-hidden">
+        <div className="w-full md:w-24 bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
+          <SideBar />
         </div>
 
-        <div className="flex bg-transparent flex-col md:flex-row p-4 ml-[100px] mt-[20px]">
-          {/* Sidebar card */}
-          <div className="w-full md:w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6">
-            <div className="flex flex-col items-center">
-              <img
-                src={imageSrc}
-                alt="Patient"
-                className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
-              />
-              <h2 className="mt-4 text-black text-lg font-semibold">
-                {patientData.nom} {patientData.prenom}
-              </h2>
-              <h2 className="mt-4 text-gray-600 text-lg font-semibold">
-                {patientData.email}
-              </h2>
-              <span
-                className={`text-sm px-3 py-1 rounded-full mt-2 ${
-                  patientData.isActif ? "text-green-500" : "text-red-500"
-                }`}
-              >
-                {patientData.isActif ? "Active" : "Inactive"}
-              </span>
-            </div>
+        <div className="flex flex-col w-full ml-[120px]">
+          <div className="h-16 flex items-center px-8 shadow bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1] z-10 ml-[40px]">
+            <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-xl md:text-2xl font-bold">
+              Patients
+            </h1>
           </div>
 
           <div className="flex flex-col md:flex-row p-4 ml-[100px] mt-[20px]">
@@ -451,7 +408,6 @@ const ExamenPhysique = () => {
                 )}
               </form>
             </div>
-
           </div>
         </div>
       </div>
