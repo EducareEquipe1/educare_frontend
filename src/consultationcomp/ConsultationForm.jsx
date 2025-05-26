@@ -151,6 +151,7 @@ const ConsultationForm = () => {
           piece: apiData.piece || "",
           patient_id: apiData.patient_id || "",
         });
+        console.log("consultation data", consultationData);
 
         // Check if ordonnance exists
         const ordonnanceRes = await fetch(
@@ -489,7 +490,7 @@ const ConsultationForm = () => {
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold text-[18px] leading-[100%] text-black font-['Exo_2']">
-                      Examen Physique
+                      Examen Médical
                     </h3>
                     {!examenExists && (
                       <button

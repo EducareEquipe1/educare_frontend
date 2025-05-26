@@ -47,16 +47,9 @@ function App() {
 
        {/*  <Route path="/" element={<Signin />} />*/}
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
-
-
       <Route path="/" element={<Signin />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
-
-
-       {/*  <Route path="/" element={<Signin />} />*/}
-       <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
-
 
 
        <Route path="/listeconsultation" element={<ConsultationList/>} />
@@ -88,6 +81,7 @@ function App() {
         <Route path="/RendezVous" element={<RendezVous />} />
         <Route path="/directeur" element={<Directeur/>} />
         <Route path="/TabRendezvous/:email" element={<TabRendezvous />} />
+
 
         {/* Catch-all for unknown routes */}
       </Routes>

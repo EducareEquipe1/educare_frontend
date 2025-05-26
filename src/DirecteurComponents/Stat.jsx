@@ -26,7 +26,7 @@ const Stat = () => {
         }
 
         const [patientsData, consultationsData, casData] = await Promise.all([
-          fetchWithCheck('https://educare-backend-l6ue.onrender.com/directeur/patientsCount'),
+          fetchWithCheck('https://educare-backend-l6ue.onrender.com/directeur/patientCount'),
           fetchWithCheck('https://educare-backend-l6ue.onrender.com/directeur/countConsultations'),
           fetchWithCheck('https://educare-backend-l6ue.onrender.com/directeur/casContagieuse')
         ])

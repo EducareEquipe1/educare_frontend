@@ -28,6 +28,8 @@ export default function Form() {
   const [matricule, setMatricule] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [sex, setSex] = useState("");
+
   const [loading, setLoading] = useState(false); // Add loading state
 
   const navigate = useNavigate();
@@ -70,9 +72,17 @@ export default function Form() {
       console.log("im trying");
       const res = await axios.post(
         "https://educare-backend-l6ue.onrender.com/patients/register",
-
-        { email, password, first_name, last_name, birth_date, phone, matricule,categorie }
-
+        {
+          email,
+          password,
+          first_name,
+          last_name,
+          birth_date,
+          phone,
+          matricule,
+          categorie,
+          sex,
+        }
       );
       console.log("not getting the response from the server ");
       setMessage(res.data.message);
@@ -157,20 +167,24 @@ export default function Form() {
           {/*categorie */}
 
           <div className="relative mt-[30px]">
-  <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
-  <select
-    name="categorie"
-    value={categorie}
-    onChange={(e) => setCategorie(e.target.value)}
-    className=" border border-white rounded-[10px] text-white w-[420px] p-2 pl-10 bg-transparent"
-  >
-    <option className="text-black" value="Etudiant">Étudiant</option>
-    <option className="text-black" value="Enseignant">Enseignant</option>
-    <option className="text-black" value="Ats">Ats</option>
-  </select>
-</div>
-
-
+            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-white-500 w-5 h-5" />
+            <select
+              name="categorie"
+              value={categorie}
+              onChange={(e) => setCategorie(e.target.value)}
+              className=" border border-white rounded-[10px] text-white w-[420px] p-2 pl-10 bg-transparent"
+            >
+              <option className="text-black" value="Etudiant">
+                Étudiant
+              </option>
+              <option className="text-black" value="Enseignant">
+                Enseignant
+              </option>
+              <option className="text-black" value="Ats">
+                Ats
+              </option>
+            </select>
+          </div>
 
           {/*email*/}
           <div className="relative mt-[30px]">
@@ -208,6 +222,35 @@ export default function Form() {
               )}
             </button>
           </div>
+          {/* Sex selection */}
+          <div className="relative mt-[30px] w-[420px]">
+            <label className="text-white block mb-2 pl-1">Sex</label>
+            <div className="flex gap-x-6 pl-1">
+              <label className="flex items-center text-white gap-x-2">
+                <input
+                  type="radio"
+                  name="sex"
+                  value="Male"
+                  checked={sex === "Male"}
+                  onChange={(e) => setSex(e.target.value)}
+                  className="accent-white"
+                />
+                Male
+              </label>
+              <label className="flex items-center text-white gap-x-2">
+                <input
+                  type="radio"
+                  name="sex"
+                  value="Female"
+                  checked={sex === "Female"}
+                  onChange={(e) => setSex(e.target.value)}
+                  className="accent-white"
+                />
+                Female
+              </label>
+            </div>
+          </div>
+
           <button
             type="submit"
             disabled={loading} // Disable while loading
