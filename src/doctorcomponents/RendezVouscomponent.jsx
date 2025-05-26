@@ -2,27 +2,28 @@ import { React, useState, useEffect } from 'react';
 import { PiListDashesFill } from "react-icons/pi";
 import { IoMdCalendar, IoMdCreate } from "react-icons/io";
 import { FaSearch, FaFilter, FaPlus, FaTrash } from 'react-icons/fa';
-import RendezvousList from './RendezvousList';
 import CalendarR from './CalendarR';
 import { format } from 'date-fns';
 
 const RendezVouscomponent = () => {
   const getStatusColor = (status) => {
     if (!status) return 'bg-gray-100 text-gray-800'; 
-    switch (status.toLowerCase().trim()) {  // <--- ici
-        case 'terminé':
-            return 'bg-green-100 text-green-800';
-        case 'annulé':
-            return 'bg-red-100 text-red-800';
-        case 'programmé':
-            return 'bg-blue-100 text-blue-800';
-        default:
-            return 'bg-gray-100 text-gray-800';
+    switch (status.toLowerCase().trim()) {
+      case 'terminé':
+        return 'bg-green-100 text-green-800';
+      case 'annulé':
+        return 'bg-red-100 text-red-800';
+      case 'programmé':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
-};
+  };
+
   const [activeTab, setActiveTab] = useState('list');
   const [query, setQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [newRdv, setNewRdv] = useState({
     nom: '',
     prenom: '',
@@ -36,29 +37,46 @@ const RendezVouscomponent = () => {
   const [rendezVous, setRendezVous] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [patients, setPatients] = useState([]);
+  const [patientSearch, setPatientSearch] = useState('');
+  const [showPatientList, setShowPatientList] = useState(false);
 
-  // Fetch rendezvous data
+  // Charger les rendez-vous et les patients
   useEffect(() => {
-    const fetchRendezVous = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('https://educare-backend-l6ue.onrender.com/medecins/listedesrendezvous', {
+        
+        // Charger les rendez-vous
+        const rdvResponse = await fetch('https://educare-backend-l6ue.onrender.com/medecins/listedesrendezvous', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch rendezvous');
-        }
+        if (!rdvResponse.ok) throw new Error('Failed to fetch rendezvous');
         
-        const data = await response.json();
-        const rendezvousWithIds = data.map((rdv, index) => ({
+        const rdvData = await rdvResponse.json();
+        const rendezvousWithIds = rdvData.map((rdv, index) => ({
           ...rdv,
           id: index + 1
         }));
         setRendezVous(rendezvousWithIds);
+
+        // Charger les patients
+        const patientsResponse = await fetch('https://educare-backend-l6ue.onrender.com/admin/get-all-patients/', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!patientsResponse.ok) throw new Error('Failed to fetch patients');
+        
+        const patientsData = await patientsResponse.json();
+        setPatients(patientsData);
+
       } catch (err) {
         setError(err.message);
       } finally {
@@ -66,12 +84,10 @@ const RendezVouscomponent = () => {
       }
     };
 
-    fetchRendezVous();
+    fetchData();
   }, []);
 
-  const handleChange = (event) => {
-    setQuery(event.target.value);
-  };
+  const handleChange = (event) => setQuery(event.target.value);
 
   const handleAddRdv = async () => {
     try {
@@ -79,7 +95,6 @@ const RendezVouscomponent = () => {
       let response;
   
       if (editingId) {
-        // Vérification de l'ID
         const rdvToEdit = rendezVous.find(rdv => rdv.id === editingId);
   
         if (!rdvToEdit) {
@@ -96,10 +111,9 @@ const RendezVouscomponent = () => {
           date_rdv: newRdv.date,
           heure_rdv: newRdv.heure,
           motif: newRdv.motif,
-          statut: newRdv.statut.toLowerCase().trim() // Ajout du statut dans les données envoyées
+          statut: newRdv.statut.toLowerCase().trim()
         };
   
-        // Correction de l'URL avec l'ID réel du rendez-vous à modifier
         response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/modifierrdv/${rdvToEdit.id_rendezVous}`, {
           method: 'PATCH',
           headers: {
@@ -111,7 +125,6 @@ const RendezVouscomponent = () => {
   
         if (!response.ok) {
           const errorMessage = await response.text();
-          console.error('Erreur serveur:', errorMessage);
           throw new Error(`Échec de la modification: ${errorMessage}`);
         }
   
@@ -119,9 +132,7 @@ const RendezVouscomponent = () => {
         setRendezVous(rendezVous.map(rdv =>
           rdv.id === editingId ? { ...rdv, ...updatedRdv } : rdv
         ));
-  
       } else {
-        // Mode ajout
         const rdvData = {
           email: newRdv.email,
           nom: newRdv.nom,
@@ -129,7 +140,7 @@ const RendezVouscomponent = () => {
           date_rdv: newRdv.date,
           heure_rdv: newRdv.heure,
           motif: newRdv.motif,
-          statut: 'Programmé' // Statut par défaut pour un ajout
+          statut: 'Programmé'
         };
   
         response = await fetch('https://educare-backend-l6ue.onrender.com/medecins/programmerrdvdirect', {
@@ -141,9 +152,7 @@ const RendezVouscomponent = () => {
           body: JSON.stringify(rdvData)
         });
   
-        if (!response.ok) {
-          throw new Error('Échec de l\'ajout du rendez-vous');
-        }
+        if (!response.ok) throw new Error('Échec de l\'ajout du rendez-vous');
   
         const addedRdv = await response.json();
         const newId = Math.max(...rendezVous.map(rdv => rdv.id), 0) + 1;
@@ -151,7 +160,6 @@ const RendezVouscomponent = () => {
       }
   
       setShowAddModal(false);
-  
       setNewRdv({
         nom: '',
         prenom: '',
@@ -161,13 +169,11 @@ const RendezVouscomponent = () => {
         heure: '09:00',
         statut: 'Programmé'
       });
-  
     } catch (err) {
       console.error('Error:', err);
       alert(`L'opération a échoué: ${err.message}`);
     }
   };
-  
 
   const handleDeleteRdv = async (id) => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce rendez-vous?')) return;
@@ -182,10 +188,7 @@ const RendezVouscomponent = () => {
         }
       });
       
-      if (!response.ok) {
-        throw new Error('Failed to delete rendezvous');
-      }
-      
+      if (!response.ok) throw new Error('Failed to delete rendezvous');
       setRendezVous(rendezVous.filter(rdv => rdv.id !== id));
     } catch (err) {
       console.error('Error:', err);
@@ -200,9 +203,7 @@ const RendezVouscomponent = () => {
     }
   
     setNewRdv({
-      nom: rdv.nom,
-      prenom: rdv.prenom,
-      email: rdv.email || '',
+      ...rdv, // Conserve toutes les propriétés existantes
       motif: rdv.motif || '',
       date: rdv.date.includes('T') ? rdv.date.split('T')[0] : rdv.date,
       heure: rdv.heure ? rdv.heure.substring(0, 5) : '09:00',
@@ -210,8 +211,28 @@ const RendezVouscomponent = () => {
     });
     setEditingId(rdv.id);
     setShowAddModal(true);
+    setPatientSearch(`${rdv.nom} ${rdv.prenom}`);
   };
-  
+
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+  };
+
+  const handlePatientSelect = (patient) => {
+    setNewRdv({
+      ...newRdv,
+      nom: patient.nom,
+      prenom: patient.prenom,
+      email: patient.email
+    });
+    setPatientSearch(`${patient.nom} ${patient.prenom}`);
+    setShowPatientList(false);
+  };
+
+  const filteredPatients = patients.filter(patient => 
+    `${patient.nom} ${patient.prenom}`.toLowerCase().includes(patientSearch.toLowerCase())
+  );
+
   const filteredRendezVous = rendezVous.filter(rdv => 
     (rdv.nom && rdv.nom.toLowerCase().includes(query.toLowerCase())) ||
     (rdv.prenom && rdv.prenom.toLowerCase().includes(query.toLowerCase())) ||
@@ -221,15 +242,9 @@ const RendezVouscomponent = () => {
     (rdv.heure && rdv.heure.includes(query)) ||
     (rdv.statut && rdv.statut.toLowerCase().includes(query.toLowerCase()))
   );
-  
 
-  if (loading) {
-    return <div className="flex justify-center items-center h-64">Chargement en cours...</div>;
-  }
-
-  if (error) {
-    return <div className="flex justify-center items-center h-64 text-red-500">Erreur: {error}</div>;
-  }
+  if (loading) return <div className="flex justify-center items-center h-64">Chargement en cours...</div>;
+  if (error) return <div className="flex justify-center items-center h-64 text-red-500">Erreur: {error}</div>;
 
   return (
     <div className="flex w-full flex-col">
@@ -241,7 +256,6 @@ const RendezVouscomponent = () => {
             ${activeTab === 'list' ? 'text-[#679294] rounded shadow-lg p-1' : ''}`}>
             <PiListDashesFill />
           </button>
-
           <button 
             onClick={() => setActiveTab('calendar')}
             className={`hover:text-[#679294] hover:rounded hover:shadow-lg hover:p-1 
@@ -251,7 +265,7 @@ const RendezVouscomponent = () => {
         </div>
         
         <div className="flex mb-3 justify-center items-center gap-2">
-          <div className="flex items-center border border-gray-300 rounded-full bg-gray-100 px-2 py-1">
+          <div className="flex items-center border border-gray-300 rounded-[10px] bg-gray-100 px-2 py-1">
             <FaSearch className="text-gray-500 mr-2" />
             <input
               type="text"
@@ -262,10 +276,7 @@ const RendezVouscomponent = () => {
             />
           </div>
 
-          <button className="flex justify-center gap-1 bg-gray-100 shadow-lg p-2 rounded-[15px] items-center text-[#5D5F60]">
-            <FaFilter className='text-[10px]'/>
-            <h2 className="text-[14px]">Filtrer</h2>
-          </button>
+          
           
           <button 
             onClick={() => {
@@ -276,10 +287,11 @@ const RendezVouscomponent = () => {
                 prenom: '',
                 email: '',
                 motif: '',
-                date: format(new Date(), 'yyyy-MM-dd'),
+                date: format(activeTab === 'calendar' ? selectedDate : new Date(), 'yyyy-MM-dd'),
                 heure: '09:00',
                 statut: 'Programmé'
               });
+              setPatientSearch('');
             }}
             className="flex items-center justify-center text-white py-1 px-4 rounded-[8px] hover:bg-[linear-gradient(to_left,#2E3D40,transparent)] shadow-xl bg-[#679294]"
           >
@@ -288,7 +300,6 @@ const RendezVouscomponent = () => {
         </div>
       </div>
 
-      {/* Vue liste */}
       {activeTab === 'list' && (
         <div className="flex flex-col">
           <div className="w-full">
@@ -308,32 +319,22 @@ const RendezVouscomponent = () => {
                   {filteredRendezVous.map((rdv) => (
                     <tr key={rdv.id} className="hover:bg-gray-50">
                       <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm capitalize">{rdv.nom} {rdv.prenom}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm">{rdv.motif || 'Non spécifié'}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm">{new Date(rdv.date).toLocaleDateString('fr-FR')}</td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm">{rdv.heure ? rdv.heure.substring(0, 5) : ''}</td>
                       <td className="whitespace-nowrap px-3 py-4 text-sm">
-                        {rdv.motif || 'Non spécifié'}
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(rdv.statut)}`}>
+                          {rdv.statut}
+                        </span>
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm">
-                        {new Date(rdv.date).toLocaleDateString('fr-FR')}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm">
-                        {rdv.heure ? rdv.heure.substring(0, 5) : ''}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(rdv.statut)}`}>
-  {rdv.statut}
-</span>
-
-</td>
-
                       <td className="whitespace-nowrap px-3 py-4 text-sm flex gap-2">
                         <button 
                           onClick={() => handleEditRdv(rdv)}
                           className="text-blue-500 hover:text-blue-700"
                           title="Modifier"
                         >
-                          <IoMdCreate className='' />
-
+                          <IoMdCreate />
                         </button>
-                       
                       </td>
                     </tr>
                   ))}
@@ -344,17 +345,16 @@ const RendezVouscomponent = () => {
         </div>
       )}
 
-      {/* Vue calendrier */}
       {activeTab === 'calendar' && (
         <div className="flex flex-col">
           <CalendarR 
             rendezVous={filteredRendezVous}
             onEdit={handleEditRdv}
+            onDateSelect={handleDateSelect}
           />
         </div>
       )}
 
-      {/* Modal d'ajout/modification */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center text-[#679294] justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
@@ -363,42 +363,57 @@ const RendezVouscomponent = () => {
             </h2>
             
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
+              {editingId ? (
+                <>
+                  <div>
+                    <input
+                      type="text"
+                      value={newRdv.nom}
+                      readOnly
+                      className="w-full p-2 border rounded bg-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      value={newRdv.prenom}
+                      readOnly
+                      className="w-full p-2 border rounded bg-gray-100"
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="relative">
                   <input
                     type="text"
-                    name="nom"
-                    value={newRdv.nom}
-                    onChange={(e) => setNewRdv({...newRdv, nom: e.target.value})}
+                    value={patientSearch}
+                    onChange={(e) => {
+                      setPatientSearch(e.target.value);
+                      setShowPatientList(true);
+                    }}
+                    onFocus={() => setShowPatientList(true)}
                     className="w-full p-2 border rounded"
-                    placeholder="Nom"
-                    required
+                    placeholder="Rechercher un patient..."
                   />
+                  {showPatientList && (
+                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      {filteredPatients.length > 0 ? (
+                        filteredPatients.map((patient) => (
+                          <div
+                            key={patient.email}
+                            className="p-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handlePatientSelect(patient)}
+                          >
+                            {patient.nom} {patient.prenom} ({patient.email})
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-2 text-gray-500">Aucun patient trouvé</div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <input
-                    type="text"
-                    name="prenom"
-                    value={newRdv.prenom}
-                    onChange={(e) => setNewRdv({...newRdv, prenom: e.target.value})}
-                    className="w-full p-2 border rounded"
-                    placeholder="Prénom"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <input
-                  type="email"
-                  name="email"
-                  value={newRdv.email}
-                  onChange={(e) => setNewRdv({...newRdv, email: e.target.value})}
-                  className="w-full p-2 border rounded"
-                  placeholder="Email"
-                  required
-                />
-              </div>
+              )}
               
               <div>
                 <input
@@ -417,6 +432,7 @@ const RendezVouscomponent = () => {
                     type="date"
                     name="date"
                     value={newRdv.date}
+                    min={format(new Date(), 'yyyy-MM-dd')}
                     onChange={(e) => setNewRdv({...newRdv, date: e.target.value})}
                     className="w-full p-2 border rounded"
                     required
@@ -427,6 +443,7 @@ const RendezVouscomponent = () => {
                     type="time"
                     name="heure"
                     value={newRdv.heure}
+                    min={newRdv.date === format(new Date(), 'yyyy-MM-dd') ? format(new Date(), 'HH:mm') : '00:00'}
                     onChange={(e) => setNewRdv({...newRdv, heure: e.target.value})}
                     className="w-full p-2 border rounded"
                     required
@@ -458,7 +475,10 @@ const RendezVouscomponent = () => {
               </button>
 
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setShowPatientList(false);
+                }}
                 className="px-4 py-2 border rounded hover:bg-gray-100"
               >
                 Annuler
@@ -468,7 +488,7 @@ const RendezVouscomponent = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 export default RendezVouscomponent;

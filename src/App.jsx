@@ -38,15 +38,12 @@ function App() {
   
     <Router>
       <Routes>
-<<<<<<< HEAD
           <Route path="/" element={<Signin />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
-=======
        {/*  <Route path="/" element={<Signin />} />*/}
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
->>>>>>> f675c50487d0b159d12208e6aef56975fc5848e8
 
        <Route path="/listeconsultation" element={<ConsultationList/>} />
        <Route path="/listeconsultation/:email" element={<ConsultationList/>} />

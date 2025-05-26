@@ -4,12 +4,7 @@ import axios from 'axios';
 import SideBar from './SideBar';
 import MedicalForm from './MedicalForm';
 import TabRendezvous from '../doctorcomponents/TabRendezvous';
-<<<<<<< HEAD
 import ConsultationList from '../consultationcomp/ConsultationList'
-
-=======
-import ConsultationList from '../consultationcomp/ConsultationList';
->>>>>>> f675c50487d0b159d12208e6aef56975fc5848e8
 
 const Medecin = () => {
   const [activeTab, setActiveTab] = useState('dossier');

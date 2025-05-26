@@ -10,13 +10,8 @@ export default function Users() {
     <div className='relative flex bg-[#EFEFEF]'>
       <SideBar />
       <div className="flex flex-col h-full w-full">
-<<<<<<< HEAD
         <div className="flex h-[40px] md:max-h-[60px] justify-between items-center px-4 md:px-12 shadow-md bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1]">
           <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-l md:text-2xl font-bold ml-[130px]">
-=======
-        <div className="flex h-[40px] md:max-h-[60px] justify-between items-center px-4 md:px-12 shadow-md bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1] ml-[100px]">
-          <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-l md:text-2xl font-bold ml-[95px]">
->>>>>>> f675c50487d0b159d12208e6aef56975fc5848e8
             Patients
           </h1>
           

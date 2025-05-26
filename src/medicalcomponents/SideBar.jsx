@@ -13,21 +13,28 @@ const SideBar = () => {
             <img src="/logo.png" alt="" className="ml-[0.5px] mt-4" />
           </div>
           <ul className="flex flex-col gap-2 md:gap-8 px-4 md:px-6 text-[12px] md:text-[16px]">
+            
+            
             <li className="flex items-center gap-2">
-                <MdDashboard />
-                <p>Home</p>
-            </li>
-            <li className="flex items-center gap-2">
-                
-                     <FaUserDoctor />
-                            <p className="">Rendez-vous</p>
-                        </li>
-            <li className="flex items-center gap-2">
+              <a
+                    href="/user"
+                    className="flex items-center gap-2 hover:bg-[linear-gradient(to_left,#2E3D40,transparent)] hover:text-white  transition-[5s]  py-2 rounded-full"
+                  >
              
                 <HiUsers />
                 <p>Patients</p>
-         
+         </a>
             </li>
+            <li className="flex items-center gap-2">
+              <a
+                    href="/rendezvous"
+                    className="flex items-center gap-2 hover:bg-[linear-gradient(to_left,#2E3D40,transparent)] hover:text-white  transition-[5s]  py-2  rounded-full"
+                  >
+                
+                     <FaUserDoctor />
+                            <p className="">Rendez-vous</p>
+                            </a>
+                        </li>
             <li className="flex items-center gap-2">
              
                 <IoSettingsSharp />
