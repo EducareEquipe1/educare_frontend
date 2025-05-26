@@ -1,23 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { CiSaveDown2 } from "react-icons/ci";
-import { CiFilter } from "react-icons/ci";
-import logoImage from './logo.png'
+import { CiSaveDown2, CiFilter } from "react-icons/ci";
+import logoImage from './logo.png';
 
-const TableConsultation = () => {
-  const allConsultations = [
-    { mois: 'Septembre', total: 42, etudiants: 35, enseignants: 5, ats: 2, jourDePointe: 'Lundi' },
-    { mois: 'Octobre', total: 58, etudiants: 48, enseignants: 7, ats: 3, jourDePointe: 'Mardi' },
-    { mois: 'Novembre', total: 65, etudiants: 52, enseignants: 9, ats: 4, jourDePointe: 'Mercredi' },
-    { mois: 'Décembre', total: 78, etudiants: 65, enseignants: 10, ats: 3, jourDePointe: 'Lundi' },
-    { mois: 'Janvier', total: 45, etudiants: 38, enseignants: 5, ats: 2, jourDePointe: 'Jeudi' },
-    { mois: 'Février', total: 52, etudiants: 42, enseignants: 8, ats: 2, jourDePointe: 'Mardi' },
-    { mois: 'Mars', total: 48, etudiants: 35, enseignants: 9, ats: 4, jourDePointe: 'Mercredi' },
-    { mois: 'Avril', total: 39, etudiants: 30, enseignants: 6, ats: 3, jourDePointe: 'Lundi' },
-  ];
-
-  const [consultations, setConsultations] = useState(allConsultations);
+const TableConsultation = forwardRef(({ consultations = [] }, ref) => {
+  const [filteredData, setFilteredData] = useState(consultations);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState({
     mois: '',
@@ -25,71 +13,49 @@ const TableConsultation = () => {
     maxTotal: ''
   });
 
+  // Exposition des données via ref
+  useImperativeHandle(ref, () => ({
+    getFilteredData: () => filteredData,
+    getAllData: () => consultations
+  }));
+
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     
-    // Add logo (right side) - using the imported image
     doc.addImage(logoImage, 'PNG', 160, 10, 30, 15);
-    // Adjust position (160 = x, 10 = y) and size (30 = width, 15 = height) as needed
-
-    // Title
-    
-    
-    // Date and time
     const now = new Date();
-    const dateStr = now.toLocaleDateString();
-    const timeStr = now.toLocaleTimeString();
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text(`Généré le: ${dateStr} à ${timeStr}`, 14, 25);
-
+    doc.text(`Généré le: ${now.toLocaleDateString()} à ${now.toLocaleTimeString()}`, 14, 25);
     doc.setFontSize(18);
     doc.text('Détails des Consultations', 14, 15);
 
-    // Table data
-    const headers = [['Mois', 'Total', 'Étudiants', 'Enseignants', 'ATS', 'Jour de Pointe']];
-    const body = consultations.map(item => [
-      item.mois,
-      item.total.toString(),
-      item.etudiants.toString(),
-      item.enseignants?.toString() || '',
-      item.ats.toString(),
-      item.jourDePointe
-    ]);
-
-    // Generate table
     autoTable(doc, {
       startY: 35,
-      head: headers,
-      body: body,
-      styles: {
-        fontSize: 9,
-        cellPadding: 2,
-      },
-      headStyles: {
-        fillColor: [234, 240, 241],
-        textColor: [100, 100, 100],
-        fontStyle: 'bold'
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245]
-      },
-      margin: { top: 35 }
+      head: [['Mois', 'Total', 'Étudiants', 'Enseignants', 'ATS', 'Jour de Pointe']],
+      body: filteredData.map(item => [
+        item.mois,
+        item.total.toString(),
+        item.etudiants.toString(),
+        item.enseignants?.toString() || '',
+        item.ats.toString(),
+        item.jourDePointe
+      ]),
+      styles: { fontSize: 9, cellPadding: 2 },
+      headStyles: { fillColor: [234, 240, 241], textColor: [100, 100, 100], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [245, 245, 245] }
     });
-    
+
     doc.save('consultations.pdf');
   };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFilters(prev => ({ ...prev, [name]: value }));
   };
 
   const applyFilters = () => {
-    let filtered = [...allConsultations];
+    let filtered = [...consultations];
     
     if (filters.mois) {
       filtered = filtered.filter(item => 
@@ -98,28 +64,20 @@ const TableConsultation = () => {
     }
     
     if (filters.minTotal) {
-      filtered = filtered.filter(item => 
-        item.total >= Number(filters.minTotal)
-      );
+      filtered = filtered.filter(item => item.total >= Number(filters.minTotal));
     }
     
     if (filters.maxTotal) {
-      filtered = filtered.filter(item => 
-        item.total <= Number(filters.maxTotal)
-      );
+      filtered = filtered.filter(item => item.total <= Number(filters.maxTotal));
     }
     
-    setConsultations(filtered);
+    setFilteredData(filtered);
     setFilterOpen(false);
   };
 
   const resetFilters = () => {
-    setFilters({
-      mois: '',
-      minTotal: '',
-      maxTotal: ''
-    });
-    setConsultations(allConsultations);
+    setFilters({ mois: '', minTotal: '', maxTotal: '' });
+    setFilteredData(consultations);
     setFilterOpen(false);
   };
 
@@ -133,7 +91,7 @@ const TableConsultation = () => {
             className="flex items-center rounded-lg transition-colors"
           >
             <div className='bg-gray-100 hover:bg-[#CFE3E4] px-2 shadow-l text-[#2E3D40] p-1 rounded'>
-                <CiFilter className='text-2xl font-extrabold shadow-xl'/>
+              <CiFilter className='text-2xl font-extrabold shadow-xl'/>
             </div>
           </button>
           <button 
@@ -214,7 +172,7 @@ const TableConsultation = () => {
             </tr>
           </thead>
           <tbody className="text-gray-600">
-            {consultations.map((consultation, index) => (
+            {filteredData.map((consultation, index) => (
               <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                 <td className="py-2 px-4 border-b border-gray-200 text-sm">{consultation.mois}</td>
                 <td className="py-2 px-4 border-b border-gray-200 text-sm">{consultation.total}</td>
@@ -229,6 +187,6 @@ const TableConsultation = () => {
       </div>
     </div>
   );
-};
+});
 
 export default TableConsultation;

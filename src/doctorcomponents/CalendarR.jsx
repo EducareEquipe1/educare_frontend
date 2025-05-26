@@ -24,7 +24,7 @@ const calendarStyles = `
   }
 `;
 
-const CalendarR = ({ rendezVous, onEdit }) => {
+const CalendarR = ({ rendezVous, onEdit, onDateSelect }) => {
   const [date, setDate] = useState(new Date());
   const [events, setEvents] = useState({});
 
@@ -42,7 +42,7 @@ const CalendarR = ({ rendezVous, onEdit }) => {
         time: rdv.heure,
         title: `${rdv.nom} ${rdv.prenom}`,
         motif: rdv.motif,
-        status: rdv.status,
+        status: rdv.statut,
         originalData: rdv
       });
     });
@@ -78,12 +78,16 @@ const CalendarR = ({ rendezVous, onEdit }) => {
     }
   };
 
+  const handleDateClick = (date) => {
+    setDate(date);
+    onDateSelect(date);
+  };
+
   return (
     <div className="p-2 w-full">
       <style>{calendarStyles}</style>
       
       <div className="flex w-full gap-4 flex-col md:flex-row">
-        {/* Calendar Section */}
         <div className="w-full bg-white rounded-lg shadow">
           <Calendar
             onChange={setDate}
@@ -91,11 +95,10 @@ const CalendarR = ({ rendezVous, onEdit }) => {
             tileContent={tileContent}
             tileClassName={tileClassName}
             className="border rounded-lg p-2 text-lg"
-            onClickDay={(date) => setDate(date)}
+            onClickDay={handleDateClick}
           />
         </div>
 
-        {/* Events Section */}
         <div className="w-full md:w-1/2 bg-white p-4 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">
             {format(date, 'EEEE d MMMM yyyy')}
