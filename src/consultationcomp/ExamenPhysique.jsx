@@ -357,7 +357,7 @@ const ExamenPhysique = () => {
                 <div className="flex justify-end">
                   <button
                     onClick={handleSave}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-md transition"
+                    className="bg-[#679294] hover:bg-[#679294] text-white font-semibold py-2 px-6 rounded-md transition"
                   >
                     Enregistrer
                   </button>
