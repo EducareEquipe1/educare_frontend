@@ -43,7 +43,7 @@ const RendezVouscomponent = () => {
   const [showExcelModal, setShowExcelModal] = useState(false);
   const [excelFile, setExcelFile] = useState(null);
   const [excelDate, setExcelDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [excelDuration, setExcelDuration] = useState('30');
+  const [excelInterval, setExcelInterval] = useState('30'); // en minutes
 
   useEffect(() => {
     const fetchData = async () => {
@@ -177,53 +177,52 @@ const RendezVouscomponent = () => {
   };
 
   const handleExcelUpload = async () => {
-    if (!excelFile) {
-      alert("Veuillez sélectionner un fichier Excel");
-      return;
-    }
+  if (!excelFile) {
+    alert('Veuillez sélectionner un fichier Excel.');
+    return;
+  }
+  if (!excelDate) {
+    alert('Veuillez sélectionner une date de début.');
+    return;
+  }
+  if (!excelInterval || excelInterval <= 0) {
+    alert('Veuillez saisir un intervalle valide.');
+    return;
+  }
 
+  try {
     const formData = new FormData();
     formData.append('file', excelFile);
-    formData.append('date', excelDate);
-    formData.append('duration', excelDuration);
+    formData.append('startDate', excelDate);
+    formData.append('interval', excelInterval);
 
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('https://educare-backend-l6ue.onrender.com/medecins/upload-excel-rdv', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData
-      });
+    const token = localStorage.getItem('token');
 
-      if (!response.ok) throw new Error('Échec de l\'upload du fichier Excel');
+    const response = await fetch('https://educare-backend-l6ue.onrender.com/medecins/bulk-schedule', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+        // Ne pas mettre 'Content-Type' ici, fetch gère multipart automatiquement
+      },
+      body: formData
+    });
 
-      alert('Rendez-vous ajoutés avec succès!');
-      setShowExcelModal(false);
-      setExcelFile(null);
-      
-      // Rafraîchir la liste des rendez-vous
-      const rdvResponse = await fetch('https://educare-backend-l6ue.onrender.com/medecins/listedesrendezvous', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!rdvResponse.ok) throw new Error('Failed to fetch rendezvous');
-      
-      const rdvData = await rdvResponse.json();
-      const rendezvousWithIds = rdvData.map((rdv, index) => ({
-        ...rdv,
-        id: index + 1
-      }));
-      setRendezVous(rendezvousWithIds);
-    } catch (error) {
-      console.error('Error:', error);
-      alert(`Erreur lors de l'upload: ${error.message}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erreur serveur : ${errorText}`);
     }
-  };
+
+    setShowExcelModal(false);
+    setExcelFile(null);
+    setExcelDate(format(new Date(), 'yyyy-MM-dd'));
+    setExcelInterval('30');
+
+  } catch (error) {
+    alert(`Erreur lors de l'import : ${error.message}`);
+  }
+};
+
+
 
   const handleDeleteRdv = async (id) => {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce rendez-vous?')) return;
@@ -590,17 +589,16 @@ const RendezVouscomponent = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Durée des rendez-vous (minutes)</label>
-                <select
-                  value={excelDuration}
-                  onChange={(e) => setExcelDuration(e.target.value)}
+                <label className="block text-sm font-medium text-gray-700 mb-1">Intervalle entre rendez-vous (minutes)</label>
+                <input
+                  type="number"
+                  value={excelInterval}
+                  onChange={(e) => setExcelInterval(e.target.value)}
+                  min="10"
+                  step="5"
                   className="w-full p-2 border rounded"
-                >
-                  <option value="15">15 minutes</option>
-                  <option value="30">30 minutes</option>
-                  <option value="45">45 minutes</option>
-                  <option value="60">60 minutes</option>
-                </select>
+                  placeholder="30"
+                />
               </div>
             </div>
 
