@@ -12,7 +12,7 @@ import Checkemail from "./checkemail/Checkemail";
 import ResetPassword from "./resetPassword/ResetPassword";
 import Passwordchanged from "./passwordchanged/Passwordchanged";
 import Emailsent from "./emailsent/Emailsent";
-import  ColumnChartCom from "./ChartsComponents/ColumnChart";
+import  LineChartCom from "./ChartsComponents/LineChart";
 import Doctors from "./AdminComponents/Doctors";
 import Home from "./Home";
 import Dashboard from "./AdminComponents/Dashboard";
@@ -47,8 +47,7 @@ function App() {
        {/*  <Route path="/" element={<Signin />} />*/}
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
-      {/*<Route path="/" element={<Signin />} />*/}
-       <Route path="/" element={<ColumnChartCom />} />
+      <Route path="/" element={<Signin />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
@@ -86,6 +85,7 @@ function App() {
         <Route path="/RendezVous" element={<RendezVous />} />
         <Route path="/directeur" element={<Directeur/>} />
         <Route path="/TabRendezvous/:email" element={<TabRendezvous />} />
+
 
         {/* Catch-all for unknown routes */}
       </Routes>
