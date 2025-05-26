@@ -7,10 +7,11 @@ import DonnéesBiométrique from './DonnéesBiométrique';
 import DetailsPersonnels from './DetailsPersonnels';
 
 const MedicalForm = () => {
-  
+
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [recordExists, setRecordExists] = useState(false);
+   const [imageSrc, setImageSrc] = useState('/default.png');
   const { email } = useParams();
 
   const [patientData, setPatientData] = useState({
@@ -31,7 +32,7 @@ const MedicalForm = () => {
     statut: "",
     adresse: "",
     num_tel: "",
-   
+
     poids: "",
     taille: "",
     tabac_fume: "false",
@@ -51,6 +52,37 @@ const MedicalForm = () => {
     interventionsChirurgicales: "",
     reactionsAllergiques: "",
   });
+
+  //fetch image
+  useEffect(() => {
+      const fetchImageUrl = async () => {
+        try {
+          const imgUrl = `https://educare-backend-l6ue.onrender.com/patients/get-patient-photo/${email}`;
+          const response = await fetch(imgUrl);
+
+          if (response.ok) {
+            const data = await response.json();
+
+            if (data.success && data.image) {
+              setImageSrc(data.image);
+              console.log('Image URL loaded:', data.image);
+            } else {
+              console.warn('No image found in response, using fallback');
+              setImageSrc('/default.png');
+            }
+          } else {
+            console.warn('Failed to fetch image URL, using fallback');
+            setImageSrc('/default.png');
+          }
+        } catch (error) {
+          console.error('Error fetching image URL:', error);
+          setImageSrc('/default.png');
+        }
+      };
+
+      fetchImageUrl();
+    }, []);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -172,11 +204,16 @@ console.log(patientData);
       <div className="flex flex-row ">
         <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 ml-[200px]  mt-[10px]">
           <div className="flex flex-col items-center">
-            <img
-              src="./logo.png"
-              alt="Patient"
-              className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
-            />
+             <img
+      src={imageSrc}
+      alt="Patient"
+      onError={(e) => {
+        console.error('Image load error, switching to default-profile.png');
+        e.target.onerror = null;
+        e.target.src = '/default.png';
+      }}
+      className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
+    />
             <h2 className="mt-4 text-black text-lg font-semibold">{patientData.nom} {patientData.prenom}</h2>
             <h2 className="mt-4 text-gray-600 text-lg font-semibold">{patientData.email}</h2>
             <span
@@ -209,24 +246,24 @@ console.log(patientData);
             </div>
           ) : (
             <form className="flex flex-col w-full  space-y-6 px-6 mt-[10px]">
-              <DetailsPersonnels 
-                formData={formData} 
-                handleChange={handleChange} 
+              <DetailsPersonnels
+                formData={formData}
+                handleChange={handleChange}
                 readOnly={!isEditing}
               />
-              <DonnéesBiométrique 
-                formData={formData} 
-                handleChange={handleChange} 
+              <DonnéesBiométrique
+                formData={formData}
+                handleChange={handleChange}
                 readOnly={!isEditing}
               />
-              <AntécédentsPersonels 
-                formData={formData} 
-                handleChange={handleChange} 
+              <AntécédentsPersonels
+                formData={formData}
+                handleChange={handleChange}
                 readOnly={!isEditing}
               />
-              <AntécédentsMedicaux 
-                formData={formData} 
-                handleChange={handleChange} 
+              <AntécédentsMedicaux
+                formData={formData}
+                handleChange={handleChange}
                 readOnly={!isEditing}
               />
 <div className="flex gap-4">
@@ -239,7 +276,7 @@ console.log(patientData);
                   </button>
                 )}
               </div>
-            </form>  
+            </form>
           )}
         </div>
       </div>

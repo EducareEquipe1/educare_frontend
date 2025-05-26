@@ -71,6 +71,38 @@ const ExamenPhysique = () => {
     vih_neg: "",
   });
 
+  //fetch image
+  const [imageSrc, setImageSrc] = useState('/default.png'); // default image at start
+
+  useEffect(() => {
+    const fetchImageUrl = async () => {
+      try {
+        const imgUrl = `https://educare-backend-l6ue.onrender.com/patients/get-patient-photo/${email}`;
+        const response = await fetch(imgUrl);
+
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.success && data.image) {
+            setImageSrc(data.image);
+            console.log('Image URL loaded:', data.image);
+          } else {
+            console.warn('No image found in response, using fallback');
+            setImageSrc('/default.png');
+          }
+        } else {
+          console.warn('Failed to fetch image URL, using fallback');
+          setImageSrc('/default.png');
+        }
+      } catch (error) {
+        console.error('Error fetching image URL:', error);
+        setImageSrc('/default.png');
+      }
+    };
+
+    fetchImageUrl();
+  }, []);
+
   const [id_examen, setExamenId] = useState(null);
 
   useEffect(() => {
@@ -266,10 +298,15 @@ const ExamenPhysique = () => {
             <div className="w-full md:w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6">
               <div className="flex flex-col items-center">
                 <img
-                  src="./logo.png"
-                  alt="Patient"
-                  className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
-                />
+      src={imageSrc}
+      alt="Patient"
+      onError={(e) => {
+        console.error('Image load error, switching to default-profile.png');
+        e.target.onerror = null;
+        e.target.src = '/default.png';
+      }}
+      className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
+    />
                 <h2 className="mt-4 text-black text-lg font-semibold">
                   {patientData.nom} {patientData.prenom}
                 </h2>
