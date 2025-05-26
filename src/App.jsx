@@ -40,14 +40,12 @@ function App() {
 
     <Router>
       <Routes>
-<<<<<<< HEAD
           <Route path="/" element={<Signin />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
        {/*  <Route path="/" element={<Signin />} />*/}
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
-=======
 
       {/*<Route path="/" element={<Signin />} />*/}
        <Route path="/" element={<ColumnChartCom />} />
@@ -58,7 +56,6 @@ function App() {
        {/*  <Route path="/" element={<Signin />} />*/}
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
->>>>>>> 6f26a659f22489b548aa981f6ecafdc29d6369df
 
        <Route path="/listeconsultation" element={<ConsultationList/>} />
        <Route path="/listeconsultation/:email" element={<ConsultationList/>} />
@@ -89,6 +86,7 @@ function App() {
         <Route path="/RendezVous" element={<RendezVous />} />
         <Route path="/directeur" element={<Directeur/>} />
         <Route path="/TabRendezvous/:email" element={<TabRendezvous />} />
+
 
         {/* Catch-all for unknown routes */}
       </Routes>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import SidebarDirecteur from './SidebarDirecteur';
 import Stat from './Stat';
 import TableConsultation from './TableConsultation';
@@ -10,10 +10,21 @@ import logoImage from './logo.png';
 const Directeur = () => {
   const [activeTab, setActiveTab] = useState('consultations');
   const [selectedYear, setSelectedYear] = useState('2024-2025');
+  const [consultationsData, setConsultationsData] = useState([]);
+  const [loadingConsultations, setLoadingConsultations] = useState(true);
   const tableConsultationRef = useRef();
   const tableMaladiesRef = useRef();
 
-  // Generate year pairs from 2014-2015 to 2024-2025
+  // Données des maladies (statiques pour l'instant)
+  const maladiesData = [
+    { maladie: 'Orippe', cas: 87, categorie: 'Respiratoire', males: 42, females: 45, statut: 'Étudiant', picMensuel: 'Déc', severite: 'Élevé' },
+    { maladie: 'Gastro-entérite', cas: 46, categorie: 'Digestif', males: 22, females: 24, statut: 'Étudiant', picMensuel: 'Nov', severite: 'Moyen' },
+    { maladie: 'Varicelle', cas: 23, categorie: 'Cutané', males: 10, females: 13, statut: 'Étudiant', picMensuel: 'Oct', severite: 'Faible' },
+    { maladie: 'Conjonctivite', cas: 19, categorie: 'Oculaire', males: 8, females: 11, statut: 'Enseignant', picMensuel: 'Sep', severite: 'Faible' },
+    { maladie: 'Angine', cas: 15, categorie: 'Respiratoire', males: 7, females: 8, statut: 'ATS', picMensuel: 'Jan', severite: 'Faible' },
+  ];
+
+  // Générer les années
   const generateYearPairs = () => {
     const years = [];
     for (let i = 2014; i <= 2024; i++) {
@@ -24,31 +35,36 @@ const Directeur = () => {
 
   const yearPairs = generateYearPairs();
 
-  // Données des consultations
-  const consultationsData = [
-    { mois: 'Septembre', total: 42, etudiants: 35, enseignants: 5, ats: 2, jourDePointe: 'Lundi' },
-    { mois: 'Octobre', total: 58, etudiants: 48, enseignants: 7, ats: 3, jourDePointe: 'Mardi' },
-    { mois: 'Novembre', total: 65, etudiants: 52, enseignants: 9, ats: 4, jourDePointe: 'Mercredi' },
-    { mois: 'Décembre', total: 78, etudiants: 65, enseignants: 10, ats: 3, jourDePointe: 'Lundi' },
-    { mois: 'Janvier', total: 45, etudiants: 38, enseignants: 5, ats: 2, jourDePointe: 'Jeudi' },
-    { mois: 'Février', total: 52, etudiants: 42, enseignants: 8, ats: 2, jourDePointe: 'Mardi' },
-    { mois: 'Mars', total: 48, etudiants: 35, enseignants: 9, ats: 4, jourDePointe: 'Mercredi' },
-    { mois: 'Avril', total: 39, etudiants: 30, enseignants: 6, ats: 3, jourDePointe: 'Lundi' },
-  ];
+  // Charger les consultations depuis l'API
+  useEffect(() => {
+    const fetchConsultations = async () => {
+      try {
+        setLoadingConsultations(true);
+        const response = await fetch('https://educare-backend-l6ue.onrender.com/directeur/consultation_stats');
+        const data = await response.json();
+        const formatted = data.map(c => ({
+          mois: c.mois,
+          total: c.total,
+          etudiants: parseInt(c.etudiants),
+          enseignants: parseInt(c.enseignants),
+          ats: parseInt(c.ats),
+          jourDePointe: c.jourDePointe
+        }));
+        setConsultationsData(formatted);
+      } catch (error) {
+        console.error('Erreur de chargement des consultations:', error);
+      } finally {
+        setLoadingConsultations(false);
+      }
+    };
 
-  // Données des maladies
-  const maladiesData = [
-    { maladie: 'Orippe', cas: 87, categorie: 'Respiratoire', males: 42, females: 45, statut: 'Étudiant', picMensuel: 'Déc', severite: 'Élevé' },
-    { maladie: 'Gastro-entérite', cas: 46, categorie: 'Digestif', males: 22, females: 24, statut: 'Étudiant', picMensuel: 'Nov', severite: 'Moyen' },
-    { maladie: 'Varicelle', cas: 23, categorie: 'Cutané', males: 10, females: 13, statut: 'Étudiant', picMensuel: 'Oct', severite: 'Faible' },
-    { maladie: 'Conjonctivite', cas: 19, categorie: 'Oculaire', males: 8, females: 11, statut: 'Enseignant', picMensuel: 'Sep', severite: 'Faible' },
-    { maladie: 'Angine', cas: 15, categorie: 'Respiratoire', males: 7, females: 8, statut: 'ATS', picMensuel: 'Jan', severite: 'Faible' },
-  ];
+    fetchConsultations();
+  }, []);
 
+  // Export PDF
   const handleExportAll = () => {
     const doc = new jsPDF();
-    
-    // Entête
+
     doc.addImage(logoImage, 'PNG', 160, 10, 30, 15);
     const now = new Date();
     doc.setFontSize(10);
@@ -57,11 +73,9 @@ const Directeur = () => {
     doc.setFontSize(18);
     doc.text(`Rapport Complet - Statistiques Médicales (${selectedYear})`, 14, 15);
 
-    // Récupération des données filtrées
     const consultations = tableConsultationRef.current?.getFilteredData() || consultationsData;
     const maladies = tableMaladiesRef.current?.getFilteredData() || maladiesData;
 
-    // Tableau des consultations
     doc.setFontSize(16);
     doc.text('Détails des Consultations', 14, 35);
     autoTable(doc, {
@@ -80,7 +94,6 @@ const Directeur = () => {
       alternateRowStyles: { fillColor: [245, 245, 245] }
     });
 
-    // Tableau des maladies
     doc.setFontSize(16);
     doc.text('Détails des Maladies Contagieuses', 14, doc.lastAutoTable.finalY + 15);
     autoTable(doc, {
@@ -101,7 +114,6 @@ const Directeur = () => {
       alternateRowStyles: { fillColor: [245, 245, 245] }
     });
 
-    // Statistiques
     const totalConsultations = consultations.reduce((sum, c) => sum + c.total, 0);
     const totalMaladies = maladies.reduce((sum, m) => sum + m.cas, 0);
     const totalMales = maladies.reduce((sum, m) => sum + m.males, 0);
@@ -131,7 +143,7 @@ const Directeur = () => {
             Statistiques
           </h1>
         </div>
-        
+
         <div className='justify-end flex mt-4 mr-5 gap-4 items-center'>
           <select 
             value={selectedYear}
@@ -153,7 +165,7 @@ const Directeur = () => {
         </div>
 
         <Stat />
-        
+
         <div className="flex justify-between border-b border-gray-300 bg-[#EAF0F1] m-2 rounded-[20px] shadow-[0_0_10px_2px_rgba(0,0,0,0.1)]">
           <button
             className={`px-6 py-3 text-sm font-bold focus:outline-none ${
@@ -180,10 +192,14 @@ const Directeur = () => {
             Maladies Chroniques
           </button>
         </div>
-        
+
         <div className="p-4">
           {activeTab === 'consultations' && (
-            <TableConsultation ref={tableConsultationRef} consultations={consultationsData} />
+            loadingConsultations ? (
+              <p>Chargement des consultations...</p>
+            ) : (
+              <TableConsultation ref={tableConsultationRef} consultations={consultationsData} />
+            )
           )}
           {activeTab === 'contagieuses' && (
             <TableMaladies ref={tableMaladiesRef} maladies={maladiesData} />
