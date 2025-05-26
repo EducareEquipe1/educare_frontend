@@ -389,24 +389,28 @@ const ExamenPhysique = () => {
                 Examen Physique
               </h1>
               <form className="flex flex-col space-y-6" onSubmit={(e) => e.preventDefault()}>
-                <Mesures formData={formData} handleChange={handleChange} readOnly={examenExists} />
-                <ExamenAppareil formData={formData} handleChange={handleChange} readOnly={examenExists} />
-                <ExplorationFonctionnels formData={formData} handleChange={handleChange} readOnly={examenExists} />
-                <ExamenComplementaire formData={formData} handleChange={handleChange} readOnly={examenExists} />
+  <Mesures formData={formData} handleChange={handleChange} readOnly={examenExists} />
+  <ExamenAppareil formData={formData} handleChange={handleChange} readOnly={examenExists} />
+  <ExplorationFonctionnels formData={formData} handleChange={handleChange} readOnly={examenExists} />
+  <ExamenComplementaire
+    formData={formData}
+    handleChange={handleChange}
+    readOnly={examenExists}
+  />
 
-                {!examenExists && (
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={handleSave}
-                      disabled={loading}
-                      className="rounded text-white bg-[#679294] px-4 py-2 hover:bg-[#577b7d] transition-colors disabled:opacity-50"
-                    >
-                      {loading ? "Enregistrement..." : "Sauvegarder"}
-                    </button>
-                  </div>
-                )}
-              </form>
+  {!examenExists && (
+    <div className="flex justify-end">
+      <button
+        type="button"
+        onClick={handleSave}
+        disabled={loading}
+        className="rounded text-white bg-[#679294] px-4 py-2 hover:bg-[#577b7d] transition-colors disabled:opacity-50"
+      >
+        {loading ? "Enregistrement..." : "Sauvegarder"}
+      </button>
+    </div>
+  )}
+</form>
             </div>
           </div>
         </div>
