@@ -34,7 +34,6 @@ const Directeur = () => {
 
   const yearPairs = generateYearPairs();
 
-  // ✅ Charger les consultations depuis l'API avec l’année sélectionnée
   useEffect(() => {
     const fetchConsultations = async () => {
       try {
@@ -149,7 +148,7 @@ const Directeur = () => {
           <select 
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            className='shadow-xl text-[#5D5F60] rounded-[10px] px-2 py-1 bg-white'
+            className='shadow-xl cursor-pointer  text-[#5D5F60] hover:bg-gray-100 rounded-[10px] px-2 py-1 bg-white'
           >
             {yearPairs.map((year) => (
               <option key={year} value={year}>
@@ -159,7 +158,7 @@ const Directeur = () => {
           </select>
           <button 
             onClick={handleExportAll}
-            className='flex px-4 hover:bg-gray-100 text-[#5D5F60] bg-[#FFFEFE] rounded-[10px] shadow-xl p-1'
+            className='flex cursor-pointer px-4 hover:bg-gray-100 text-[#5D5F60] bg-[#FFFEFE] rounded-[10px] shadow-xl p-1'
           >
             Exporter tout
           </button>
