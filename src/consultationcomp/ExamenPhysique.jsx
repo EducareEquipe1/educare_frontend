@@ -12,7 +12,7 @@ const ExamenPhysique = () => {
   const { id_consultation } = useParams();
   const [loading, setLoading] = useState(false);
   const [examenExists, setExamenExists] = useState(false);
-  const [examenMedicalData, setExamenMedicalData] = useState(null); // For the detailed data
+  const [examenMedicalData, setExamenMedicalData] = useState(null);
 
   const [patientData, setPatientData] = useState({
     prenom: "",
@@ -71,8 +71,7 @@ const ExamenPhysique = () => {
     vih_neg: "",
   });
 
-  //fetch image
-  const [imageSrc, setImageSrc] = useState('/default.png'); // default image at start
+  const [imageSrc, setImageSrc] = useState('/default.png');
 
   useEffect(() => {
     const fetchImageUrl = async () => {
@@ -82,7 +81,6 @@ const ExamenPhysique = () => {
 
         if (response.ok) {
           const data = await response.json();
-
           if (data.success && data.image) {
             setImageSrc(data.image);
             console.log('Image URL loaded:', data.image);
@@ -101,13 +99,18 @@ const ExamenPhysique = () => {
     };
 
     fetchImageUrl();
-  }, []);
+  }, [email]);
 
   const [id_examen, setExamenId] = useState(null);
 
   useEffect(() => {
     const fetchPatientData = async () => {
-      if (!email || !id_consultation) return;
+      if (!email || !id_consultation) {
+        alert("Email ou ID de consultation manquant.");
+        return;
+      }
+
+      console.log('Consultation ID:', id_consultation);
 
       const token = localStorage.getItem("token");
       if (!token) {
@@ -118,7 +121,6 @@ const ExamenPhysique = () => {
       try {
         setLoading(true);
 
-        // 1. Fetch patient data
         const response = await fetch(
           `https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`,
           {
@@ -130,17 +132,16 @@ const ExamenPhysique = () => {
           }
         );
 
-        if (!response.ok) throw new Error("Failed to fetch patient data");
+        if (!response.ok) throw new Error(`Failed to fetch patient data: ${response.status}`);
 
         const data = await response.json();
         setPatientData({
-          prenom: data.prenom,
-          nom: data.nom,
-          email: data.email,
-          isActif: data.isActif,
+          prenom: data.prenom || "",
+          nom: data.nom || "",
+          email: data.email || "",
+          isActif: data.isActif ?? "",
         });
 
-        // 2. Check if examen medical exists
         const examenCheckRes = await fetch(
           `https://educare-backend-l6ue.onrender.com/medecins/consultations/${id_consultation}/has-examen-medical`,
           {
@@ -150,11 +151,13 @@ const ExamenPhysique = () => {
           }
         );
 
-        const examenCheck = await examenCheckRes.json();
-        if (examenCheck.exists) {
-          setExamenExists(true);
+        if (!examenCheckRes.ok) throw new Error(`Failed to check examen existence: ${examenCheckRes.status}`);
 
-          // 3. If examen exists, fetch full examen medical data
+        const examenCheck = await examenCheckRes.json();
+        console.log('Examen check response:', examenCheck);
+        setExamenExists(examenCheck.exists);
+
+        if (examenCheck.exists) {
           const examenDataRes = await fetch(
             `https://educare-backend-l6ue.onrender.com/medecins/consultations/${id_consultation}/examen-medical`,
             {
@@ -164,16 +167,66 @@ const ExamenPhysique = () => {
             }
           );
 
-          if (!examenDataRes.ok)
-            throw new Error("Failed to fetch examen medical data");
+          if (!examenDataRes.ok) throw new Error(`Failed to fetch examen medical data: ${examenDataRes.status}`);
 
           const examenData = await examenDataRes.json();
-          setExamenMedicalData(examenData); // 🔁 Replace with your own state
-        } else {
-          setExamenExists(false);
+          console.log('Fetched examenMedicalData:', examenData);
+          setExamenMedicalData(examenData);
+
+          const dataToPopulate = examenData.data || examenData;
+          setFormData({
+            poids: dataToPopulate.poids?.toString() || "",
+            taille: dataToPopulate.taille?.toString() || "",
+            IMC: dataToPopulate.IMC?.toString() || "",
+            tension: dataToPopulate.tension?.toString() || "",
+            vision_d: dataToPopulate.vision_d?.toString() || "",
+            vision_g: dataToPopulate.vision_g?.toString() || "",
+            larmoiement: dataToPopulate.larmoiement ? "true" : "false",
+            douleurs: dataToPopulate.douleurs ? "true" : "false",
+            taches_yeux: dataToPopulate.taches_yeux ? "true" : "false",
+            audition_d: dataToPopulate.audition_d?.toString() || "",
+            audition_g: dataToPopulate.audition_g?.toString() || "",
+            sifflements: dataToPopulate.sifflements ? "true" : "false",
+            angines: dataToPopulate.angines ? "true" : "false",
+            epistaxis: dataToPopulate.epistaxis ? "true" : "false",
+            rhinorrhee: dataToPopulate.rhinorrhee ? "true" : "false",
+            cephalies: dataToPopulate.cephalies ? "true" : "false",
+            vertiges: dataToPopulate.vertiges ? "true" : "false",
+            troubles_sommeil: dataToPopulate.troubles_sommeil ? "true" : "false",
+            peau_normal: dataToPopulate.peau_normal ? "true" : "false",
+            peau_anormale: dataToPopulate.peau_anormale ? "true" : "false",
+            douleurs_musculaires: dataToPopulate.douleurs_musculaires ? "true" : "false",
+            douleurs_articulaires: dataToPopulate.douleurs_articulaires ? "true" : "false",
+            douleurs_neurologiques: dataToPopulate.douleurs_neurologiques ? "true" : "false",
+            toux: dataToPopulate.toux ? "true" : "false",
+            dyspnee: dataToPopulate.dyspnee ? "true" : "false",
+            douleurs_thoraciques: dataToPopulate.douleurs_thoraciques ? "true" : "false",
+            palpitations: dataToPopulate.palpitations ? "true" : "false",
+            oedemes: dataToPopulate.oedemes ? "true" : "false",
+            cyanose: dataToPopulate.cyanose ? "true" : "false",
+            pyrosis: dataToPopulate.pyrosis ? "true" : "false",
+            vomissements: dataToPopulate.vomissements ? "true" : "false",
+            douleurs_abdominales: dataToPopulate.douleurs_abdominales ? "true" : "false",
+            dysurie: dataToPopulate.dysurie ? "true" : "false",
+            hematurie: dataToPopulate.hematurie ? "true" : "false",
+            cycles_irreguliers: dataToPopulate.cycles_irreguliers ? "true" : "false",
+            fonction_respiratoire: dataToPopulate.fonction_respiratoire || "",
+            fonction_circulatoire: dataToPopulate.fonction_circulatoire || "",
+            fonction_motrice: dataToPopulate.fonction_motrice || "",
+            sanguins: dataToPopulate.sanguins || "",
+            urinaires: dataToPopulate.urinaires || "",
+            radiologiques: dataToPopulate.radiologiques || "",
+            hepatites_pos: dataToPopulate.hepatites_pos ? "true" : "false",
+            hepatites_neg: dataToPopulate.hepatites_neg ? "true" : "false",
+            syphilis_pos: dataToPopulate.syphilis_pos ? "true" : "false",
+            syphilis_neg: dataToPopulate.syphilis_neg ? "true" : "false",
+            vih_pos: dataToPopulate.vih_pos ? "true" : "false",
+            vih_neg: dataToPopulate.vih_neg ? "true" : "false",
+          });
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+        alert(`Erreur lors du chargement : ${error.message}`);
       } finally {
         setLoading(false);
       }
@@ -182,40 +235,52 @@ const ExamenPhysique = () => {
     fetchPatientData();
   }, [email, id_consultation]);
 
+  const toTinyInt = (val) =>
+    val === "true" || val === true || val === 1 || val === "1" ? 1 : 0;
+
+  const handleChange = (e) => {
+    if (examenExists) return;
+    const { name, value, type, checked } = e.target;
+    const newValue = type === "checkbox" ? (checked ? "true" : "false") : value;
+    console.log(`Updating field: ${name}, value: ${newValue}, type: ${type}, event target:`, {
+      name: e.target.name,
+      value: e.target.value,
+      type: e.target.type,
+    });
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: newValue,
+    }));
+  };
+
   const handleSave = async () => {
     if (!id_consultation) {
       alert("Consultation ID manquant.");
       return;
     }
 
+    console.log('Consultation ID for save:', id_consultation);
+    console.log('Form Data before saving:', { poids: formData.poids, taille: formData.taille });
+
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-
-      // Parse floats (or null)
-      const poids = parseFloat(formData.poids) || null;
-      const taille = parseFloat(formData.taille) || null;
-      const IMC = parseFloat(formData.IMC) || null;
-      const tension = parseFloat(formData.tension) || null;
-      const vision_d = parseFloat(formData.vision_d) || null;
-      const vision_g = parseFloat(formData.vision_g) || null;
-
-      // Helper to convert "true"/"false" or string booleans to 0 or 1
-      const toTinyInt = (val) =>
-        val === "true" || val === true || val === 1 || val === "1" ? 1 : 0;
+      if (!token) {
+        throw new Error("Token manquant.");
+      }
 
       const dataToSend = {
-        poids,
-        taille,
-        IMC,
-        tension,
-        vision_d,
-        vision_g,
+        poids: formData.poids !== "" ? formData.poids : null,
+        taille: formData.taille !== "" ? formData.taille : null,
+        IMC: formData.IMC !== "" ? formData.IMC : null,
+        tension: formData.tension !== "" ? formData.tension : null,
+        vision_d: formData.vision_d !== "" ? formData.vision_d : null,
+        vision_g: formData.vision_g !== "" ? formData.vision_g : null,
         larmoiement: toTinyInt(formData.larmoiement),
         douleurs: toTinyInt(formData.douleurs),
         taches_yeux: toTinyInt(formData.taches_yeux),
-        audition_d: toTinyInt(formData.audition_d),
-        audition_g: toTinyInt(formData.audition_g),
+        audition_d: formData.audition_d !== "" ? formData.audition_d : null,
+        audition_g: formData.audition_g !== "" ? formData.audition_g : null,
         sifflements: toTinyInt(formData.sifflements),
         angines: toTinyInt(formData.angines),
         epistaxis: toTinyInt(formData.epistaxis),
@@ -254,6 +319,8 @@ const ExamenPhysique = () => {
         vih_neg: toTinyInt(formData.vih_neg),
       };
 
+      console.log('Sending dataToSend:', JSON.stringify(dataToSend, null, 2));
+
       const response = await axios.post(
         `https://educare-backend-l6ue.onrender.com/medecins/examen-medical-create/${id_consultation}`,
         dataToSend,
@@ -262,22 +329,16 @@ const ExamenPhysique = () => {
         }
       );
 
+      console.log('Save response:', response.data);
       setExamenId(response.data.id);
+      setExamenExists(true);
       alert("Examen médical enregistré avec succès !");
     } catch (error) {
-      console.error("Erreur lors de la sauvegarde :", error);
-      alert("Erreur lors de la sauvegarde");
+      console.error("Erreur lors de la sauvegarde :", error.response?.data || error.message);
+      alert(`Erreur lors de la sauvegarde : ${error.response?.data?.message || error.message}`);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: type === "checkbox" ? (checked ? "true" : "false") : value,
-    }));
   };
 
   return (
@@ -298,15 +359,15 @@ const ExamenPhysique = () => {
             <div className="w-full md:w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6">
               <div className="flex flex-col items-center">
                 <img
-      src={imageSrc}
-      alt="Patient"
-      onError={(e) => {
-        console.error('Image load error, switching to default-profile.png');
-        e.target.onerror = null;
-        e.target.src = '/default.png';
-      }}
-      className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
-    />
+                  src={imageSrc}
+                  alt="Patient"
+                  onError={(e) => {
+                    console.error('Image load error, switching to default-profile.png');
+                    e.target.onerror = null;
+                    e.target.src = '/default.png';
+                  }}
+                  className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
+                />
                 <h2 className="mt-4 text-black text-lg font-semibold">
                   {patientData.nom} {patientData.prenom}
                 </h2>
@@ -327,31 +388,24 @@ const ExamenPhysique = () => {
               <h1 className="text-black text-2xl font-bold mb-6">
                 Examen Physique
               </h1>
-              <form className="flex flex-col space-y-6">
-                <Mesures formData={formData} handleChange={handleChange} />
-                <ExamenAppareil
-                  formData={formData}
-                  handleChange={handleChange}
-                />
-                <ExplorationFonctionnels
-                  formData={formData}
-                  handleChange={handleChange}
-                />
-                <ExamenComplementaire
-                  formData={formData}
-                  handleChange={handleChange}
-                />
+              <form className="flex flex-col space-y-6" onSubmit={(e) => e.preventDefault()}>
+                <Mesures formData={formData} handleChange={handleChange} readOnly={examenExists} />
+                <ExamenAppareil formData={formData} handleChange={handleChange} readOnly={examenExists} />
+                <ExplorationFonctionnels formData={formData} handleChange={handleChange} readOnly={examenExists} />
+                <ExamenComplementaire formData={formData} handleChange={handleChange} readOnly={examenExists} />
 
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={handleSave}
-                    disabled={loading}
-                    className="rounded text-white bg-[#679294] px-4 py-2 hover:bg-[#577b7d] transition-colors disabled:opacity-50"
-                  >
-                    {loading ? "Enregistrement..." : "Sauvegarder"}
-                  </button>
-                </div>
+                {!examenExists && (
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleSave}
+                      disabled={loading}
+                      className="rounded text-white bg-[#679294] px-4 py-2 hover:bg-[#577b7d] transition-colors disabled:opacity-50"
+                    >
+                      {loading ? "Enregistrement..." : "Sauvegarder"}
+                    </button>
+                  </div>
+                )}
               </form>
             </div>
           </div>
