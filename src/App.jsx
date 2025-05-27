@@ -25,6 +25,7 @@ import User from './medicalcomponents/Users';
 import AddFile from './medicalcomponents/AddFile';
 import  PatientPhoto  from './medicalcomponents/image';
 import Medecin from './medicalcomponents/Medecin';
+import DashboardM from './medicalcomponents/Dashboard';
 import ConsultationForm from './consultationcomp/ConsultationForm'
 import ConsultationList from './consultationcomp/ConsultationList'
 import ExamenPhysique from './consultationcomp/ExamenPhysique'
@@ -47,6 +48,7 @@ function App() {
       <Route path="/" element={<Signin />} />
       <Route path="/pie" element={<PieChartCom />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
+       <Route path="/dashboard" element={<DashboardM /> } />
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
 

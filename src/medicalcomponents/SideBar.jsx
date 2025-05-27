@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { HiUsers } from "react-icons/hi";
 import { FaUserDoctor } from "react-icons/fa6";
 import { IoSettingsSharp } from "react-icons/io5";
+import { MdSpaceDashboard } from "react-icons/md";
 
 const SideBar = () => {
   return (
@@ -15,6 +16,17 @@ const SideBar = () => {
 
         {/* Navigation Links */}
         <ul className="flex flex-col gap-2 md:gap-8 px-4 md:px-6 text-[12px] md:text-[16px]">
+                     <li>
+            <Link
+              to="/dashboard"
+              className="flex items-center gap-2 hover:bg-[linear-gradient(to_left,#2E3D40,transparent)] hover:text-white transition-all duration-300 py-2 rounded-full"
+            >
+              < MdSpaceDashboard  />
+              <p>DashBoard</p>
+            </Link>
+          </li>
+
+
           <li>
             <Link
               to="/user"
@@ -46,4 +58,3 @@ const SideBar = () => {
 };
 
 export default SideBar;
-

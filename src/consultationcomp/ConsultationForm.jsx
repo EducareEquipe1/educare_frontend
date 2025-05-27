@@ -307,7 +307,7 @@ const ConsultationForm = () => {
 
           <div className="flex flex-col md:flex-row w-full">
             {/* Patient Sidebar */}
-            <div className="w-full md:w-[239px] h-[346px] bg-white shadow-lg rounded-xl p-6 space-y-6 md:ml-[200px] mt-[10px]">
+            <div className="w-full md:w-[239px] h-[370px] bg-white shadow-lg rounded-xl p-6 space-y-6 md:ml-[200px] mt-[10px]">
               <div className="flex flex-col items-center">
                   <img
       src={imageSrc}
