@@ -119,7 +119,6 @@ const MedicalForm = () => {
           isActif: userInfo.isActif ?? "",
         });
 
-        console.log(patientData);
         setFormData((prev) => ({
           ...prev,
           nom: userInfo.nom,
@@ -152,6 +151,8 @@ const MedicalForm = () => {
 
         if (recordRes.ok) {
           const recordData = await recordRes.json();
+          console.log("Fetched recordData from backend:", recordData); // DEBUG
+
           fullData = {
             ...fullData,
             ...recordData,
@@ -164,16 +165,42 @@ const MedicalForm = () => {
             adresse: recordData.adresse || "",
             poids: recordData.poids || "",
             taille: recordData.taille || "",
-            tabac_fume: recordData.tabac_fume ?? false,
+            // For all oui/non fields:
+            tabac_fume:
+              recordData.tabac_fume === undefined
+                ? ""
+                : recordData.tabac_fume === null
+                ? ""
+                : !!recordData.tabac_fume,
+            tabac_chique:
+              recordData.tabac_chique === undefined
+                ? ""
+                : recordData.tabac_chique === null
+                ? ""
+                : !!recordData.tabac_chique,
+            tabac_pris:
+              recordData.tabac_pris === undefined
+                ? ""
+                : recordData.tabac_pris === null
+                ? ""
+                : !!recordData.tabac_pris,
+            ancien_fume:
+              recordData.ancien_fume === undefined
+                ? ""
+                : recordData.ancien_fume === null
+                ? ""
+                : !!recordData.ancien_fume,
+            alcool:
+              recordData.alcool === undefined
+                ? ""
+                : recordData.alcool === null
+                ? ""
+                : !!recordData.alcool,
             tabac_fume_nombre: recordData.tabac_fume_nombre || "",
-            tabac_chique: recordData.tabac_chique ?? false,
             tabac_chique_nombre: recordData.tabac_chique_nombre || "",
-            tabac_pris: recordData.tabac_pris ?? false,
             tabac_pris_nombre: recordData.tabac_pris_nombre || "",
             age_pris: recordData.age_pris || "",
-            ancien_fume: recordData.ancien_fume ?? false,
             periode_exposition: recordData.periode_exposition || "",
-            alcool: recordData.alcool ?? false,
             medicaments: recordData.medicaments || "",
             notes: recordData.notes || "",
             affectionsCongenitales: recordData.affectionsCongenitales || "",
@@ -189,6 +216,7 @@ const MedicalForm = () => {
           setIsEditing(true); // Enable editing for new records
         }
 
+        console.log("Full formData after fetch:", fullData); // DEBUG
         setFormData(fullData);
         setInitialFormData(fullData);
       } catch (err) {
@@ -205,10 +233,19 @@ const MedicalForm = () => {
   const handleChange = (e) => {
     if (!isEditing) return;
     const { name, type, value, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    setFormData((prev) => {
+      const newValue = type === "checkbox" ? checked : value;
+      const updated = { ...prev, [name]: newValue };
+      console.log(
+        "handleChange:",
+        name,
+        "=",
+        newValue,
+        "updated formData:",
+        updated
+      ); // DEBUG
+      return updated;
+    });
   };
 
   // Utility to convert empty string to null or number
@@ -229,23 +266,23 @@ const MedicalForm = () => {
     situation_famille: toNullIfEmpty(data.situation_famille),
     taille: toNumberOrNull(data.taille),
     poids: toNumberOrNull(data.poids),
-    tabac_fume: !!data.tabac_fume,
+    tabac_fume: data.tabac_fume === "" ? null : data.tabac_fume ? 1 : 0,
     tabac_fume_nombre: toNumberOrNull(data.tabac_fume_nombre),
-    tabac_chique: !!data.tabac_chique,
+    tabac_chique: data.tabac_chique === "" ? null : data.tabac_chique ? 1 : 0,
     tabac_chique_nombre: toNumberOrNull(data.tabac_chique_nombre),
-    tabac_pris: !!data.tabac_pris,
+    tabac_pris: data.tabac_pris === "" ? null : data.tabac_pris ? 1 : 0,
     tabac_pris_nombre: toNumberOrNull(data.tabac_pris_nombre),
     age_pris: toNumberOrNull(data.age_pris),
-    ancien_fume: !!data.ancien_fume,
+    ancien_fume: data.ancien_fume === "" ? null : data.ancien_fume ? 1 : 0,
     periode_exposition: toNumberOrNull(data.periode_exposition),
-    alcool: !!data.alcool,
+    alcool: data.alcool === "" ? null : data.alcool ? 1 : 0,
     medicaments: toNullIfEmpty(data.medicaments),
     affectionsCongenitales: toNullIfEmpty(data.affectionsCongenitales),
     maladiesGenerales: toNullIfEmpty(data.maladiesGenerales),
     interventionsChirurgicales: toNullIfEmpty(data.interventionsChirurgicales),
     reactionsAllergiques: toNullIfEmpty(data.reactionsAllergiques),
     notes: toNullIfEmpty(data.notes),
-    statut: toNullIfEmpty(data.statut), // must be one of enum values or null
+    statut: toNullIfEmpty(data.statut),
     date_naissance: toNullIfEmpty(data.date_naissance),
     nom: toNullIfEmpty(data.nom),
     prenom: toNullIfEmpty(data.prenom),
@@ -271,7 +308,7 @@ const MedicalForm = () => {
     // Prepare data for backend
     const backendData = prepareFormData(formData);
 
-    console.log("Sending formData to backend:", backendData);
+    console.log("Sending formData to backend:", backendData); // DEBUG
 
     try {
       const url = recordExists
@@ -297,7 +334,7 @@ const MedicalForm = () => {
       }
 
       const data = await response.json();
-      console.log("Success Response:", data);
+      console.log("Success Response:", data); // DEBUG
       alert(
         `Dossier médical ${
           recordExists ? "mis à jour" : "sauvegardé"
@@ -403,6 +440,7 @@ const MedicalForm = () => {
               <AntécédentsPersonels
                 formData={formData}
                 handleChange={handleChange}
+                setFormData={setFormData}
                 readOnly={!isEditing}
               />
               <AntécédentsMedicaux
@@ -414,7 +452,8 @@ const MedicalForm = () => {
                 <button
                   type="button"
                   onClick={toggleEditMode}
-                  className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+                  style={{ backgroundColor: "#679294" }}
+                  className="text-white px-4 py-2 rounded disabled:opacity-50"
                   disabled={saving || loading}
                 >
                   {isEditing
