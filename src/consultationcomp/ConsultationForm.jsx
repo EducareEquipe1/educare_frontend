@@ -307,8 +307,8 @@ const ConsultationForm = () => {
 
           <div className="flex flex-col md:flex-row w-full">
             {/* Patient Sidebar */}
-            <div className="w-full md:w-[239px] h-[370px] bg-white shadow-lg rounded-xl p-6 space-y-6 md:ml-[200px] mt-[10px]">
-              <div className="flex flex-col items-center">
+            <div className="w-[239px] ml-[80px] mt-[20px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 mr-4">
+      <div className="flex flex-col items-center">
                   <img
       src={imageSrc}
       alt="Patient"
@@ -319,12 +319,12 @@ const ConsultationForm = () => {
       }}
       className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
     />
-                <h2 className="mt-4 text-black text-lg font-semibold">
+                <h3 className="mt-4 text-black  font-semibold">
                   {patientData.nom} {patientData.prenom}
-                </h2>
-                <h2 className="mt-4 text-gray-600 text-lg font-semibold">
+                </h3>
+                <p className="mt-4 text-gray-600  font-semibold">
                   {patientData.email}
-                </h2>
+                </p>
                 <span
                   className={`text-sm px-3 py-1 rounded-full mt-2 ${
                     patientData.isActif === false

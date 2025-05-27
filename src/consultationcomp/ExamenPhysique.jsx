@@ -139,7 +139,7 @@ const ExamenPhysique = () => {
           prenom: data.prenom || "",
           nom: data.nom || "",
           email: data.email || "",
-          isActif: data.isActif ?? "",
+          isActif: data.isActif ,
         });
 
         const examenCheckRes = await fetch(
@@ -356,8 +356,8 @@ const ExamenPhysique = () => {
           </div>
 
           <div className="flex flex-col md:flex-row p-4 ml-[100px] mt-[20px]">
-            <div className="w-full md:w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6">
-              <div className="flex flex-col items-center">
+           <div className="w-[239px] ml-[80px] mt-[20px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 mr-4">
+      <div className="flex flex-col items-center">
                 <img
                   src={imageSrc}
                   alt="Patient"
@@ -368,12 +368,12 @@ const ExamenPhysique = () => {
                   }}
                   className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
                 />
-                <h2 className="mt-4 text-black text-lg font-semibold">
+                <h3 className="mt-4 text-black text font-semibold">
                   {patientData.nom} {patientData.prenom}
-                </h2>
-                <h2 className="mt-4 text-gray-600 text-lg font-semibold">
+                </h3>
+                <p className="mt-4 text-gray-600 text font-semibold">
                   {patientData.email}
-                </h2>
+                </p>
                 <span
                   className={`text-sm px-3 py-1 rounded-full mt-2 ${
                     patientData.isActif ? "text-green-500" : "text-red-500"

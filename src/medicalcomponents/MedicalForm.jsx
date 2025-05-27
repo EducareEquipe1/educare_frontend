@@ -272,8 +272,8 @@ const MedicalForm = () => {
   return (
     <div className="relative flex bg-[#EFEFEF]">
       <div className="flex flex-row">
-        <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 ml-[200px] mt-[10px]">
-          <div className="flex flex-col items-center">
+ <div className="w-[280px] ml-[80px] mt-[20px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 mr-4">
+      <div className="flex flex-col items-center">
             <img
 
               src={imageSrc}
@@ -286,8 +286,8 @@ const MedicalForm = () => {
 
               className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
             />
-            <h2 className="mt-4 text-black text-lg font-semibold">{patientData.nom} {patientData.prenom}</h2>
-            <h2 className="mt-4 text-gray-600 text-lg font-semibold">{patientData.email}</h2>
+            <h3 className="mt-4 text-black text font-semibold">{patientData.nom} {patientData.prenom}</h3>
+            <p className="mt-4 text-gray-600 text font-semibold">{patientData.email}</p>
             <span
               className={`text-sm px-3 py-1 rounded-full mt-2 ${
                 patientData.isActif === false ? 'text-red-500' : 'text-green-500'
