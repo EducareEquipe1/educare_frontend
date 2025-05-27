@@ -1,22 +1,24 @@
-import React, { useState, useEffect } from 'react'
-import { FaSearch, FaFilter } from 'react-icons/fa';
-import Onedemande from './Onedemande';
+import React, { useState, useEffect } from "react";
+import { FaSearch, FaFilter } from "react-icons/fa";
+import Onedemande from "./Onedemande";
+import CalendarR from "./CalendarR"; // Assurez-vous d'importer votre composant CalendarR
+import { parseISO, format } from "date-fns"; // Already imported
 
 const Demandes = () => {
   const [showRdvModal, setShowRdvModal] = useState(false);
   const [selectedDemande, setSelectedDemande] = useState(null);
   const [rdvData, setRdvData] = useState({
-    nom: '',
-    prenom: '',
-    email: '',
-    motif: '',
-    date: '',
-    heure: '',
-    status: 'Programmé'
+    nom: "",
+    prenom: "",
+    email: "",
+    motif: "",
+    date: "",
+    heure: "",
+    status: "Programmé",
   });
   const [demandes, setDemandes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState(''); // Ajouté pour la recherche
+  const [searchTerm, setSearchTerm] = useState(""); // Ajouté pour la recherche
   const [filteredDemandes, setFilteredDemandes] = useState([]); // Ajouté pour stocker les résultats filtrés
 
   useEffect(() => {
@@ -25,14 +27,15 @@ const Demandes = () => {
 
   useEffect(() => {
     // Filtrer les demandes lorsque searchTerm ou demandes changent
-    if (searchTerm === '') {
+    if (searchTerm === "") {
       setFilteredDemandes(demandes);
     } else {
-      const filtered = demandes.filter(demande =>
-        demande.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        demande.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        demande.motif.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        demande.date.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = demandes.filter(
+        (demande) =>
+          demande.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          demande.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          demande.motif.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          demande.date.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredDemandes(filtered);
     }
@@ -40,16 +43,20 @@ const Demandes = () => {
 
   const fetchDemandes = async () => {
     try {
-      const response = await fetch('https://educare-backend-l6ue.onrender.com/medecins/listedesdemandes');
+      const response = await fetch(
+        "https://educare-backend-l6ue.onrender.com/medecins/listedesdemandes"
+      );
       const data = await response.json();
       console.log("Demandes récupérées:", data);
 
-      const mappedDemandes = data.map(demande => ({
+      const mappedDemandes = data.map((demande) => ({
         id: demande.id_rendezVous,
         motif: demande.motif,
         nomPrenom: `${demande.nom} ${demande.prenom}`,
-        email: demande.email || '',
-        date: demande.date_depot ? demande.date_depot.split('T')[0] : ''
+        email: demande.email || "",
+        date: demande.date_depot
+          ? format(parseISO(demande.date_depot), "dd/MM/yyyy")
+          : "",
       }));
 
       setDemandes(mappedDemandes);
@@ -63,35 +70,40 @@ const Demandes = () => {
 
   const handleProgrammerClick = (demande) => {
     setSelectedDemande(demande);
-    const [nom, prenom] = demande.nomPrenom.split(' ');
+    const [nom, prenom] = demande.nomPrenom.split(" ");
     setRdvData({
-      nom: nom || '',
-      prenom: prenom || '',
-      email: demande.email || '',
+      nom: nom || "",
+      prenom: prenom || "",
+      email: demande.email || "",
       motif: demande.motif,
-      date: '',
-      heure: '',
-      status: 'Programmé'
+      date: "",
+      heure: "",
+      status: "Programmé",
     });
     setShowRdvModal(true);
   };
 
   const handleRefuserClick = async (demandeId) => {
-    const confirmed = window.confirm("Êtes-vous sûr de vouloir refuser cette demande ?");
+    const confirmed = window.confirm(
+      "Êtes-vous sûr de vouloir refuser cette demande ?"
+    );
     if (!confirmed) return;
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       console.log("Token:", token);
       console.log("ID de la demande à refuser:", demandeId);
 
-      const response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/refuserdv/${demandeId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        `https://educare-backend-l6ue.onrender.com/medecins/refuserdv/${demandeId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -99,7 +111,7 @@ const Demandes = () => {
         throw new Error("Échec du refus de la demande.");
       }
 
-      setDemandes(demandes.filter(d => d.id !== demandeId));
+      setDemandes(demandes.filter((d) => d.id !== demandeId));
       alert("Demande refusée avec succès.");
     } catch (error) {
       console.error("Erreur lors du refus de la demande :", error);
@@ -107,55 +119,107 @@ const Demandes = () => {
     }
   };
 
+  // Place the function here:
+  const convertToApiDate = (ddmmyyyy) => {
+    const [day, month, year] = ddmmyyyy.split("/");
+    return `${year}-${month}-${day}`;
+  };
+
   const handleAddRdv = async () => {
     if (!selectedDemande) return;
 
-    try {
-      const token = localStorage.getItem('token');
+    // Convert dd/MM/yyyy to yyyy-MM-dd for API
+    const apiDate = convertToApiDate(rdvData.date);
 
-      const response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/programmerdv/${selectedDemande.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          email: rdvData.email,
-          nom: rdvData.nom,
-          prenom: rdvData.prenom,
-          date_rdv: rdvData.date,
-          heure_rdv: rdvData.heure,
-          motif: rdvData.motif
-        })
-      });
+    // Use apiDate in your API call:
+    const selectedDateTime = new Date(`${apiDate}T${rdvData.heure}`);
+    if (selectedDateTime < new Date()) {
+      alert("Vous ne pouvez pas programmer un rendez-vous dans le passé.");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `https://educare-backend-l6ue.onrender.com/medecins/programmerdv/${selectedDemande.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            email: rdvData.email,
+            nom: rdvData.nom,
+            prenom: rdvData.prenom,
+            date_rdv: apiDate, // <-- use the converted date here
+            heure_rdv: rdvData.heure,
+            motif: rdvData.motif,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Erreur lors de la programmation du rendez-vous');
+        throw new Error("Erreur lors de la programmation du rendez-vous");
       }
 
-      console.log('Rendez-vous programmé avec succès !');
+      console.log("Rendez-vous programmé avec succès !");
 
-      setDemandes(demandes.filter(d => d.id !== selectedDemande.id));
+      setDemandes(demandes.filter((d) => d.id !== selectedDemande.id));
       setShowRdvModal(false);
       setSelectedDemande(null);
       setRdvData({
-        nom: '',
-        prenom: '',
-        email: '',
-        motif: '',
-        date: '',
-        heure: '',
-        status: 'Programmé'
+        nom: "",
+        prenom: "",
+        email: "",
+        motif: "",
+        date: "",
+        heure: "",
+        status: "Programmé",
       });
     } catch (error) {
-      console.error('Erreur lors de la programmation:', error);
-      alert('Erreur lors de la programmation du rendez-vous.');
+      console.error("Erreur lors de la programmation:", error);
+      alert("Erreur lors de la programmation du rendez-vous.");
     }
   };
 
+  const handleCalendarDateSelect = (dateStr) => {
+    // dateStr is in dd/MM/yyyy format
+    // Convert to yyyy-MM-dd for the input
+    const [day, month, year] = dateStr.split("/");
+    const isoDate = `${year}-${month}-${day}`;
+    setRdvData((prev) => ({
+      ...prev,
+      date: dateStr, // For display and API
+      dateInput: isoDate, // For the input value
+      heure: "",
+    }));
+    setShowRdvModal(true);
+    setSelectedDemande(null);
+  };
+
+  // Add these helpers before your component return
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const todayStr = `${yyyy}-${mm}-${dd}`;
+
+  // Returns local time in "HH:MM" format
+  const getCurrentLocalTime = () => {
+    const now = new Date();
+    return now.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  };
+
+  const isToday = rdvData.date === todayStr;
+
   return (
-    <div className='flex flex-col'>
-      <div className='flex justify-end items-center gap-2'>
+    <div className="flex flex-col">
+      <div className="flex justify-end items-center gap-2">
         <div className="flex items-center border border-gray-300 rounded-full bg-gray-100 px-2 py-1">
           <FaSearch className="text-gray-500 mr-2" />
           <input
@@ -169,13 +233,17 @@ const Demandes = () => {
       </div>
 
       {loading ? (
-        <div className="flex justify-center mt-10">Chargement des demandes...</div>
+        <div className="flex justify-center mt-10">
+          Chargement des demandes...
+        </div>
       ) : filteredDemandes.length === 0 ? (
         <div className="flex justify-center mt-10">
-          {searchTerm ? "Aucune demande ne correspond à votre recherche." : "Aucune demande trouvée."}
+          {searchTerm
+            ? "Aucune demande ne correspond à votre recherche."
+            : "Aucune demande trouvée."}
         </div>
       ) : (
-        filteredDemandes.map(demande => (
+        filteredDemandes.map((demande) => (
           <Onedemande
             key={demande.id}
             demande={demande}
@@ -200,8 +268,8 @@ const Demandes = () => {
                     type="text"
                     name="nom"
                     value={rdvData.nom}
-                    onChange={(e) => setRdvData({ ...rdvData, nom: e.target.value })}
-                    className="w-full p-2 border rounded"
+                    readOnly
+                    className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed"
                     placeholder="Nom"
                   />
                 </div>
@@ -210,8 +278,8 @@ const Demandes = () => {
                     type="text"
                     name="prenom"
                     value={rdvData.prenom}
-                    onChange={(e) => setRdvData({ ...rdvData, prenom: e.target.value })}
-                    className="w-full p-2 border rounded"
+                    readOnly
+                    className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed"
                     placeholder="Prénom"
                   />
                 </div>
@@ -222,8 +290,8 @@ const Demandes = () => {
                   type="email"
                   name="email"
                   value={rdvData.email}
-                  onChange={(e) => setRdvData({ ...rdvData, email: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  readOnly
+                  className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed"
                   placeholder="Email"
                 />
               </div>
@@ -233,7 +301,9 @@ const Demandes = () => {
                   type="text"
                   name="motif"
                   value={rdvData.motif}
-                  onChange={(e) => setRdvData({ ...rdvData, motif: e.target.value })}
+                  onChange={(e) =>
+                    setRdvData({ ...rdvData, motif: e.target.value })
+                  }
                   className="w-full p-2 border rounded"
                   placeholder="Motif"
                 />
@@ -244,8 +314,18 @@ const Demandes = () => {
                   <input
                     type="date"
                     name="date"
-                    value={rdvData.date}
-                    onChange={(e) => setRdvData({ ...rdvData, date: e.target.value })}
+                    value={rdvData.dateInput || ""}
+                    min={todayStr}
+                    onChange={(e) => {
+                      // Convert yyyy-MM-dd to dd/MM/yyyy for rdvData.date
+                      const [year, month, day] = e.target.value.split("-");
+                      setRdvData({
+                        ...rdvData,
+                        date: `${day}/${month}/${year}`,
+                        dateInput: e.target.value,
+                        heure: "",
+                      });
+                    }}
                     className="w-full p-2 border rounded"
                   />
                 </div>
@@ -254,8 +334,12 @@ const Demandes = () => {
                     type="time"
                     name="heure"
                     value={rdvData.heure}
-                    onChange={(e) => setRdvData({ ...rdvData, heure: e.target.value })}
+                    min={isToday ? getCurrentLocalTime() : undefined}
+                    onChange={(e) =>
+                      setRdvData({ ...rdvData, heure: e.target.value })
+                    }
                     className="w-full p-2 border rounded"
+                    disabled={!rdvData.date}
                   />
                 </div>
               </div>
@@ -264,7 +348,9 @@ const Demandes = () => {
                 <select
                   name="status"
                   value={rdvData.status}
-                  onChange={(e) => setRdvData({ ...rdvData, status: e.target.value })}
+                  onChange={(e) =>
+                    setRdvData({ ...rdvData, status: e.target.value })
+                  }
                   className="w-full p-2 border rounded"
                 >
                   <option value="Programmé">Programmé</option>
@@ -278,7 +364,14 @@ const Demandes = () => {
               <button
                 onClick={handleAddRdv}
                 className="px-4 py-2 bg-[#679294] text-white rounded hover:bg-[#5a7d7e]"
-                disabled={!rdvData.nom || !rdvData.prenom || !rdvData.email || !rdvData.motif || !rdvData.date || !rdvData.heure}
+                disabled={
+                  !rdvData.nom ||
+                  !rdvData.prenom ||
+                  !rdvData.email ||
+                  !rdvData.motif ||
+                  !rdvData.date ||
+                  !rdvData.heure
+                }
               >
                 Programmer
               </button>
@@ -293,8 +386,15 @@ const Demandes = () => {
           </div>
         </div>
       )}
+
+      {/* Intégration du calendrier (ajouté) */}
+      <CalendarR
+        rendezVous={[]}
+        onEdit={() => {}}
+        onDateSelect={handleCalendarDateSelect}
+      />
     </div>
-  )
-}
+  );
+};
 
 export default Demandes;
