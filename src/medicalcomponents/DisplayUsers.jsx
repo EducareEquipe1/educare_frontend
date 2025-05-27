@@ -111,7 +111,7 @@ const DisplayUsers = ({ searchQuery = '' }) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-end bg-[#FFFEFE] mx-8  mb-6 rounded-[15px] border border-[#CACACA] shadow-md py-6 px-6 ml-[30px] mt-[50px]">
+    <div className="min-h-screen flex flex-col items-end bg-[#FFFEFE] mx-8  mb-6 rounded-[15px] border border-[#CACACA] shadow-md py-6 px-6 ml-[200px] mt-[50px]">
       <div className="w-full">
         <div className="flex justify-between text-sm font-semibold text-[#7D7D7D] border-b pb-2 mb-2">
           <span className="w-1/2 sm:w-[150px]">Matricule</span>

@@ -13,6 +13,9 @@ import ResetPassword from "./resetPassword/ResetPassword";
 import Passwordchanged from "./passwordchanged/Passwordchanged";
 import Emailsent from "./emailsent/Emailsent";
 import  StackedBarComponent from "./ChartsComponents/stackedBar";
+import  LineChartComponent from "./ChartsComponents/LineChart";
+import  ColumnChart from "./ChartsComponents/ColumnChart";
+import  PieChartCom from "./ChartsComponents/PieChart";
 import Doctors from "./AdminComponents/Doctors";
 import Home from "./Home";
 import Dashboard from "./AdminComponents/Dashboard";
@@ -22,6 +25,7 @@ import User from './medicalcomponents/Users';
 import AddFile from './medicalcomponents/AddFile';
 import  PatientPhoto  from './medicalcomponents/image';
 import Medecin from './medicalcomponents/Medecin';
+import DashboardM from './medicalcomponents/Dashboard';
 import ConsultationForm from './consultationcomp/ConsultationForm'
 import ConsultationList from './consultationcomp/ConsultationList'
 import ExamenPhysique from './consultationcomp/ExamenPhysique'
@@ -41,14 +45,11 @@ function App() {
 
     <Router>
       <Routes>
-          <Route path="/" element={<Signin />} />
-       <Route path="/ordonnace" element={<Ordonnance /> } />
-       <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
-       {/*  <Route path="/" element={<Signin />} />*/}
-       <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
       <Route path="/" element={<Signin />} />
+      <Route path="/pie" element={<PieChartCom />} />
        <Route path="/ordonnace" element={<Ordonnance /> } />
+       <Route path="/dashboard" element={<DashboardM /> } />
        <Route path="/ordonnace/:id_consultation" element={<Ordonnance /> } />
 
 

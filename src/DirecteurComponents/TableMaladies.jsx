@@ -353,12 +353,10 @@ const TableMaladies = forwardRef(({ maladies = [] }, ref) => {
             <tr className="bg-[#EAF0F1] text-gray-600">
               <th className="py-3 px-4 text-left border-b border-gray-200 text-sm font-medium">Maladie</th>
               <th className="py-3 px-4 text-left border-b border-gray-200 text-sm font-medium">Cas</th>
-              <th className="py-3 px-4 text-left border-b border-gray-200 text-sm font-medium">Catégorie</th>
               <th className="py-3 px-4 text-left border-b border-gray-200 text-sm font-medium">Males</th>
               <th className="py-3 px-4 text-left border-b border-gray-200 text-sm font-medium">Females</th>
               <th className="py-3 px-4 text-left border-b border-gray-200 text-sm font-medium">Statut</th>
               <th className="py-3 px-4 text-left border-b border-gray-200 text-sm font-medium">Pic Mensuel</th>
-              <th className="py-3 px-4 text-left border-b border-gray-200 text-sm font-medium">Sévérité</th>
             </tr>
           </thead>
           <tbody className="text-gray-600">
@@ -367,12 +365,10 @@ const TableMaladies = forwardRef(({ maladies = [] }, ref) => {
                 <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                   <td className="py-2 px-4 border-b border-gray-200 text-sm font-medium">{maladie.maladie}</td>
                   <td className="py-2 px-4 border-b border-gray-200 text-sm">{maladie.cas}</td>
-                  <td className="py-2 px-4 border-b border-gray-200 text-sm">{maladie.categorie}</td>
                   <td className="py-2 px-4 border-b border-gray-200 text-sm">{maladie.males}</td>
                   <td className="py-2 px-4 border-b border-gray-200 text-sm">{maladie.females}</td>
                   <td className="py-2 px-4 border-b border-gray-200 text-sm">{maladie.statut}</td>
                   <td className="py-2 px-4 border-b border-gray-200 text-sm">{maladie.picMensuel}</td>
-                  <td className="py-2 px-4 border-b border-gray-200 text-sm">{maladie.severite}</td>
                 </tr>
               ))
             ) : (

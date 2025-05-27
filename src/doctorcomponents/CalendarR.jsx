@@ -22,6 +22,13 @@ const calendarStyles = `
   .react-calendar__tile--now {
     background: #6F8286 !important;
   }
+  .react-calendar__tile--weekend {
+    background-color: #f0f0f0;
+    color: #999;
+  }
+  .react-calendar__tile--weekend:enabled:hover {
+    background-color: #e6e6e6;
+  }
 `;
 
 const CalendarR = ({ rendezVous, onEdit, onDateSelect }) => {
@@ -66,8 +73,24 @@ const CalendarR = ({ rendezVous, onEdit, onDateSelect }) => {
   const tileClassName = ({ date, view }) => {
     if (view === 'month') {
       const dateStr = formatDate(date);
-      return events[dateStr] ? 'bg-blue-50 relative' : '';
+      const day = date.getDay(); // 0 = dimanche, 6 = samedi
+      const classes = [];
+      
+      if (events[dateStr]) classes.push('bg-blue-50');
+      if (day === 5 || day === 6) classes.push('react-calendar__tile--weekend');
+      
+      return classes.join(' ') + ' relative';
     }
+    return '';
+  };
+
+  // Fonction pour désactiver les vendredis et samedis
+  const tileDisabled = ({ date, view }) => {
+    if (view === 'month') {
+      const day = date.getDay();
+      return day === 5 || day === 6; // Désactive vendredi (5) et samedi (6)
+    }
+    return false;
   };
 
   const getStatusColor = (status) => {
@@ -79,8 +102,11 @@ const CalendarR = ({ rendezVous, onEdit, onDateSelect }) => {
   };
 
   const handleDateClick = (date) => {
-    setDate(date);
-    onDateSelect(date);
+    const day = date.getDay();
+    if (day !== 5 && day !== 6) { // Ne permet le clic que si ce n'est pas vendredi ou samedi
+      setDate(date);
+      onDateSelect(date);
+    }
   };
 
   return (
@@ -94,6 +120,7 @@ const CalendarR = ({ rendezVous, onEdit, onDateSelect }) => {
             value={date}
             tileContent={tileContent}
             tileClassName={tileClassName}
+            tileDisabled={tileDisabled}
             className="border rounded-lg p-2 text-lg"
             onClickDay={handleDateClick}
           />

@@ -53,3 +53,4 @@ const LineChartComponent = ({ apiUrl, title }) => {
 };
 
 export default LineChartComponent;
+
