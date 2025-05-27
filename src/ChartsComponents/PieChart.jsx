@@ -73,3 +73,4 @@ const PieChartCom = ({ apiUrl, title }) => {
 };
 
 export default PieChartCom;
+

@@ -18,7 +18,6 @@ const Medecin = () => {
     { id: 'consultation', label: 'Consultation' },
 
     { id: 'rendezvous', label: 'Rendez-vous' },
-    { id: 'ordonnances', label: 'Ordonnances' }
   ];
 
   useEffect(() => {
@@ -55,21 +54,17 @@ const Medecin = () => {
 
   return (
     <div className="flex h-screen bg-[#EFEFEF] overflow-hidden">
-      {/* Sidebar */}
       <div className=" z-11 w-[100px] bg-white shadow-md fixed top-0 left-0 bottom-0 z-10">
         <SideBar />
       </div>
 
-      {/* Main content */}
       <div className="flex flex-col w-full ml-[100px]">
-        {/* Header */}
         <div className="h-[60px] ml-[37px] flex items-center px-8 shadow bg-gradient-to-r from-[#A9C2C3] to-[#BED1D1] z-10">
           <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#000000] to-[#679294] text-xl md:text-2xl font-bold">
             Patients
           </h1>
         </div>
 
-        {/* Tabs */}
         <div className="sticky ml-[450px] top-[60px] bg-[#EFEFEF] z-10 px-8 py-3 flex space-x-6">
           {tabs.map((tab) => (
             <button
@@ -86,7 +81,6 @@ const Medecin = () => {
           ))}
         </div>
 
-        {/* Tab content */}
         <div className="flex-1 overflow-y-auto px-8 py-4">
           {loading ? (
             <div className="flex justify-center items-center p-6">
@@ -110,12 +104,7 @@ const Medecin = () => {
                 </div>
               )}
 
-              {activeTab === 'ordonnances' && (
-                <div className="p-4 bg-gray-50 rounded-md">
-                  <h2 className="text-xl font-bold mb-4">Demande de rendez-vous</h2>
-                  <p>Liste des ordonnances actives...</p>
-                </div>
-              )}
+             
             </>
           )}
         </div>

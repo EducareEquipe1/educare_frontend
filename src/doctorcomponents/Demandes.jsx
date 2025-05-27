@@ -15,11 +15,28 @@ const Demandes = () => {
     status: 'Programmé'
   });
   const [demandes, setDemandes] = useState([]);
-  const [loading, setLoading] = useState(true); // Ajouté : pour affichage loading
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(''); // Ajouté pour la recherche
+  const [filteredDemandes, setFilteredDemandes] = useState([]); // Ajouté pour stocker les résultats filtrés
 
   useEffect(() => {
     fetchDemandes();
   }, []);
+
+  useEffect(() => {
+    // Filtrer les demandes lorsque searchTerm ou demandes changent
+    if (searchTerm === '') {
+      setFilteredDemandes(demandes);
+    } else {
+      const filtered = demandes.filter(demande =>
+        demande.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        demande.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        demande.motif.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        demande.date.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredDemandes(filtered);
+    }
+  }, [searchTerm, demandes]);
 
   const fetchDemandes = async () => {
     try {
@@ -36,10 +53,11 @@ const Demandes = () => {
       }));
 
       setDemandes(mappedDemandes);
-      setLoading(false); // terminé de charger
+      setFilteredDemandes(mappedDemandes); // Initialiser les demandes filtrées
+      setLoading(false);
     } catch (error) {
       console.error("Erreur lors de la récupération des demandes :", error);
-      setLoading(false); // même en cas d'erreur
+      setLoading(false);
     }
   };
 
@@ -59,42 +77,41 @@ const Demandes = () => {
   };
 
   const handleRefuserClick = async (demandeId) => {
-  const confirmed = window.confirm("Êtes-vous sûr de vouloir refuser cette demande ?");
-  if (!confirmed) return;
+    const confirmed = window.confirm("Êtes-vous sûr de vouloir refuser cette demande ?");
+    if (!confirmed) return;
 
-  try {
-    const token = localStorage.getItem('token');
-    console.log("Token:", token);
-    console.log("ID de la demande à refuser:", demandeId);
+    try {
+      const token = localStorage.getItem('token');
+      console.log("Token:", token);
+      console.log("ID de la demande à refuser:", demandeId);
 
-    const response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/refuserdv/${demandeId}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+      const response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/refuserdv/${demandeId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Réponse serveur :", response.status, errorText);
+        throw new Error("Échec du refus de la demande.");
       }
-    });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Réponse serveur :", response.status, errorText);
-      throw new Error("Échec du refus de la demande.");
+      setDemandes(demandes.filter(d => d.id !== demandeId));
+      alert("Demande refusée avec succès.");
+    } catch (error) {
+      console.error("Erreur lors du refus de la demande :", error);
+      alert("Une erreur est survenue lors du refus de la demande.");
     }
-
-    setDemandes(demandes.filter(d => d.id !== demandeId));
-    alert("Demande refusée avec succès.");
-  } catch (error) {
-    console.error("Erreur lors du refus de la demande :", error);
-    alert("Une erreur est survenue lors du refus de la demande.");
-  }
-};
-
+  };
 
   const handleAddRdv = async () => {
     if (!selectedDemande) return;
 
     try {
-      const token = localStorage.getItem('token'); // Récupérer ton token
+      const token = localStorage.getItem('token');
 
       const response = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/programmerdv/${selectedDemande.id}`, {
         method: 'PUT',
@@ -108,7 +125,7 @@ const Demandes = () => {
           prenom: rdvData.prenom,
           date_rdv: rdvData.date,
           heure_rdv: rdvData.heure,
-          motif: rdvData.motif // ➔ Ajout du motif ici
+          motif: rdvData.motif
         })
       });
 
@@ -136,8 +153,6 @@ const Demandes = () => {
     }
   };
 
-
-
   return (
     <div className='flex flex-col'>
       <div className='flex justify-end items-center gap-2'>
@@ -147,21 +162,20 @@ const Demandes = () => {
             type="text"
             placeholder="Rechercher..."
             className="w-full text-[14px] focus:outline-none bg-transparent"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
-        <button className="flex justify-center gap-1 bg-gray-100 shadow-lg p-2 rounded-[15px] items-center text-[#5D5F60]">
-          <FaFilter className='text-[14px]' />
-          <h2 className="text-[10px]">Filtrer</h2>
-        </button>
       </div>
 
       {loading ? (
         <div className="flex justify-center mt-10">Chargement des demandes...</div>
-      ) : demandes.length === 0 ? (
-        <div className="flex justify-center mt-10">Aucune demande trouvée.</div>
+      ) : filteredDemandes.length === 0 ? (
+        <div className="flex justify-center mt-10">
+          {searchTerm ? "Aucune demande ne correspond à votre recherche." : "Aucune demande trouvée."}
+        </div>
       ) : (
-        demandes.map(demande => (
+        filteredDemandes.map(demande => (
           <Onedemande
             key={demande.id}
             demande={demande}
@@ -171,7 +185,7 @@ const Demandes = () => {
         ))
       )}
 
-      {/* Modal pour programmer le RDV */}
+      {/* Modal pour programmer le RDV (inchangé) */}
       {showRdvModal && (
         <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center text-[#679294] justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
