@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useParams } from 'react-router-dom';
-
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import AntécédentsMedicaux from './AntécédentsMedicaux';
 import AntécédentsPersonels from './AntécédentsPersonels';
 import DonnéesBiométrique from './DonnéesBiométrique';
 import DetailsPersonnels from './DetailsPersonnels';
 
 const MedicalForm = () => {
-
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [recordExists, setRecordExists] = useState(false);
+  const [initialFormData, setInitialFormData] = useState(null);
   const [imageSrc, setImageSrc] = useState('/default.png');
   const { email } = useParams();
 
@@ -18,40 +18,40 @@ const MedicalForm = () => {
     prenom: '',
     nom: '',
     email: '',
-    isActif: false,
+    isActif: '',
   });
 
   const [formData, setFormData] = useState({
-    email: "",
-    numSecuritéSociale: "",
-    groupeSanguin: "",
-    nom: "",
-    prenom: "",
-    date_naissance: "",
-    situation_famille: "",
-    statut: "",
-    adresse: "",
-    num_tel: "",
-
-    poids: "",
-    taille: "",
-    tabac_fume: "false",
-    tabac_fume_nombre: "",
-    tabac_chique: "false",
-    tabac_chique_nombre: "",
-    tabac_pris: "false",
-    tabac_pris_nombre: "",
-    age_pris: "",
-    ancien_fume: "",
-    periode_exposition: "",
-    alcool: "",
-    medicaments: "",
-    notes:"",
-    affectionsCongenitales: "",
-    maladiesGenerales: "",
-    interventionsChirurgicales: "",
-    reactionsAllergiques: "",
+    email: '',
+    numSecuriteSociale: '',
+    groupeSanguin: '',
+    nom: '',
+    prenom: '',
+    date_naissance: '',
+    situation_famille: '',
+    statut: '',
+    adresse: '',
+    num_tel: '',
+    poids: '',
+    taille: '',
+    tabac_fume: false,
+    tabac_fume_nombre: '',
+    tabac_chique: false,
+    tabac_chique_nombre: '',
+    tabac_pris: false,
+    tabac_pris_nombre: '',
+    age_pris: '',
+    ancien_fume: false,
+    periode_exposition: '',
+    alcool: false,
+    medicaments: '',
+    notes: '',
+    affectionsCongenitales: '',
+    maladiesGenerales: '',
+    interventionsChirurgicales: '',
+    reactionsAllergiques: '',
   });
+
 
   //fetch image
   useEffect(() => {
@@ -83,24 +83,39 @@ const MedicalForm = () => {
     fetchImageUrl();
   }, []);
 
+
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token || !email) return;
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      if (!token || !email) {
+        alert('Erreur : Token ou email manquant.');
+        setLoading(false);
+        return;
+      }
 
       try {
-        // Étape 1 : Obtenir les informations de base utilisateur
+        // Fetch user info
         const userRes = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-user-info/${email}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
+        if (!userRes.ok) {
+          const errorText = await userRes.text();
+          throw new Error(`Erreur récupération infos utilisateur : ${errorText}`);
+        }
         const userInfo = await userRes.json();
 
+        if (!userInfo?.nom || !userInfo?.email) {
+          throw new Error('Données utilisateur incomplètes');
+        }
+
         setPatientData({
-          nom: userInfo.nom,
-          prenom: userInfo.prenom,
-          email: userInfo.email,
-          isActif: userInfo.isActif
+          nom: userInfo.nom || '',
+          prenom: userInfo.prenom || '',
+          email: userInfo.email || '',
+          isActif: userInfo.isActif ?? '',
         });
+
         console.log(patientData);
         setFormData(prev => ({
           ...prev,
@@ -112,18 +127,65 @@ const MedicalForm = () => {
           date_naissance: userInfo.date_naissance,
         }));
 
-        // Étape 2 : Tenter de récupérer le dossier médical existant
+
+        // Fetch existing medical record
         const recordRes = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/get-dossier-medical/${email}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
 
+        let fullData = {
+          ...formData,
+          nom: userInfo.nom || '',
+          prenom: userInfo.prenom || '',
+          email: userInfo.email || email,
+          statut: userInfo.statut || '',
+          num_tel: userInfo.num_tel || '',
+          date_naissance: userInfo.date_naissance ? userInfo.date_naissance.substring(0, 10) : '',
+        };
+
         if (recordRes.ok) {
-          const record = await recordRes.json();
-          setFormData(prev => ({ ...prev, ...record }));
+          const recordData = await recordRes.json();
+          fullData = {
+            ...fullData,
+            ...recordData,
+            numSecuriteSociale: recordData.numSecuriteSociale || '',
+            groupeSanguin: recordData.groupeSanguin || '',
+            date_naissance: recordData.date_naissance ? recordData.date_naissance.substring(0, 10) : fullData.date_naissance,
+            situation_famille: recordData.situation_famille || '',
+            adresse: recordData.adresse || '',
+            poids: recordData.poids || '',
+            taille: recordData.taille || '',
+            tabac_fume: recordData.tabac_fume ?? false,
+            tabac_fume_nombre: recordData.tabac_fume_nombre || '',
+            tabac_chique: recordData.tabac_chique ?? false,
+            tabac_chique_nombre: recordData.tabac_chique_nombre || '',
+            tabac_pris: recordData.tabac_pris ?? false,
+            tabac_pris_nombre: recordData.tabac_pris_nombre || '',
+            age_pris: recordData.age_pris || '',
+            ancien_fume: recordData.ancien_fume ?? false,
+            periode_exposition: recordData.periode_exposition || '',
+            alcool: recordData.alcool ?? false,
+            medicaments: recordData.medicaments || '',
+            notes: recordData.notes || '',
+            affectionsCongenitales: recordData.affectionsCongenitales || '',
+            maladiesGenerales: recordData.maladiesGenerales || '',
+            interventionsChirurgicales: recordData.interventionsChirurgicales || '',
+            reactionsAllergiques: recordData.reactionsAllergiques || '',
+          };
           setRecordExists(true);
+          setIsEditing(false);
+        } else {
+          setRecordExists(false);
+          setIsEditing(true); // Enable editing for new records
         }
+
+        setFormData(fullData);
+        setInitialFormData(fullData);
       } catch (err) {
-        console.error("Erreur lors du chargement :", err);
+        console.error('Erreur lors du chargement :', err);
+        alert(`Erreur lors du chargement : ${err.message}`);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -132,78 +194,88 @@ const MedicalForm = () => {
 
   const handleChange = (e) => {
     if (!isEditing) return;
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const toggleEditMode = async () => {
-    if (isEditing) {
-      await handleSubmit();
-    }
-    setIsEditing(!isEditing);
+    const { name, type, value, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
   const handleSubmit = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    setSaving(true);
+    const token = localStorage.getItem('token');
+    if (!token || !email) {
+      alert('Erreur : Token ou email manquant.');
+      setSaving(false);
+      return;
+    }
 
-    const method = recordExists ? "PUT" : "POST";
-    const url = recordExists
-      ? `https://educare-backend-l6ue.onrender.com/medecins/medical-records-update/${email}`
-      : `https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-create/${email}`;
+    if (!formData.email || !formData.nom || !formData.prenom) {
+      alert('Veuillez remplir tous les champs obligatoires.');
+      setSaving(false);
+      return;
+    }
+
+    console.log('Sending formData to backend:', formData);
 
     try {
+      const url = recordExists
+        ? `https://educare-backend-l6ue.onrender.com/medecins/medical-records-update/${email}`
+        : `https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-create/${email}`;
+      const method = recordExists ? 'PUT' : 'POST';
+
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error("Échec de la sauvegarde");
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erreur backend :', response.status, errorData);
+        throw new Error(errorData.message || `Erreur de sauvegarde : ${response.statusText}`);
+      }
+
       const data = await response.json();
-      alert("Dossier médical sauvegardé avec succès.");
+      console.log('Success Response:', data);
+      alert(`Dossier médical ${recordExists ? 'mis à jour' : 'sauvegardé'} avec succès.`);
       setRecordExists(true);
       setIsEditing(false);
+      setInitialFormData(formData);
     } catch (err) {
-      console.error(err);
-      alert("Erreur lors de la sauvegarde");
+      console.error('Erreur lors de la sauvegarde :', err);
+      alert(`Erreur lors de la sauvegarde : ${err.message}`);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const createEmptyRecord = async () => {
-    const token = localStorage.getItem("token");
-    if (!token || !email) return;
+  const toggleEditMode = () => {
+    if (isEditing) {
+      handleSubmit();
+    } else {
+      setIsEditing(true);
+    }
+  };
 
-    try {
-      const res = await fetch(`https://educare-backend-l6ue.onrender.com/medecins/dossier-medical-create/${email}`, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData)
-      });
-
-      if (!res.ok) throw new Error("Erreur de création de dossier.");
-      const data = await res.json();
-      alert("Dossier créé avec succès !");
-      setFormData(prev => ({ ...prev, ...data }));
-      setRecordExists(true);
-    } catch (err) {
-      console.error(err);
-      alert("Erreur lors de la création du dossier.");
+  const handleCancel = () => {
+    if (!initialFormData) return;
+    if (window.confirm('Voulez-vous vraiment annuler les modifications ?')) {
+      setFormData(initialFormData);
+      setIsEditing(false);
     }
   };
 
   return (
-    <div className="relative  flex bg-[#EFEFEF]">
-      <div className="flex flex-row ">
-        <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 ml-[200px]  mt-[10px]">
+    <div className="relative flex bg-[#EFEFEF]">
+      <div className="flex flex-row">
+        <div className="w-[239px] h-fit bg-white shadow-lg rounded-xl p-6 space-y-6 ml-[200px] mt-[10px]">
           <div className="flex flex-col items-center">
             <img
+
               src={imageSrc}
               alt="Patient"
               onError={(e) => {
@@ -211,67 +283,62 @@ const MedicalForm = () => {
                 e.target.onerror = null;
                 e.target.src = '/default.png';
               }}
+
               className="text-black w-[133px] h-[194px] object-cover border-4 border-gray-300"
             />
             <h2 className="mt-4 text-black text-lg font-semibold">{patientData.nom} {patientData.prenom}</h2>
             <h2 className="mt-4 text-gray-600 text-lg font-semibold">{patientData.email}</h2>
             <span
               className={`text-sm px-3 py-1 rounded-full mt-2 ${
-                patientData.isActif === false ? "text-red-500" : "text-green-500"
+                patientData.isActif === false ? 'text-red-500' : 'text-green-500'
               }`}
             >
-              {patientData.isActif === false ? "Inactive" : "Active"}
+              {patientData.isActif === false ? 'Inactive' : 'Active'}
             </span>
           </div>
-
           <div>
             <label className="block text-black text-sm font-bold mb-1">Notes du médecin</label>
             <textarea
-              name="notesMedecin"
-              value={formData.notesMedecin || ''}
+              name="notes"
+              value={formData.notes || ''}
               onChange={handleChange}
               placeholder="Écrire des observations ici..."
               rows="6"
-              className="w-full text-black border border-gray-300 rounded-md px-3 py-2 resize-none"
+              className={`w-full text-black border border-gray-300 rounded-md px-3 py-2 resize-none ${!isEditing ? 'bg-gray-100' : ''}`}
               readOnly={!isEditing}
             />
           </div>
         </div>
-
         <div className="flex flex-col w-full px-4 md:px-12 mt-4">
-          {(loading) ? (
+          {loading ? (
             <div className="flex justify-center items-center p-6">
               <p className="text-gray-600">Chargement des données...</p>
             </div>
           ) : (
-            <form className="flex flex-col w-full  space-y-6 px-6 mt-[10px]">
-              <DetailsPersonnels
-                formData={formData}
-                handleChange={handleChange}
-                readOnly={!isEditing}
-              />
-              <DonnéesBiométrique
-                formData={formData}
-                handleChange={handleChange}
-                readOnly={!isEditing}
-              />
-              <AntécédentsPersonels
-                formData={formData}
-                handleChange={handleChange}
-                readOnly={!isEditing}
-              />
-              <AntécédentsMedicaux
-                formData={formData}
-                handleChange={handleChange}
-                readOnly={!isEditing}
-              />
+
+            <form className="flex flex-col w-full space-y-6 px-6 mt-[10px]" onSubmit={(e) => e.preventDefault()}>
+              <DetailsPersonnels formData={formData} handleChange={handleChange} readOnly={!isEditing} />
+              <DonnéesBiométrique formData={formData} handleChange={handleChange} readOnly={!isEditing} />
+              <AntécédentsPersonels formData={formData} handleChange={handleChange} readOnly={!isEditing} />
+              <AntécédentsMedicaux formData={formData} handleChange={handleChange} readOnly={!isEditing} />
               <div className="flex gap-4">
-                <button type="button" onClick={toggleEditMode} className="bg-blue-600 text-white px-4 py-2 rounded">
-                  {isEditing ? 'Sauvegarder' : 'Modifier'}
+                <button
+                  type="button"
+                  onClick={toggleEditMode}
+                  className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+                  disabled={saving || loading}
+                >
+                  {isEditing ? (saving ? 'Sauvegarde...' : 'Sauvegarder') : 'Modifier'}
+
                 </button>
-                {!recordExists && (
-                  <button type="button" onClick={createEmptyRecord} className="bg-green-600 text-white px-4 py-2 rounded">
-                    Ajouter un dossier
+                {isEditing && (
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="bg-gray-400 text-white px-4 py-2 rounded disabled:opacity-50"
+                    disabled={saving || loading}
+                  >
+                    Annuler
                   </button>
                 )}
               </div>
